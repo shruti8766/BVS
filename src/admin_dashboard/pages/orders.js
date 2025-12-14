@@ -536,45 +536,47 @@ const GlassCard = ({ children, className = '' }) => (
 );
 
 const Stat = ({ label, value, color = 'text-green-700', Icon, trend }) => (
-  <Card hover className="relative overflow-hidden group">
-    <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-    <div className="relative p-4">
-      <div className="flex items-start justify-between mb-2">
-        <div className={`p-2 rounded-xl ${color === 'text-green-700' ? 'bg-green-100' : color === 'text-emerald-700' ? 'bg-emerald-100' : color === 'text-teal-700' ? 'bg-teal-100' : color === 'text-orange-600' ? 'bg-orange-100' : color === 'text-red-600' ? 'bg-red-100' : 'bg-green-100'}`}>
-          {Icon && <Icon />}
-        </div>
-        {trend !== undefined && (
-          <div className="flex items-center gap-1 px-2 py-1 bg-green-100 rounded-full">
-            <Icons.TrendUp />
-            <span className="text-xs font-semibold text-green-700">+{trend}%</span>
-          </div>
-        )}
+  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6">
+    <div className="flex items-center justify-between">
+      <h3 className="text-sm font-medium text-gray-500">{label}</h3>
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${color === 'text-green-700' ? 'bg-green-100' : color === 'text-emerald-700' ? 'bg-emerald-100' : color === 'text-teal-700' ? 'bg-teal-100' : color === 'text-orange-600' ? 'bg-orange-100' : color === 'text-red-600' ? 'bg-red-100' : 'bg-green-100'}`}>
+        {Icon && <Icon />}
       </div>
-      <p className="text-xs font-medium text-gray-600 mb-1">{label}</p>
-      <p className={`text-2xl font-bold ${color}`}>{value}</p>
     </div>
-  </Card>
-);
-
-const MiniTable = ({ title, headers, rows, linkTo, emptyMsg = 'No data', onRowClick }) => (
-  <Card>
-    <div className="px-6 py-5 bg-gradient-to-r from-green-50 to-emerald-50 border-b-2 border-green-100 flex justify-between items-center">
-      <h3 className="text-xl font-bold text-green-800">{title}</h3>
-      {linkTo && (
-        <Link to={linkTo} className="text-sm font-medium text-green-600 hover:text-green-700 flex items-center gap-1 transition-colors">
-          View all
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </Link>
+    <div className="mt-2">
+      <div className={`text-2xl font-semibold ${color}`}>{value}</div>
+      {trend !== undefined && (
+        <div className="flex items-center mt-1">
+          <Icons.TrendUp />
+          <span className="text-xs font-semibold text-green-600 ml-1">+{trend}%</span>
+        </div>
       )}
     </div>
+  </div>
+);
+
+const MiniTable = ({ title, headers, rows, linkTo, emptyMsg = 'No data', onRowClick, filter }) => (
+  <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div className="px-4 py-3 bg-green-50 border-b border-green-100 flex justify-between items-center">
+      <h3 className="text-base font-bold text-green-800">{title}</h3>
+      <div className="flex items-center gap-4">
+        {filter}
+        {linkTo && (
+          <Link to={linkTo} className="text-sm font-medium text-green-600 hover:text-green-700 flex items-center gap-1 transition-colors">
+            View all
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        )}
+      </div>
+    </div>
     <div className="overflow-x-auto">
-      <table className="min-w-full">
+      <table className="min-w-full text-sm">
         <thead>
           <tr className="bg-green-50/50">
             {headers.map((h, i) => (
-              <th key={i} className="px-6 py-4 text-left text-xs font-bold text-green-700 uppercase tracking-wider">
+              <th key={i} className="px-4 py-3 text-left text-xs font-bold text-green-700 uppercase">
                 {h}
               </th>
             ))}
@@ -583,12 +585,12 @@ const MiniTable = ({ title, headers, rows, linkTo, emptyMsg = 'No data', onRowCl
         <tbody className="divide-y divide-green-50">
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={headers.length} className="px-6 py-12 text-center">
+              <td colSpan={headers.length} className="px-4 py-8 text-center">
                 <div className="flex flex-col items-center gap-2">
-                  <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
                     <Icons.Cart />
                   </div>
-                  <p className="text-gray-500 font-medium">{emptyMsg}</p>
+                  <p className="text-sm font-medium text-gray-700">{emptyMsg}</p>
                 </div>
               </td>
             </tr>
@@ -596,7 +598,7 @@ const MiniTable = ({ title, headers, rows, linkTo, emptyMsg = 'No data', onRowCl
             rows.map((r, i) => (
               <tr key={i} className={`hover:bg-green-50/30 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`} onClick={() => onRowClick && onRowClick(r)}>
                 {r.map((cell, j) => (
-                  <td key={j} className="px-6 py-4 text-sm font-medium text-gray-700">
+                  <td key={j} className="px-4 py-3 text-sm text-gray-700">
                     {cell}
                   </td>
                 ))}
@@ -606,7 +608,7 @@ const MiniTable = ({ title, headers, rows, linkTo, emptyMsg = 'No data', onRowCl
         </tbody>
       </table>
     </div>
-  </Card>
+  </div>
 );
 
 const QuickLink = ({ to, label, Icon }) => (
@@ -642,6 +644,13 @@ const Orders = () => {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
   const [selected, setSelected] = useState(null);
+  
+  // NEW: State for pending pricing orders
+  const [pendingPricingOrders, setPendingPricingOrders] = useState([]);
+  const [showPricingForm, setShowPricingForm] = useState(false);
+  const [selectedOrderForPricing, setSelectedOrderForPricing] = useState(null);
+  const [pricingData, setPricingData] = useState({});
+  const [finalizingPrices, setFinalizingPrices] = useState(false);
 
   console.log('ordersApi:', ordersApi);
 
@@ -702,11 +711,76 @@ const Orders = () => {
       setError(null);
       const data = await ordersApi.getAll();
       setOrders(Array.isArray(data) ? data : []);
+      
+      // NEW: Fetch pending pricing orders
+      await fetchPendingPricingOrders();
     } catch (e) {
       setError(e.message);
       setOrders([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // NEW: Fetch pending pricing orders
+  const fetchPendingPricingOrders = async () => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const res = await fetch('http://localhost:5000/api/admin/orders/pending-pricing', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setPendingPricingOrders(Array.isArray(data.pending_orders) ? data.pending_orders : []);
+      }
+    } catch (e) {
+      console.error('Failed to fetch pending pricing orders:', e);
+    }
+  };
+
+  // NEW: Finalize prices for an order
+  const finalizePrices = async (orderId) => {
+    if (!selectedOrderForPricing || Object.keys(pricingData).length === 0) {
+      alert('Please enter prices for all items');
+      return;
+    }
+
+    setFinalizingPrices(true);
+    try {
+      const token = localStorage.getItem('adminToken');
+      const items = selectedOrderForPricing.items.map(item => ({
+        product_id: item.product_id,
+        price_per_unit: parseFloat(pricingData[item.product_id] || item.current_price),
+      }));
+
+      const res = await fetch(`http://localhost:5000/api/admin/orders/${orderId}/finalize-prices`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ items }),
+      });
+
+      if (res.ok) {
+        alert('Prices finalized successfully!');
+        setPricingData({});
+        setShowPricingForm(false);
+        setSelectedOrderForPricing(null);
+        await fetchOrders();
+      } else {
+        const err = await res.json();
+        alert(`Error: ${err.error}`);
+      }
+    } catch (e) {
+      alert(`Error finalizing prices: ${e.message}`);
+    } finally {
+      setFinalizingPrices(false);
     }
   };
 
@@ -800,12 +874,12 @@ const Orders = () => {
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
         <div className="p-8 w-full">
           {/* ---------- Header ---------- */}
-          <div className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600 mb-2">
+              <h1 className="text-2xl font-bold text-green-800 mb-1">
                 Orders Management
               </h1>
-              <p className="text-gray-600 text-lg font-medium">View and manage all hotel vegetable orders</p>
+              <p className="text-gray-600 text-sm">View and manage all hotel vegetable orders</p>
             </div>
             <button
               onClick={fetchOrders}
@@ -833,27 +907,25 @@ const Orders = () => {
           )}
 
           {/* ---------- Stats Cards ---------- */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-10">
             <Stat label="Total Orders" value={stats.total?.toLocaleString() || 0} Icon={Icons.Cart} color="text-green-700" trend={12} />
-            <Stat label="Pending" value={stats.pending || 0} Icon={Icons.Receipt} color="text-orange-600" />
+            <Stat label="Pending" value={stats.pending || 0} Icon={Icons.Receipt} color="text-yellow-600" />
             <Stat label="Confirmed" value={stats.confirmed || 0} Icon={Icons.Receipt} color="text-emerald-700" />
             <Stat label="Preparing" value={stats.preparing || 0} Icon={Icons.Receipt} color="text-teal-700" />
-            <Stat label="Dispatched" value={stats.dispatched || 0} Icon={Icons.Receipt} color="text-yellow-600" />
             <Stat label="Delivered" value={stats.delivered || 0} Icon={Icons.Receipt} color="text-green-700" trend={5} />
           </div>
 
-          {/* ---------- Filters ---------- */}
-          <Card className="mb-10">
-            <div className="px-6 py-5 bg-gradient-to-r from-green-50 to-emerald-50 border-b-2 border-green-100">
-              <h3 className="text-xl font-bold text-green-800">Filter Orders</h3>
-            </div>
-            <div className="p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <label className="text-sm font-medium text-gray-700">Filter by status:</label>
+          {/* ---------- Table ---------- */}
+          <MiniTable
+            title="Orders List"
+            headers={['Order ID', 'Hotel', 'Date', 'Items', 'Total Amount', 'Status', 'Actions']}
+            filter={
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by status:</label>
                 <select
                   value={filter}
                   onChange={e => setFilter(e.target.value)}
-                  className="border-2 border-green-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                  className="border-2 border-green-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
                 >
                   <option value="all">All Orders</option>
                   <option value="pending">Pending</option>
@@ -863,12 +935,7 @@ const Orders = () => {
                   <option value="delivered">Delivered</option>
                 </select>
               </div>
-            </div>
-          </Card>
-
-          {/* ---------- Table ---------- */}
-          <MiniTable
-            title="Orders List"
+            }
             headers={['Order ID', 'Hotel', 'Date', 'Items', 'Total Amount', 'Status', 'Actions']}
             rows={
               filtered.map(o => {

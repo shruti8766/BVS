@@ -1170,10 +1170,6 @@ const HotelDetail = () => {
                   <span>Subtotal:</span>
                   <span>₹${subtotal.toFixed(2)}</span>
                 </div>
-                <div class="total-row tax">
-                  <span>GST (5%):</span>
-                  <span>₹${tax.toFixed(2)}</span>
-                </div>
                 <div class="total-row grand-total">
                   <span>TOTAL:</span>
                   <span>₹${grandTotal.toFixed(2)}</span>

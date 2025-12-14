@@ -188,11 +188,22 @@ export default function HotelBills() {
     const billDate = new Date(bill.bill_date);
     const dueDate = new Date(billDate.getTime() + 10 * 24 * 60 * 60 * 1000);
 
-    // Enrich order items with prices (unchanged)
-    const enrichedItems = order.items?.map(item => ({
-      ...item,
-      price_per_unit: parseFloat(item.price_per_unit || getPriceForProduct(item.product_id) || 0)
-    })) || [];
+    console.log('📋 View Bill - Order Items:', order.items);
+    console.log('📋 Bill status:', bill.bill_status, 'Pricing status:', bill.pricing_status);
+
+    // Use LOCKED prices from price_at_order (finalized prices), not current product prices
+    const enrichedItems = order.items?.map(item => {
+      const lockedPrice = parseFloat(item.price_at_order);
+      const fallbackPrice = parseFloat(item.price_per_unit || getPriceForProduct(item.product_id) || 0);
+      const finalPrice = lockedPrice || fallbackPrice;
+      
+      console.log(`📦 ${item.product_name}: price_at_order=${item.price_at_order}, using ₹${finalPrice}`);
+      
+      return {
+        ...item,
+        price_per_unit: finalPrice
+      };
+    }) || [];
 
     // Build items HTML (unchanged)
     let itemsHtml = '';
@@ -358,10 +369,6 @@ export default function HotelBills() {
                   <span>Subtotal:</span>
                   <span>₹${subtotal.toFixed(2)}</span>
                 </div>
-                <div class="total-row tax">
-                  <span>GST (5%):</span>
-                  <span>₹${tax.toFixed(2)}</span>
-                </div>
                 <div class="total-row grand-total">
                   <span>TOTAL:</span>
                   <span>₹${grandTotal.toFixed(2)}</span>
@@ -516,6 +523,8 @@ export default function HotelBills() {
                   ) : (
                     filtered.map((b) => {
                       const amount = parseFloat(b.total_amount || b.amount || 0);
+                      const isDraft = b.bill_status === 'draft' || b.is_draft;
+                      
                       return (
                         <tr key={b.id} className="hover:bg-green-50">
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-800">
@@ -525,30 +534,42 @@ export default function HotelBills() {
                             #{b.order_id}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-800">
-                            ₹{amount.toFixed(2)}
+                            {isDraft ? (
+                              <span className="text-orange-600 italic">Calculating...</span>
+                            ) : (
+                              `₹${amount.toFixed(2)}`
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             {formatDate(b.bill_date)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                              b.paid
+                              isDraft ? 'bg-orange-100 text-orange-800' :
+                              b.bill_status === 'sent' ? 'bg-blue-100 text-blue-800' :
+                              b.bill_status === 'paid' || b.paid
                                 ? 'bg-green-100 text-green-800'
                                 : 'bg-yellow-100 text-yellow-800'
                             }`}>
-                              {b.paid ? 'Paid' : 'Pending'}
+                              {isDraft ? '⏳ Awaiting Prices' :
+                               b.bill_status === 'sent' ? '📧 Sent' :
+                               b.bill_status === 'paid' || b.paid ? '✅ Paid' : '⏳ Unpaid'}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                            {b.payment_method || 'N/A'}
+                            {isDraft ? '—' : (b.payment_method || 'N/A')}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button
-                              onClick={() => viewBill(b)}
-                              className="text-green-600 hover:text-green-800 underline text-sm"
-                            >
-                              View & Print
-                            </button>
+                            {isDraft ? (
+                              <span className="text-gray-400 italic">Pending</span>
+                            ) : (
+                              <button
+                                onClick={() => viewBill(b)}
+                                className="text-green-600 hover:text-green-800 underline text-sm"
+                              >
+                                View & Print
+                              </button>
+                            )}
                           </td>
                         </tr>
                       );

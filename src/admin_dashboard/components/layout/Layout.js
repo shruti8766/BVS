@@ -7,6 +7,7 @@ import SlideOver from '../SlideOver';
 export default function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [slideOverOpen, setSlideOverOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const toggleSidebar = () => setSidebarOpen((v) => !v);
   const closeSidebar = () => setSidebarOpen(false);
@@ -35,9 +36,14 @@ export default function Layout({ children }) {
           onClick={closeSidebar}
         />
 
-        <Sidebar open={sidebarOpen} onClose={closeSidebar} />
+        <Sidebar open={sidebarOpen} onClose={closeSidebar} onCollapsedChange={setSidebarCollapsed} />
 
-        <div className="flex-1 flex flex-col lg:ml-64">
+        <div 
+          className="flex-1 flex flex-col transition-all duration-300 ease-in-out"
+          style={{
+            marginLeft: `${sidebarCollapsed ? '5rem' : '16rem'}`,
+          }}
+        >
           <Topbar onMenuClick={toggleSidebar} onCartClick={openSlideOver} />
           <main id="main-content" className="flex-1 overflow-auto">
             {children}

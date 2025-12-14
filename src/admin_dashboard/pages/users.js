@@ -509,13 +509,10 @@ const GlassCard = ({ children, className = '' }) => (
 );
 
 const Stat = ({ label, value, color = 'text-green-700' }) => (
-  <Card hover className="relative overflow-hidden group">
-    <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-    <div className="relative p-6">
-      <p className="text-sm font-medium text-gray-600 mb-1">{label}</p>
-      <p className={`text-3xl font-bold ${color}`}>{value}</p>
-    </div>
-  </Card>
+  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6">
+    <h3 className="text-sm font-medium text-gray-500 mb-1">{label}</h3>
+    <div className={`text-2xl font-semibold ${color}`}>{value}</div>
+  </div>
 );
 
 const MiniTable = ({ headers, rows, emptyMsg = 'No data', onEdit, onDelete, onView }) => (
@@ -525,7 +522,7 @@ const MiniTable = ({ headers, rows, emptyMsg = 'No data', onEdit, onDelete, onVi
         <thead>
           <tr className="bg-green-50/50">
             {headers.map((h, i) => (
-              <th key={i} className="px-6 py-4 text-left text-xs font-bold text-green-700 uppercase tracking-wider">
+              <th key={i} className="px-4 py-3 text-left text-xs font-bold text-green-700 uppercase tracking-wider">
                 {h}
               </th>
             ))}
@@ -547,11 +544,11 @@ const MiniTable = ({ headers, rows, emptyMsg = 'No data', onEdit, onDelete, onVi
               return (
                 <tr key={i} className="hover:bg-green-50/30 transition-colors">
                   {r.slice(0, -1).map((cell, j) => (  // All but actions/user
-                    <td key={j} className="px-6 py-4 text-sm font-medium text-gray-700">
+                    <td key={j} className="px-4 py-3 text-sm text-gray-700">
                       {cell}
                     </td>
                   ))}
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       <button
                         onClick={() => onEdit(user)}
@@ -749,7 +746,6 @@ const Users = () => {
     safe(u.hotel_name),
     safe(u.email),
     safe(u.phone),
-    safe(u.address),
     formatDate(u.created_at),
     formatDate(u.last_login),
     u  // User object for actions
@@ -811,14 +807,15 @@ const Users = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-8 w-full">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-6">
+        <div className="max-w-full">
         {/* ---------- Header + Add Button ---------- */}
-        <div className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600 mb-2">
+            <h1 className="text-2xl font-bold text-green-800 mb-1">
               Users Management
             </h1>
-            <p className="text-gray-600 text-lg font-medium">Manage hotel users and accounts</p>
+            <p className="text-gray-600 text-sm">Manage hotel users and accounts</p>
           </div>
           <QuickAction onClick={() => setShowCreate(true)}>
             + Add User
@@ -847,36 +844,86 @@ const Users = () => {
           </Card>
         )}
 
-        {/* ---------- Filters & Refresh ---------- */}
-        <Card className="mb-10">
-          <div className="px-6 py-5 bg-gradient-to-r from-green-50 to-emerald-50 border-b-2 border-green-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        {/* ---------- Table with Filters ---------- */}
+        <Card>
+          <div className="px-6 py-5 bg-green-50 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
               <label className="text-sm font-medium text-gray-700">Filter by role:</label>
               <select
                 value={filter}
                 onChange={e => setFilter(e.target.value)}
-                className="border-2 border-green-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all bg-white"
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
               >
                 <option value="all">All Users</option>
                 <option value="hotel">Hotel Users</option>
                 {/* Add <option value="admin">Admin</option> if needed */}
               </select>
             </div>
-            <QuickAction onClick={fetchUsers} className="!px-4 !py-2 text-sm">
+            <button onClick={fetchUsers} className="px-4 py-2 bg-white text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-50 flex items-center text-sm font-medium transition-colors">
               <span className="mr-2">🔄</span> Refresh
-            </QuickAction>
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr className="bg-white">
+                  {['ID', 'Username', 'Role', 'Hotel Name', 'Email', 'Phone', 'Created At', 'Last Login', 'Actions'].map((h, i) => (
+                    <th key={i} className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {tableRows.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} className="px-4 py-12 text-center">
+                      <div className="flex flex-col items-center gap-2">
+                        <span className="text-4xl mb-2">👥</span>
+                        <p className="text-gray-500 font-medium">No users found</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  tableRows.map((r, i) => {
+                    const user = r.slice(-1)[0];
+                    return (
+                      <tr key={i} className="hover:bg-gray-50 transition-colors">
+                        {r.slice(0, -1).map((cell, j) => (
+                          <td key={j} className="px-4 py-3 text-sm text-gray-700">
+                            {cell}
+                          </td>
+                        ))}
+                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => { setEditingUser(user); setShowEdit(true); }}
+                              className="text-green-600 hover:text-green-900 text-xs font-medium transition-colors"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => deleteUser(user.id)}
+                              className="text-red-600 hover:text-red-900 text-xs font-medium transition-colors"
+                            >
+                              Delete
+                            </button>
+                            <button
+                              onClick={() => setSelected(user)}
+                              className="text-blue-600 hover:text-blue-900 text-xs font-medium transition-colors"
+                            >
+                              View
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
         </Card>
-
-        {/* ---------- Table ---------- */}
-        <MiniTable
-          headers={['ID', 'Username', 'Role', 'Hotel Name', 'Email', 'Phone', 'Address', 'Created At', 'Last Login', 'Actions']}
-          rows={tableRows}
-          emptyMsg="No users found"
-          onEdit={(u) => { setEditingUser(u); setShowEdit(true); }}
-          onDelete={deleteUser}
-          onView={setSelected}
-        />
 
         {/* ---------- Create User Modal ---------- */}
         {showCreate && (
@@ -983,6 +1030,7 @@ const Users = () => {
           </div>
         )}
 
+        </div>
       </div>
     </Layout>
   );

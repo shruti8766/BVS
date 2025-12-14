@@ -213,11 +213,11 @@ export default function Products() {
           {/* Vegetables Section */}
           {vegetableProducts.length > 0 && (
             <>
-              <div className="mb-8">
+              <div className="mb-12">
                 <h2 className="text-2xl font-bold text-green-800 mb-4 flex items-center">
                   <span className="mr-2">🥬</span> Fresh Vegetables
                 </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-6">
+                <div className="grid grid-cols-7 gap-6 mb-12">
                   {vegetableProducts.map((product) => (
                     <ProductCard key={product.id} product={product} addToCart={addToCart} />
                   ))}
@@ -230,23 +230,15 @@ export default function Products() {
           {/* Other Products Section */}
           {otherProducts.length > 0 && (
             <>
-              <div className="mb-8">
+              <div className="mb-12">
                 <h2 className="text-2xl font-bold text-green-800 mb-4 flex items-center">
                   <span className="mr-2">🌱</span> More Essentials
                 </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-6">
+                <div className="grid grid-cols-7 gap-6 mb-12">
                   {otherProducts.map((product) => (
                     <ProductCard key={product.id} product={product} addToCart={addToCart} />
                   ))}
                 </div>
-              </div>
-              <div className="text-center">
-                <Link
-                  to="/hotel/products?loadMore=true"
-                  className="inline-flex items-center text-green-600 hover:text-green-700 font-semibold"
-                >
-                  <span className="mr-2">→</span> Load More Products
-                </Link>
               </div>
             </>
           )}
@@ -299,51 +291,47 @@ function ProductCard({ product, addToCart }) {
   };
 
   return (
-    <div className="bg-white rounded-md shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 group">
-      <div className="relative">
+    <div className="bg-white rounded-md shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 group flex flex-col">
+      <div className="relative flex-shrink-0">
         {product.image_url ? (
           <img
             src={product.image_url}
             alt={product.name}
-            className="w-full h-24 object-cover"
+            className="w-full h-32 object-cover"
           />
         ) : (
-          <div className="w-full h-24 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
+          <div className="bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center h-32">
             <span className="text-green-600 font-semibold text-xs text-center px-1">{product.name}</span>
           </div>
         )}
       </div>
-      <div className="p-2.5">
-        <h3 className="text-xs font-semibold text-green-800 mb-1 group-hover:text-green-900 transition-colors line-clamp-1">
+      <div className="px-2 py-2 flex-1 flex flex-col justify-between">
+        {/* Product Name */}
+        <h3 className="text-sm font-semibold text-gray-800 text-center mb-2 line-clamp-2 min-h-[2.5rem]">
           {product.name}
         </h3>
-        <p className="text-xs text-gray-600 mb-2 font-semibold">
-          ₹{product.price_per_unit}/{product.unit_type}
-        </p>
+        
         {/* Quantity Selector */}
-        <div className="flex items-center justify-between mb-1.5 gap-1">
-          <div className="flex items-center space-x-0.5 border border-green-200 rounded p-0.5">
+        <div className="flex items-center justify-center gap-1 mb-2">
+          <div className="flex items-center border border-green-200 rounded px-1 py-0.5">
             <button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="w-5 h-5 text-green-600 hover:text-green-800 font-bold transition-colors text-xs flex items-center justify-center"
+              className="w-6 h-6 text-green-600 hover:text-green-800 font-bold text-sm flex items-center justify-center"
             >
               -
             </button>
-            <span className="w-4 text-center text-xs font-medium">{quantity}</span>
+            <span className="w-5 text-center text-sm font-medium mx-1">{quantity}</span>
             <button
               onClick={() => setQuantity(quantity + 1)}
-              className="w-5 h-5 text-green-600 hover:text-green-800 font-bold transition-colors text-xs flex items-center justify-center"
+              className="w-6 h-6 text-green-600 hover:text-green-800 font-bold text-sm flex items-center justify-center"
             >
               +
             </button>
           </div>
-          <div className="text-xs text-gray-600">
-            ₹{(product.price_per_unit * quantity).toFixed(2)}
-          </div>
         </div>
         <button
           onClick={handleAddToCart}
-          className="w-full bg-green-600 text-white py-1.5 rounded text-xs hover:bg-green-700 transition-all duration-300 font-semibold"
+          className="w-20 bg-green-600 text-white px-2 py-1.5 rounded text-sm hover:bg-green-700 transition-all duration-300 font-semibold mx-auto"
         >
           Add
         </button>

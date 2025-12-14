@@ -111,6 +111,7 @@ import Login from './frontend/login';
 
 // ----- Admin Pages -----
 import Admindash from './admin_dashboard/pages/admindash';
+import PendingOrders from './admin_dashboard/pages/pendingOrders';
 import Orders from './admin_dashboard/pages/orders';
 import Hotels from './admin_dashboard/pages/hotels';
 import HotelDetail from './admin_dashboard/pages/HotelDetail';
@@ -118,7 +119,7 @@ import Products from './admin_dashboard/pages/products';
 import Suppliers from './admin_dashboard/pages/suppliers';
 import Inventory from './admin_dashboard/pages/inventory';
 import Billing from './admin_dashboard/pages/billing';
-import Analytics from './admin_dashboard/pages/analytics';
+import Analytics from './admin_dashboard/pages/analytics_new';
 import Users from './admin_dashboard/pages/users';
 import Settings from './admin_dashboard/pages/settings';
 import Support from './admin_dashboard/pages/support';
@@ -174,6 +175,7 @@ function App() {
         {/* ---------- PROTECTED ADMIN AREA ---------- */}
         <Route element={<AdminProtectedLayout />}>
           <Route path="/admin/dashboard" element={<Admindash />} />
+          <Route path="/admin/pending-orders" element={<PendingOrders />} />
           <Route path="/admin/orders" element={<Orders />} />
           <Route path="/admin/hotels" element={<Hotels />} />
           <Route path="/admin/hotels/:id" element={<HotelDetail />} />

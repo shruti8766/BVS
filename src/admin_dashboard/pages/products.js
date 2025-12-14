@@ -568,13 +568,10 @@ const GlassCard = ({ children, className = '' }) => (
 );
 
 const Stat = ({ label, value, color = 'text-green-700' }) => (
-  <Card hover className="relative overflow-hidden group">
-    <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-    <div className="relative p-6">
-      <p className="text-sm font-medium text-gray-600 mb-1">{label}</p>
-      <p className={`text-3xl font-bold ${color}`}>{value}</p>
-    </div>
-  </Card>
+  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6">
+    <h3 className="text-sm font-medium text-gray-500 mb-1">{label}</h3>
+    <div className={`text-2xl font-semibold ${color}`}>{value}</div>
+  </div>
 );
 
 const MiniTable = ({ headers, rows, emptyMsg = 'No data', onEdit, onDelete, onView }) => (
@@ -835,29 +832,22 @@ const Products = () => {
     (acc, p) => {
       acc.total++;
       if (p.is_available) acc.available++;
-      if (p.stock_quantity < 10) acc.lowStock++;
       acc[p.category] = (acc[p.category] || 0) + 1;
       return acc;
     },
-    { total: 0, available: 0, lowStock: 0 }
+    { total: 0, available: 0 }
   );
 
   const filtered = filter === 'all' 
     ? products 
     : filter === 'available' 
       ? products.filter(p => p.is_available) 
-      : filter === 'low-stock' 
-        ? products.filter(p => p.stock_quantity < 10) 
-        : products.filter(p => p.category === filter);
+      : products.filter(p => p.category === filter);
 
   const tableRows = filtered.map(p => [
     <img key="img" src={getImageUrl(p.image_url)} alt={p.name} className="w-12 h-12 object-cover rounded" />,
     safe(p.name),
     safe(p.category),
-    `₹${safeNum(p.price_per_unit).toFixed(2)}`,
-    <span key="stock" className={`${p.stock_quantity < 10 ? 'text-red-600' : 'text-gray-700'}`}>
-      {safeNum(p.stock_quantity)}
-    </span>,
     safe(p.unit_type),
     <span key="avail" className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border ${
       p.is_available ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'
@@ -930,12 +920,12 @@ const Products = () => {
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-8 w-full">
         {/* ---------- Header + Add Button ---------- */}
-        <div className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600 mb-2">
+            <h1 className="text-2xl font-bold text-green-800 mb-1">
               Products Management
             </h1>
-            <p className="text-gray-600 text-lg font-medium">Manage vegetable inventory and pricing</p>
+            <p className="text-gray-600 text-sm">Manage vegetable inventory and pricing</p>
           </div>
           <QuickAction onClick={() => setShowCreate(true)}>
             + Add Product
@@ -946,7 +936,7 @@ const Products = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
           <Stat label="Total Products" value={safe(stats.total, 0).toLocaleString() || 0} color="text-green-700" />
           <Stat label="Available" value={safe(stats.available, 0).toLocaleString() || 0} color="text-emerald-700" />
-          <Stat label="Low Stock" value={safe(stats.lowStock, 0).toLocaleString() || 0} color="text-orange-600" />
+          <Stat label="Categories" value={safe([...new Set(products.map(p => p.category))].length, 0)} color="text-blue-600" />
         </div>
 
         {/* ---------- Error ---------- */}
@@ -965,34 +955,9 @@ const Products = () => {
           </Card>
         )}
 
-        {/* ---------- Filters & Refresh ---------- */}
-        <Card className="mb-10">
-          <div className="px-6 py-5 bg-gradient-to-r from-green-50 to-emerald-50 border-b-2 border-green-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <label className="text-sm font-medium text-gray-700">Filter by:</label>
-              <select
-                value={filter}
-                onChange={e => setFilter(e.target.value)}
-                className="border-2 border-green-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all bg-white"
-              >
-                <option value="all">All Products</option>
-                <option value="available">Available</option>
-                <option value="low-stock">Low Stock</option>
-                {/* Dynamic category filter */}
-                {Object.keys(stats).filter(k => typeof stats[k] !== 'number').map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-            </div>
-            <QuickAction onClick={fetchProducts} className="!px-4 !py-2 text-sm">
-              <span className="mr-2">🔄</span> Refresh
-            </QuickAction>
-          </div>
-        </Card>
-
         {/* ---------- Table ---------- */}
         <MiniTable
-          headers={['Image', 'Name', 'Category', 'Price', 'Stock', 'Unit', 'Available', 'Created At', 'Actions']}
+          headers={['Image', 'Name', 'Category', 'Unit', 'Available', 'Created At', 'Actions']}
           rows={tableRows}
           emptyMsg="No products found"
           onEdit={(p) => { setEditingProduct(p); setShowEdit(true); }}
@@ -1018,8 +983,8 @@ const Products = () => {
               >
                 <input name="name" placeholder="Product Name" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
                 <input name="description" placeholder="Description" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" />
-                <input name="price_per_unit" type="number" step="0.01" placeholder="Price per Unit" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
-                <input name="stock_quantity" type="number" placeholder="Stock Quantity" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
+                <input name="price_per_unit" type="hidden" value="0.00" />
+                <input name="stock_quantity" type="hidden" value="999999" />
                 <input name="image_url" placeholder="Image URL (optional)" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" />
                 <input name="category" placeholder="Category" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
                 <input name="unit_type" placeholder="Unit Type (e.g., kg)" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
@@ -1055,8 +1020,8 @@ const Products = () => {
               >
                 <input name="name" defaultValue={safe(editingProduct.name, '')} className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
                 <input name="description" defaultValue={safe(editingProduct.description, '')} className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" />
-                <input name="price_per_unit" type="number" step="0.01" defaultValue={safeNum(editingProduct.price_per_unit, 0).toFixed(2)} placeholder="0.00" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required min="0" />
-                <input name="stock_quantity" type="number" defaultValue={safeNum(editingProduct.stock_quantity, 0)} placeholder="0" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required min="0" />
+                <input name="price_per_unit" type="hidden" value="0.00" />
+                <input name="stock_quantity" type="hidden" value="999999" />
                 <input name="image_url" defaultValue={safe(editingProduct.image_url, '')} className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" />
                 <input name="category" defaultValue={safe(editingProduct.category, '')} className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
                 <input name="unit_type" defaultValue={safe(editingProduct.unit_type, 'kg')} className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" />

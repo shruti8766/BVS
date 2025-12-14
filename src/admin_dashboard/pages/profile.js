@@ -521,10 +521,10 @@ export default function Profile() {
       <Card className="w-full overflow-hidden">
         {/* Header */}
         <div className="px-6 py-5 bg-gradient-to-r from-green-50 to-emerald-50 border-b-2 border-green-100">
-          <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600 mb-2">
+          <h1 className="text-2xl font-bold text-green-800 mb-1">
             My Profile
           </h1>
-          <p className="text-gray-600 text-lg font-medium">Manage your account information</p>
+          <p className="text-gray-600 text-sm">Manage your account information</p>
         </div>
 
         <div className="p-6">

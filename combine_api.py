@@ -48,16 +48,17 @@ try:
 except ImportError:
     detector_available = False
 
-# MMS-TTS Imports
-try:
-    from transformers import VitsModel, AutoTokenizer
-    import torch
-    import soundfile as sf
-    import io
-    import base64
-    mms_tts_available = True
-except ImportError:
-    mms_tts_available = False
+# MMS-TTS Imports - Disabled to avoid TensorFlow issues
+mms_tts_available = False
+# try:
+#     from transformers import VitsModel, AutoTokenizer
+#     import torch
+#     import soundfile as sf
+#     import io
+#     import base64
+#     mms_tts_available = True
+# except ImportError:
+#     mms_tts_available = False
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -1955,7 +1956,7 @@ def get_hotel_dashboard(current_user):
 @app.route('/api/hotel/orders', methods=['GET'])
 @token_required
 def get_hotel_orders(current_user):
-    """Get all orders for the logged-in hotel"""
+    """Get all orders for the logged-in hotel with pricing status"""
     if current_user['role'] != 'hotel':
         return jsonify({'error': 'Access denied'}), 403
 
@@ -1982,6 +1983,9 @@ def get_hotel_orders(current_user):
                 WHERE oi.order_id = %s
             """, (order['id'],))
             order['items'] = cursor.fetchall()
+            
+            # Add pricing status for frontend badge
+            order['pricing_badge'] = 'Awaiting Price Confirmation' if order['pricing_status'] == 'pending_pricing' else 'Price Confirmed'
 
         return jsonify(orders)
     except Exception as e:
@@ -2036,7 +2040,7 @@ def get_hotel_order_details(current_user, order_id):
 @app.route('/api/hotel/bills', methods=['GET'])
 @token_required
 def get_hotel_bills(current_user):
-    """Get all bills for the logged-in hotel"""
+    """Get all bills for the logged-in hotel with bill status"""
     if current_user['role'] != 'hotel':
         return jsonify({'error': 'Access denied'}), 403
 
@@ -2045,7 +2049,7 @@ def get_hotel_bills(current_user):
 
     try:
         cursor.execute("""
-            SELECT b.*, o.order_date, u.hotel_name 
+            SELECT b.*, o.order_date, u.hotel_name, o.pricing_status
             FROM bills b 
             JOIN orders o ON b.order_id = o.id 
             JOIN users u ON o.user_id = u.id 
@@ -2054,6 +2058,59 @@ def get_hotel_bills(current_user):
         """, (current_user['id'],))
 
         bills = cursor.fetchall()
+        
+        # Add bill status badge and calculate/hide prices based on status
+        for bill in bills:
+            # ALWAYS recalculate from order_items for non-draft bills
+            if bill['bill_status'] != 'draft':
+                print(f"[{datetime.now()}] Recalculating bill {bill['id']} for order {bill['order_id']}, current DB values: total_amount={bill.get('total_amount')}, amount={bill.get('amount')}")
+                
+                calc_cursor = conn.cursor(dictionary=True)
+                # First check what items exist
+                calc_cursor.execute("""
+                    SELECT product_id, quantity, price_at_order
+                    FROM order_items
+                    WHERE order_id = %s
+                """, (bill['order_id'],))
+                items = calc_cursor.fetchall()
+                print(f"[{datetime.now()}] Found {len(items)} items for order {bill['order_id']}: {items}")
+                
+                # Now calculate total
+                calc_cursor.execute("""
+                    SELECT SUM(price_at_order * quantity) as calculated_total
+                    FROM order_items
+                    WHERE order_id = %s AND price_at_order IS NOT NULL
+                """, (bill['order_id'],))
+                
+                result = calc_cursor.fetchone()
+                calc_cursor.close()
+                
+                print(f"[{datetime.now()}] Calculation result: {result}")
+                
+                if result and result['calculated_total']:
+                    calculated = float(result['calculated_total'])
+                    bill['total_amount'] = calculated
+                    bill['amount'] = calculated
+                    print(f"[{datetime.now()}] ✅ Hotel bill {bill['id']} updated to ₹{calculated}")
+                else:
+                    print(f"[{datetime.now()}] ⚠️ No calculated total for bill {bill['id']}, keeping DB values")
+            
+            # Set status badges
+            if bill['bill_status'] == 'draft':
+                bill['status_badge'] = '⏳ Awaiting Price Finalization'
+                bill['total_amount'] = None  # Hide price for draft
+                bill['amount'] = None
+                bill['is_draft'] = True
+            elif bill['bill_status'] == 'finalized':
+                bill['status_badge'] = '✅ Bill Ready'
+                bill['is_draft'] = False
+            elif bill['bill_status'] == 'sent':
+                bill['status_badge'] = '📧 Bill Sent'
+                bill['is_draft'] = False
+            elif bill['bill_status'] == 'paid':
+                bill['status_badge'] = '✔️ Paid'
+                bill['is_draft'] = False
+        
         return jsonify(bills)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -2278,7 +2335,7 @@ def calculate_cart_total(current_user):
 @app.route('/api/hotel/orders', methods=['POST'])
 @token_required
 def create_hotel_order(current_user):
-    """Hotel user places a new order"""
+    """Hotel user places a new order - Two-stage pricing workflow"""
     print(f"[{datetime.now()}] Order request from {current_user['hotel_name']} (ID: {current_user['id']})")  # Log entry
     if current_user['role'] != 'hotel':
         return jsonify({'error': 'Access denied'}), 403
@@ -2297,13 +2354,13 @@ def create_hotel_order(current_user):
 
     try:
         user_id = current_user['id']
-        print(f"[{datetime.now()}] Calculating total for user {user_id}...")
-        # Calculate total amount and fetch product details for message
-        total_amount = 0.0
+        print(f"[{datetime.now()}] Processing order for user {user_id}...")
+        
+        # Verify products exist and are available, get names for message
         order_items_details = []  # List to hold formatted item strings
         for item in data['items']:
             cursor.execute("""
-                SELECT price_per_unit, is_available, name, unit_type 
+                SELECT is_available, name, unit_type 
                 FROM products 
                 WHERE id = %s
             """, (item['product_id'],))
@@ -2314,115 +2371,66 @@ def create_hotel_order(current_user):
             if not product['is_available']:
                 print(f"[{datetime.now()}] ERROR: Product {item['product_id']} unavailable")
                 return jsonify({'error': f"Product with ID {item['product_id']} is not available"}), 400
-            price = float(product['price_per_unit'])
             quantity = float(item['quantity'])
-            item_total = price * quantity
-            total_amount += item_total
-            # Format item for message: "Product Name : quantity unit_type | ₹item_total"
-            item_str = f"{product['name']} :{quantity}{product['unit_type']} | ₹{item_total:.0f}"
+            # Format item without price (since it's not finalized yet)
+            item_str = f"{product['name']} : {quantity}{product['unit_type']}"
             order_items_details.append(item_str)
-        print(f"[{datetime.now()}] Total calculated: ₹{total_amount}")
+        print(f"[{datetime.now()}] All products verified")
 
         order_date = datetime.now().strftime('%d-%m-%Y')  # Format for message: DD-MM-YYYY
-        # Create order with 'pending' status
-        print(f"[{datetime.now()}] Creating order...")
+        # Create order with 'pending' status and 'pending_pricing' pricing_status
+        print(f"[{datetime.now()}] Creating order with pending pricing...")
         cursor.execute("""
             INSERT INTO orders (user_id, order_date, delivery_date, total_amount,
-                              status, special_instructions)
-            VALUES (%s, %s, %s, %s, 'pending', %s)
+                              status, pricing_status, special_instructions)
+            VALUES (%s, %s, %s, %s, 'pending', 'pending_pricing', %s)
         """, (
             user_id,
             datetime.now().strftime('%Y-%m-%d'),  # DB format YYYY-MM-DD
             data['delivery_date'],
-            total_amount,
+            0.0,  # Total will be calculated when prices are finalized
             data.get('special_instructions', '')
         ))
         order_id = cursor.lastrowid
-        print(f"[{datetime.now()}] Order created: ID #{order_id}")
+        print(f"[{datetime.now()}] Order created: ID #{order_id} (pricing_status=pending_pricing)")
 
-        # Create order items (revert to non-dict cursor for inserts)
+        # Create order items with price_at_order = NULL (will be filled when prices finalized)
         cursor = conn.cursor()  # Switch back to tuple cursor for inserts
-        print(f"[{datetime.now()}] Adding {len(data['items'])} items...")
+        print(f"[{datetime.now()}] Adding {len(data['items'])} items with NULL prices...")
         for item in data['items']:
-            cursor.execute("SELECT price_per_unit FROM products WHERE id = %s", (item['product_id'],))
-            price_at_order_result = cursor.fetchone()
-            price_at_order = float(price_at_order_result[0])
             cursor.execute("""
                 INSERT INTO order_items (order_id, product_id, quantity, price_at_order)
-                VALUES (%s, %s, %s, %s)
-            """, (order_id, item['product_id'], item['quantity'], price_at_order))
+                VALUES (%s, %s, %s, NULL)
+            """, (order_id, item['product_id'], item['quantity']))
         print(f"[{datetime.now()}] Items added successfully")
 
-        # Create bill automatically
+        # Create bill as DRAFT with total_amount = 0
         due_date = (datetime.now() + timedelta(days=10)).strftime('%Y-%m-%d')
-        bill_date = datetime.now().strftime('%Y-%m-%d')  # Bill date same as order
+        bill_date = datetime.now().strftime('%Y-%m-%d')
         cursor.execute("""
-            INSERT INTO bills (order_id, bill_date, total_amount, paid, payment_method, due_date, comments)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO bills (order_id, bill_date, total_amount, bill_status, paid, payment_method, due_date, comments)
+            VALUES (%s, %s, %s, 'draft', %s, %s, %s, %s)
         """, (
             order_id,
             bill_date,
-            total_amount,
+            0.0,  # Draft bill, total will be set when prices finalized
             False,
             '',
             due_date,
-            ''
+            'Awaiting price finalization from market'
         ))
-        bill_id = cursor.lastrowid  # Get bill ID if needed
+        bill_id = cursor.lastrowid
         conn.commit()
-        print(f"[{datetime.now()}] Bill created: ID #{bill_id} for order #{order_id}. DB commit success!")
+        print(f"[{datetime.now()}] Draft Bill created: ID #{bill_id} for order #{order_id}")
 
-        # Send WhatsApp notification via Twilio (formatted with inline bill details)
-        print(f"[{datetime.now()}] About to send WhatsApp...")
-        client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-        # Build formatted message body
-        items_list = "\n".join(order_items_details)
-        message_body = f"""🚨 New Pending Order #{order_id} from {current_user['hotel_name']}
-order placed on {order_date}
-_____________________________
-Products:
-_____________________________
-{items_list}
-_____________________________
-Total : ₹{total_amount:.0f}
-_____________________________
-Phone: {current_user['phone']}
-Login to dashboard for details."""
-        print(f"[{datetime.now()}] Message body prepared: {message_body[:150]}...")  # Truncate for log
-
-        whatsapp_sent = False
-        try:
-            message = client.messages.create(
-                body=message_body,
-                from_=WHATSAPP_FROM,
-                to=ADMIN_WHATSAPP
-            )
-            print(f"[{datetime.now()}] WhatsApp sent successfully! SID: {message.sid}, Status: {message.status}")
-            whatsapp_sent = True
-        except Exception as whatsapp_err:
-            error_msg = str(whatsapp_err)
-            print(f"[{datetime.now()}] WhatsApp FAILED: {error_msg}")
-            # Optional: Fallback to SMS
-            # try:
-            #     sms_message = client.messages.create(
-            #         body=message_body.replace('\n', ' '),  # Flatten for SMS
-            #         from_=TWILIO_PHONE_NUMBER,
-            #         to=ADMIN_PHONE
-            #     )
-            #     print(f"[{datetime.now()}] SMS fallback sent! SID: {sms_message.sid}")
-            #     whatsapp_sent = True
-            # except Exception as sms_err:
-            #     print(f"[{datetime.now()}] SMS fallback FAILED: {str(sms_err)}")
-
-        print(f"[{datetime.now()}] Order #{order_id} fully processed. WhatsApp success: {whatsapp_sent}")
+        print(f"[{datetime.now()}] Order #{order_id} fully processed")
 
         return jsonify({
-            'message': 'Order placed successfully! We will contact you for confirmation.',
+            'message': 'Order placed successfully! Final prices will be confirmed after market pricing.',
             'order_id': order_id,
             'bill_id': bill_id,
-            'total_amount': total_amount,
-            'delivery_info': 'Your order will be delivered between 11 AM to 3 PM tomorrow.',
-            'notification_sent': whatsapp_sent
+            'pricing_status': 'pending_pricing',
+            'delivery_info': 'Your order will be delivered between 11 AM to 3 PM tomorrow.'
         }), 201
     except Exception as e:
         conn.rollback()
@@ -2559,6 +2567,172 @@ def get_products(current_user):
 # ======================
 # ADMIN ROUTES
 # ======================
+
+@app.route('/api/admin/analytics', methods=['GET'])
+@token_required
+@admin_required
+def get_admin_analytics(current_user):
+    """Comprehensive analytics for admin dashboard"""
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        from datetime import datetime, timedelta
+        
+        # Yesterday's revenue
+        cursor.execute("""
+            SELECT COALESCE(SUM(total_amount), 0) as yesterday_revenue 
+            FROM orders 
+            WHERE DATE(order_date) = DATE(NOW() - INTERVAL 1 DAY)
+            AND status != 'cancelled'
+        """)
+        yesterday_revenue = cursor.fetchone()['yesterday_revenue']
+
+        # This month's revenue
+        cursor.execute("""
+            SELECT COALESCE(SUM(total_amount), 0) as month_revenue 
+            FROM orders 
+            WHERE YEAR(order_date) = YEAR(NOW()) 
+            AND MONTH(order_date) = MONTH(NOW())
+            AND status != 'cancelled'
+        """)
+        month_revenue = cursor.fetchone()['month_revenue']
+
+        # This year's revenue
+        cursor.execute("""
+            SELECT COALESCE(SUM(total_amount), 0) as year_revenue 
+            FROM orders 
+            WHERE YEAR(order_date) = YEAR(NOW())
+            AND status != 'cancelled'
+        """)
+        year_revenue = cursor.fetchone()['year_revenue']
+
+        # Revenue by hotel (top 10)
+        cursor.execute("""
+            SELECT 
+                u.hotel_name,
+                u.id as hotel_id,
+                COUNT(o.id) as total_orders,
+                COALESCE(SUM(o.total_amount), 0) as total_revenue,
+                COALESCE(SUM(CASE WHEN b.bill_status = 'paid' THEN b.total_amount ELSE 0 END), 0) as paid_amount,
+                COALESCE(SUM(CASE WHEN b.bill_status != 'paid' THEN b.total_amount ELSE 0 END), 0) as unpaid_amount
+            FROM users u
+            LEFT JOIN orders o ON u.id = o.user_id AND o.status != 'cancelled'
+            LEFT JOIN bills b ON o.id = b.order_id
+            WHERE u.role = 'hotel'
+            GROUP BY u.id, u.hotel_name
+            ORDER BY total_revenue DESC
+            LIMIT 10
+        """)
+        revenue_by_hotel = cursor.fetchall()
+
+        # Hotels with unpaid bills
+        cursor.execute("""
+            SELECT 
+                u.hotel_name,
+                u.email,
+                u.phone,
+                COUNT(DISTINCT b.id) as unpaid_bills_count,
+                COALESCE(SUM(b.total_amount), 0) as unpaid_total
+            FROM users u
+            JOIN orders o ON u.id = o.user_id
+            JOIN bills b ON o.id = b.order_id
+            WHERE u.role = 'hotel' 
+            AND b.bill_status IN ('draft', 'finalized', 'sent')
+            GROUP BY u.id, u.hotel_name, u.email, u.phone
+            HAVING unpaid_total > 0
+            ORDER BY unpaid_total DESC
+        """)
+        unpaid_hotels = cursor.fetchall()
+
+        # Daily revenue trend (last 30 days)
+        cursor.execute("""
+            SELECT 
+                DATE(order_date) as date,
+                COALESCE(SUM(total_amount), 0) as revenue,
+                COUNT(id) as order_count
+            FROM orders
+            WHERE order_date >= DATE(NOW() - INTERVAL 30 DAY)
+            AND status != 'cancelled'
+            GROUP BY DATE(order_date)
+            ORDER BY date ASC
+        """)
+        daily_trends = cursor.fetchall()
+
+        # Monthly revenue trend (last 12 months)
+        cursor.execute("""
+            SELECT 
+                DATE_FORMAT(order_date, '%Y-%m') as month,
+                COALESCE(SUM(total_amount), 0) as revenue,
+                COUNT(id) as order_count
+            FROM orders
+            WHERE order_date >= DATE(NOW() - INTERVAL 12 MONTH)
+            AND status != 'cancelled'
+            GROUP BY DATE_FORMAT(order_date, '%Y-%m')
+            ORDER BY month ASC
+        """)
+        monthly_trends = cursor.fetchall()
+
+        # Payment status summary
+        cursor.execute("""
+            SELECT 
+                bill_status,
+                COUNT(id) as count,
+                COALESCE(SUM(total_amount), 0) as total
+            FROM bills
+            GROUP BY bill_status
+        """)
+        payment_status = cursor.fetchall()
+
+        # Top products by revenue
+        cursor.execute("""
+            SELECT 
+                p.name as product_name,
+                p.category,
+                COALESCE(SUM(oi.quantity), 0) as total_quantity,
+                COALESCE(SUM(oi.quantity * oi.price_at_order), 0) as total_revenue
+            FROM products p
+            JOIN order_items oi ON p.id = oi.product_id
+            JOIN orders o ON oi.order_id = o.id
+            WHERE o.status != 'cancelled'
+            AND oi.price_at_order IS NOT NULL
+            GROUP BY p.id, p.name, p.category
+            ORDER BY total_revenue DESC
+            LIMIT 10
+        """)
+        top_products = cursor.fetchall()
+
+        analytics = {
+            'revenue': {
+                'yesterday': float(yesterday_revenue or 0),
+                'month': float(month_revenue or 0),
+                'year': float(year_revenue or 0)
+            },
+            'hotels': {
+                'revenue_by_hotel': revenue_by_hotel,
+                'unpaid_hotels': unpaid_hotels,
+                'total_hotels': len(revenue_by_hotel),
+                'unpaid_hotels_count': len(unpaid_hotels)
+            },
+            'trends': {
+                'daily': daily_trends,
+                'monthly': monthly_trends
+            },
+            'payments': {
+                'status_summary': payment_status
+            },
+            'products': {
+                'top_products': top_products
+            }
+        }
+
+        return jsonify(analytics)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
 @app.route('/api/admin/dashboard', methods=['GET'])
 @token_required
 @admin_required
@@ -2785,6 +2959,148 @@ def update_order_status(current_user, order_id):
         conn.close()
 
 
+@app.route('/api/admin/orders/pending-pricing', methods=['GET'])
+@token_required
+@admin_required
+def get_pending_pricing_orders(current_user):
+    """Get all orders waiting for price finalization"""
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        cursor.execute("""
+            SELECT o.*, u.hotel_name, u.email, u.phone
+            FROM orders o 
+            JOIN users u ON o.user_id = u.id 
+            WHERE o.pricing_status = 'pending_pricing'
+            ORDER BY o.order_date DESC
+        """)
+
+        orders = cursor.fetchall()
+
+        # Get items for each order
+        for order in orders:
+            cursor.execute("""
+                SELECT oi.*, p.name as product_name, p.unit_type, p.price_per_unit as current_price
+                FROM order_items oi 
+                JOIN products p ON oi.product_id = p.id 
+                WHERE oi.order_id = %s
+            """, (order['id'],))
+            order['items'] = cursor.fetchall()
+
+        return jsonify({'pending_orders': orders})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route('/api/admin/orders/<int:order_id>/finalize-prices', methods=['PUT'])
+@token_required
+@admin_required
+def finalize_order_prices(current_user, order_id):
+    """Admin finalizes prices for an order from market"""
+    data = request.get_json()
+    print(f"[{datetime.now()}] Finalize prices request for order {order_id}: {data}")
+    
+    if not data.get('items') or not isinstance(data['items'], list):
+        return jsonify({'error': 'Items array with prices is required'}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        # Verify order exists and is pending pricing
+        cursor.execute("""
+            SELECT o.*, u.hotel_name, u.email, u.phone
+            FROM orders o 
+            JOIN users u ON o.user_id = u.id
+            WHERE o.id = %s
+        """, (order_id,))
+        
+        order = cursor.fetchone()
+        if not order:
+            return jsonify({'error': 'Order not found'}), 404
+        
+        if order['pricing_status'] != 'pending_pricing':
+            return jsonify({'error': 'Order is not pending pricing'}), 400
+
+        # Calculate new total amount and update prices
+        total_amount = 0.0
+        order_items_details = []
+        cursor = conn.cursor()  # Switch to non-dict cursor for updates
+        
+        for item in data['items']:
+            product_id = item['product_id']
+            new_price = float(item['price_per_unit'])
+            
+            # Get quantity from order_items
+            cursor.execute("""
+                SELECT quantity FROM order_items WHERE order_id = %s AND product_id = %s
+            """, (order_id, product_id))
+            
+            result = cursor.fetchone()
+            if not result:
+                return jsonify({'error': f'Product {product_id} not found in order'}), 400
+            
+            quantity = float(result[0])
+            item_total = new_price * quantity
+            total_amount += item_total
+            print(f"[{datetime.now()}] Item {product_id}: {quantity} x ₹{new_price} = ₹{item_total}")
+            
+            # Update price_at_order
+            cursor.execute("""
+                UPDATE order_items 
+                SET price_at_order = %s 
+                WHERE order_id = %s AND product_id = %s
+            """, (new_price, order_id, product_id))
+            
+            # Get product name for WhatsApp message
+            cursor.execute("SELECT name, unit_type FROM products WHERE id = %s", (product_id,))
+            product = cursor.fetchone()
+            item_str = f"{product[0]}: {quantity}{product[1]} @ ₹{new_price}/unit = ₹{item_total:.0f}"
+            order_items_details.append(item_str)
+        
+        print(f"[{datetime.now()}] Calculated total_amount: ₹{total_amount}")
+        
+        # Update bill with finalized total
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        cursor.execute("""
+            UPDATE bills 
+            SET total_amount = %s, amount = %s, bill_status = 'finalized', finalized_at = %s, bill_date = %s
+            WHERE order_id = %s
+        """, (total_amount, total_amount, now, datetime.now().strftime('%Y-%m-%d'), order_id))
+        
+        print(f"[{datetime.now()}] Bill updated for order {order_id} with total_amount={total_amount}")
+        
+        # Update order with finalized pricing status and auto-confirm
+        cursor.execute("""
+            UPDATE orders 
+            SET pricing_status = 'prices_finalized', price_locked_at = %s, total_amount = %s, status = 'confirmed', updated_at = %s
+            WHERE id = %s
+        """, (now, total_amount, now, order_id))
+        
+        print(f"[{datetime.now()}] Order updated with pricing_status=prices_finalized, status=confirmed, total_amount={total_amount}")
+        
+        conn.commit()
+        print(f"[{datetime.now()}] Transaction committed successfully")
+        
+        return jsonify({
+            'message': 'Prices finalized successfully',
+            'order_id': order_id,
+            'total_amount': total_amount
+        }), 200
+        
+    except Exception as e:
+        conn.rollback()
+        print(f"[{datetime.now()}] Error finalizing prices: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
 # @app.route('/api/admin/bills', methods=['GET'])
 # @token_required
 # @admin_required
@@ -2979,7 +3295,7 @@ def create_product(current_user):
     if not data:
         return jsonify({'error': 'No JSON data provided'}), 400
     
-    required_fields = ['name', 'price_per_unit', 'stock_quantity']
+    required_fields = ['name']
     for field in required_fields:
         if not data.get(field):
             return jsonify({'error': f'{field} is required'}), 400
@@ -2988,19 +3304,21 @@ def create_product(current_user):
     cursor = conn.cursor()
     try:
         # Enhanced validation
+        # Price is not managed, set to 0.00 by default
         try:
-            price = float(data['price_per_unit'])
+            price = float(data.get('price_per_unit', 0.00))
             if price < 0:
-                return jsonify({'error': 'Price must be positive'}), 400
-        except ValueError:
-            return jsonify({'error': 'Invalid price format (must be a number)'}), 400
+                price = 0.00
+        except (ValueError, TypeError):
+            price = 0.00
         
+        # Stock is unlimited by default, set to 999999 if not provided
         try:
-            stock = int(data['stock_quantity'])
+            stock = int(data.get('stock_quantity', 999999))
             if stock < 0:
-                return jsonify({'error': 'Stock must be non-negative'}), 400
-        except ValueError:
-            return jsonify({'error': 'Invalid stock format (must be an integer)'}), 400
+                stock = 999999
+        except (ValueError, TypeError):
+            stock = 999999
         
         if len(data['name']) > 100:
             return jsonify({'error': 'Name too long (max 100 chars)'}), 400
@@ -3551,8 +3869,45 @@ def get_all_bills(current_user):
         base_query += " ORDER BY b.bill_date DESC"
         cursor.execute(base_query, params)
         bills = cursor.fetchall()
+        
+        # ALWAYS recalculate totals from order_items for non-draft bills
+        for bill in bills:
+            if bill['bill_status'] != 'draft':
+                print(f"[{datetime.now()}] Admin: Recalculating bill {bill['id']} for order {bill['order_id']}, current DB values: total_amount={bill.get('total_amount')}, amount={bill.get('amount')}")
+                
+                calc_cursor = conn.cursor(dictionary=True)
+                # First check what items exist
+                calc_cursor.execute("""
+                    SELECT product_id, quantity, price_at_order
+                    FROM order_items
+                    WHERE order_id = %s
+                """, (bill['order_id'],))
+                items = calc_cursor.fetchall()
+                print(f"[{datetime.now()}] Admin: Found {len(items)} items for order {bill['order_id']}: {items}")
+                
+                # Now calculate total
+                calc_cursor.execute("""
+                    SELECT SUM(price_at_order * quantity) as calculated_total
+                    FROM order_items
+                    WHERE order_id = %s AND price_at_order IS NOT NULL
+                """, (bill['order_id'],))
+                
+                result = calc_cursor.fetchone()
+                calc_cursor.close()
+                
+                print(f"[{datetime.now()}] Admin: Calculation result: {result}")
+                
+                if result and result['calculated_total']:
+                    calculated = float(result['calculated_total'])
+                    bill['total_amount'] = calculated
+                    bill['amount'] = calculated
+                    print(f"[{datetime.now()}] ✅ Admin bill {bill['id']} updated to ₹{calculated}")
+                else:
+                    print(f"[{datetime.now()}] ⚠️ Admin: No calculated total for bill {bill['id']}, keeping DB values")
+        
         return jsonify(bills)
     except Exception as e:
+        print(f"[{datetime.now()}] Error fetching admin bills: {str(e)}")
         return jsonify({'error': str(e)}), 500
     finally:
         cursor.close()

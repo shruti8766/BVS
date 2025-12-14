@@ -471,7 +471,7 @@ export default function Cart() {
                         <div>
                           <h4 className="font-medium text-green-800">{item.product.name}</h4>
                           <p className="text-sm text-gray-600">
-                            ₹{item.product.price_per_unit || 'N/A'}/ {item.product.unit_type || 'unit'}
+                            Unit: {item.product.unit_type || 'unit'}
                           </p>
                         </div>
                       </div>
@@ -503,20 +503,19 @@ export default function Cart() {
                 </div>
               </div>
 
-              {/* Total & Actions (No Recalculate button) */}
+              {/* Total & Actions */}
               <div className="bg-white rounded-xl shadow-md p-6 mb-12">
                 <div className="flex justify-end items-center mb-4">
                   <div className="text-right">
-                    <p className="text-sm text-gray-600">Subtotal ({cartTotal.item_count} items):</p>
-                    <p className="text-2xl font-bold text-green-800">₹{cartTotal.total_amount.toFixed(2)}</p>
+                    <p className="text-sm text-gray-600">{cartTotal.item_count} item(s) in cart</p>
                   </div>
                 </div>
                 <button
                   onClick={placeOrder}
-                  disabled={placingOrder || cartTotal.total_amount === 0}
+                  disabled={placingOrder || cart.length === 0}
                   className="w-full bg-emerald-600 text-white py-4 rounded-lg hover:bg-emerald-700 transition-colors font-semibold text-lg disabled:opacity-50"
                 >
-                  {placingOrder ? 'Placing Order...' : `Place Order - ₹${cartTotal.total_amount.toFixed(2)}`}
+                  {placingOrder ? 'Placing Order...' : 'Place Order'}
                 </button>
               </div>
 
@@ -546,7 +545,7 @@ export default function Cart() {
                           )}
                         </div>
                         <h4 className="font-medium text-green-800 text-sm mb-1">{product.name}</h4>
-                        <p className="text-xs text-gray-600 mb-2">₹{product.price_per_unit}/ {product.unit_type}</p>
+                        <p className="text-xs text-gray-600 mb-2">Unit: {product.unit_type}</p>
                         <button
                           onClick={() => addToCart(product.id)}
                           className="w-full bg-green-600 text-white py-2 px-3 rounded-lg hover:bg-green-700 transition-colors text-xs font-medium"

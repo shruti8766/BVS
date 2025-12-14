@@ -520,12 +520,9 @@ export default function Topbar({ onMenuClick }) {
                             <div>
                               <h4 className="font-medium text-gray-900 text-sm">{item.product.name}</h4>
                               <p className="text-xs text-gray-500">
-                                {item.quantity} × ₹{item.product.price_per_unit || 0}/{item.product.unit_type || 'unit'}
+                                Quantity: {item.quantity} {item.product.unit_type || 'unit'}
                               </p>
                             </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-sm">₹{(item.quantity * (item.product.price_per_unit || 0)).toFixed(2)}</p>
                           </div>
                         </div>
                       ))}
@@ -534,8 +531,7 @@ export default function Topbar({ onMenuClick }) {
                     {/* Total */}
                     <div className="border-t border-gray-200 pt-4">
                       <div className="flex justify-between items-center mb-4">
-                        <span className="text-sm text-gray-600">Subtotal ({cartTotal.item_count} items):</span>
-                        <span className="text-lg font-bold text-gray-900">₹{cartTotal.total_amount.toFixed(2)}</span>
+                        <span className="text-sm text-gray-600">{cartTotal.item_count} item(s) in cart</span>
                       </div>
                     </div>
                   </>

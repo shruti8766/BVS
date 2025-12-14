@@ -260,10 +260,10 @@ export default function HotelOrders() {
     const billDate = new Date(bill.bill_date);
     const dueDate = new Date(billDate.getTime() + 10 * 24 * 60 * 60 * 1000);
 
-    // Enrich order items with prices (unchanged)
+    // Use LOCKED prices from price_at_order (finalized prices)
     const enrichedItems = order.items?.map(item => ({
       ...item,
-      price_per_unit: parseFloat(item.price_per_unit || getPriceForProduct(item.product_id) || 0)
+      price_per_unit: parseFloat(item.price_at_order || item.price_per_unit || getPriceForProduct(item.product_id) || 0)
     })) || [];
 
     // Build items HTML (unchanged)
@@ -581,7 +581,7 @@ export default function HotelOrders() {
               <table className="min-w-full divide-y divide-green-200">
                 <thead className="bg-green-50">
                   <tr>
-                    {['ID', 'Date', 'Status', 'Total', 'Items', 'Delivery Date', 'Bill', 'Actions'].map((h) => (
+                    {['ID', 'Date', 'Total', 'Status', 'Items', 'Delivery Date', 'Bill', 'Actions'].map((h) => (
                       <th key={h} className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
                         {h}
                       </th>
@@ -597,7 +597,7 @@ export default function HotelOrders() {
                           <p className="text-lg text-green-800">No orders yet</p>
                           <p className="text-green-600">Place your first order to get fresh vegetables delivered.</p>
                           <button
-                            onClick={() => navigate('/new-order')}
+                            onClick={() => navigate('/hotel/products')}
                             className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                           >
                             Start Ordering
@@ -613,6 +613,12 @@ export default function HotelOrders() {
                       const statusColor = o.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                                           (o.status === 'delivered' || o.status === 'dispatched') ? 'bg-green-100 text-green-800' :
                                           'bg-blue-100 text-blue-800';
+                      
+                      // NEW: Pricing status badge
+                      const pricingStatusColor = o.pricing_status === 'pending_pricing' 
+                        ? 'bg-orange-100 text-orange-800' 
+                        : 'bg-green-100 text-green-800';
+                      
                       return (
                         <tr key={o.id} className="hover:bg-green-50">
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-800">
@@ -622,12 +628,18 @@ export default function HotelOrders() {
                             {formatDate(o.order_date)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
+                            {o.pricing_status === 'pending_pricing' ? (
+                              <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                ⏳ Pending
+                              </span>
+                            ) : (
+                              <span className="text-sm font-semibold text-green-800">₹{total.toFixed(2)}</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${statusColor}`}>
                               {o.status.charAt(0).toUpperCase() + o.status.slice(1)}
                             </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-800">
-                            ₹{total.toFixed(2)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             {itemCount} items
@@ -637,7 +649,9 @@ export default function HotelOrders() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm">
                             {bill ? (
-                              <span className="text-green-600">Generated</span>
+                              <span className={o.pricing_status === 'pending_pricing' ? 'text-orange-500' : 'text-green-600'}>
+                                {o.pricing_status === 'pending_pricing' ? 'Pending' : 'Generated'}
+                              </span>
                             ) : (
                               <span className="text-gray-400">Pending</span>
                             )}
@@ -675,45 +689,149 @@ export default function HotelOrders() {
             </div>
           </div>
 
-          {/* Custom Order Details Modal */}
+          {/* Enhanced Order Details Modal - Compact Version */}
           {isOpen && selectedOrder && (
-            <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg p-6 max-w-md mx-auto shadow-xl max-h-[80vh] overflow-y-auto">
-                <h2 className="text-lg font-bold text-green-800 mb-4">
-                  Order #{selectedOrder.id} Details
-                </h2>
-                <div className="space-y-4 mb-6 text-sm">
-                  <p><strong>Status:</strong> <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                    selectedOrder.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                    (selectedOrder.status === 'delivered' || selectedOrder.status === 'dispatched') ? 'bg-green-100 text-green-800' :
-                    'bg-blue-100 text-blue-800'
-                  }`}>
-                    {selectedOrder.status}
-                  </span></p>
-                  <p><strong>Total:</strong> ₹{parseFloat(selectedOrder.total_amount || 0).toFixed(2)}</p>
-                  <p><strong>Order Date:</strong> {formatDate(selectedOrder.order_date)}</p>
-                  <p><strong>Delivery Date:</strong> {formatDate(selectedOrder.delivery_date)}</p>
-                  <p><strong>Special Instructions:</strong> {selectedOrder.special_instructions || 'None'}</p>
-                  {selectedOrder.items && selectedOrder.items.length > 0 && (
-                    <div>
-                      <strong>Items:</strong>
-                      <ul className="mt-2 space-y-1">
-                        {selectedOrder.items.map((item, idx) => (
-                          <li key={idx} className="border-l-2 border-green-300 pl-3">
-                            <div><strong>{item.product_name}</strong> - Qty: {item.quantity} {item.unit_type}</div>
-                            <div className="text-xs text-gray-600">@ ₹{item.price_per_unit.toFixed(2)}/unit</div>
-                          </li>
-                        ))}
-                      </ul>
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-xl border border-green-100">
+                <div className="p-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-bold text-green-800">
+                      Order Details - #{selectedOrder.id}
+                    </h3>
+                    <button 
+                      onClick={() => setIsOpen(false)} 
+                      className="p-1.5 hover:bg-green-50 rounded-lg transition-colors"
+                    >
+                      <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* Order Header */}
+                    <div className="bg-white border border-green-100 rounded-lg p-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="text-base font-bold text-green-800">{user?.hotel_name || 'Your Order'}</h4>
+                          <p className="text-sm text-gray-600">Order #{selectedOrder.id}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xl font-bold text-emerald-700">₹{parseFloat(selectedOrder.total_amount || 0).toFixed(2)}</p>
+                          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium border ${
+                            selectedOrder.status === 'pending' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
+                            selectedOrder.status === 'confirmed' ? 'bg-blue-100 text-blue-800 border-blue-200' :
+                            selectedOrder.status === 'preparing' ? 'bg-purple-100 text-purple-800 border-purple-200' :
+                            selectedOrder.status === 'dispatched' ? 'bg-orange-100 text-orange-800 border-orange-200' :
+                            selectedOrder.status === 'delivered' ? 'bg-green-100 text-green-800 border-green-200' :
+                            'bg-gray-100 text-gray-800 border-gray-200'
+                          }`}>
+                            {selectedOrder.status}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  )}
+
+                    {/* Order Information */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <div>
+                          <p className="text-xs font-medium text-gray-600">Order Date</p>
+                          <p className="text-sm font-semibold text-gray-900">{formatDate(selectedOrder.order_date)}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-gray-600">Delivery Date</p>
+                          <p className="text-sm font-semibold text-gray-900">{formatDate(selectedOrder.delivery_date)}</p>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div>
+                          <p className="text-xs font-medium text-gray-600">Pricing Status</p>
+                          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium border ${
+                            selectedOrder.pricing_status === 'prices_finalized' ? 'bg-green-100 text-green-800 border-green-200' :
+                            'bg-yellow-100 text-yellow-800 border-yellow-200'
+                          }`}>
+                            {selectedOrder.pricing_status === 'prices_finalized' ? 'Prices Finalized' : 'Pending Pricing'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Special Instructions */}
+                    {selectedOrder.special_instructions && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                        <p className="text-xs font-medium text-gray-600 mb-1">Special Instructions</p>
+                        <p className="text-sm text-amber-800">{selectedOrder.special_instructions}</p>
+                      </div>
+                    )}
+
+                    {/* Enhanced Items Table */}
+                    <div className="bg-white border border-green-100 rounded-lg overflow-hidden">
+                      <p className="text-xs font-medium text-gray-600 px-4 pt-3 pb-2">Order Items</p>
+                      <div className="border-t border-green-100">
+                        <table className="min-w-full text-sm">
+                          <thead className="bg-green-50/50">
+                            <tr>
+                              <th className="px-4 py-2 text-left text-xs font-bold text-green-700 uppercase">Product</th>
+                              <th className="px-4 py-2 text-left text-xs font-bold text-green-700 uppercase">Qty</th>
+                              <th className="px-4 py-2 text-left text-xs font-bold text-green-700 uppercase">Unit</th>
+                              <th className="px-4 py-2 text-left text-xs font-bold text-green-700 uppercase">Price/Unit</th>
+                              <th className="px-4 py-2 text-left text-xs font-bold text-green-700 uppercase">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-green-50 bg-white">
+                            {selectedOrder.items?.length ? selectedOrder.items.map((item, index) => {
+                              const pricePerUnit = parseFloat(item.price_at_order || item.price_per_unit || 0);
+                              const itemTotal = parseFloat(item.quantity || 0) * pricePerUnit;
+                              return (
+                                <tr key={index} className="hover:bg-green-50/30 transition-colors">
+                                  <td className="px-4 py-2 text-sm font-medium text-gray-900">
+                                    {item.product_name || `Product ${item.product_id}`}
+                                  </td>
+                                  <td className="px-4 py-2 text-sm text-gray-900">
+                                    {item.quantity || 0}
+                                  </td>
+                                  <td className="px-4 py-2 text-sm text-gray-600">
+                                    {item.unit_type || 'kg'}
+                                  </td>
+                                  <td className="px-4 py-2 text-sm text-gray-900">
+                                    {pricePerUnit > 0 ? `₹${pricePerUnit.toFixed(2)}` : 'Pending'}
+                                  </td>
+                                  <td className="px-4 py-2 text-sm font-semibold text-gray-900">
+                                    {itemTotal > 0 ? `₹${itemTotal.toFixed(2)}` : 'Pending'}
+                                  </td>
+                                </tr>
+                              );
+                            }) : (
+                              <tr>
+                                <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                                  <div className="flex flex-col items-center gap-2">
+                                    <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
+                                      <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                      </svg>
+                                    </div>
+                                    <p className="text-sm font-medium">No items found</p>
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </tbody>
+                          <tfoot className="bg-green-50/50">
+                            <tr>
+                              <td colSpan={4} className="px-4 py-2 text-right text-xs font-medium text-green-700">
+                                Grand Total:
+                              </td>
+                              <td className="px-4 py-2 text-sm font-bold text-emerald-700">
+                                ₹{parseFloat(selectedOrder.total_amount || 0).toFixed(2)}
+                              </td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  Close
-                </button>
               </div>
             </div>
           )}

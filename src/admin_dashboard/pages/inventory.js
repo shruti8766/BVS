@@ -516,8 +516,7 @@ const Inventory = () => {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ 
-          stock_quantity: newStock, 
-          price_per_unit: newPrice 
+          stock_quantity: newStock
         }),
       });
       if (!res.ok) {
@@ -622,50 +621,40 @@ const Inventory = () => {
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-8 w-full">
         {/* ---------- Header ---------- */}
-        <div className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-green-800 mb-2">Inventory Management</h1>
-            <p className="text-gray-600 text-lg font-medium">Monitor and update stock levels for products</p>
+            <h1 className="text-2xl font-bold text-green-800 mb-1">Inventory Management</h1>
+            <p className="text-gray-600 text-sm">Monitor and update stock levels for products</p>
           </div>
-          <button
-            onClick={fetchInventory}
-            className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-300 flex items-center gap-2 font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Refresh
-          </button>
         </div>
 
         {/* ---------- Stats Cards ---------- */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {[
             { key: 'total', label: 'Total Items', value: safe(stats.total, 0), color: 'text-gray-700' },
             { key: 'available', label: 'In Stock', value: safe(stats.available, 0), color: 'text-emerald-700', trend: 5 },
             { key: 'lowStock', label: 'Low Stock', value: safe(stats.lowStock, 0), color: 'text-orange-600' },
             { key: 'outOfStock', label: 'Out of Stock', value: safe(stats.outOfStock, 0), color: 'text-red-600' },
           ].map(({ key, label, value, color, trend }) => (
-            <div key={key} className="relative overflow-hidden group bg-white rounded-2xl shadow-lg border-2 border-green-100 transition-all duration-300 hover:shadow-xl hover:border-green-300 hover:-translate-y-1">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="relative p-6">
-                <div className="flex items-start justify-between mb-3">
-                  <div className={`p-3 rounded-xl ${color === 'text-emerald-700' ? 'bg-emerald-100' : color === 'text-orange-600' ? 'bg-orange-100' : color === 'text-red-600' ? 'bg-red-100' : 'bg-green-100'}`}>
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={key === 'total' ? 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4' : key === 'available' ? 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' : key === 'lowStock' ? 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' : 'M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z'} />
-                    </svg>
-                  </div>
-                  {trend !== undefined && (
-                    <div className="flex items-center gap-1 px-2 py-1 bg-green-100 rounded-full">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                      </svg>
-                      <span className="text-xs font-semibold text-green-700">+{trend}%</span>
-                    </div>
-                  )}
+            <div key={key} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium text-gray-500">{label}</h3>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${color === 'text-emerald-700' ? 'bg-emerald-100' : color === 'text-orange-600' ? 'bg-orange-100' : color === 'text-red-600' ? 'bg-red-100' : 'bg-green-100'}`}>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={key === 'total' ? 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4' : key === 'available' ? 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' : key === 'lowStock' ? 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' : 'M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z'} />
+                  </svg>
                 </div>
-                <p className="text-sm font-medium text-gray-600 mb-1">{label}</p>
-                <p className={`text-3xl font-bold ${color}`}>{value}</p>
+              </div>
+              <div className="mt-2">
+                <div className={`text-2xl font-semibold ${color}`}>{value}</div>
+                {trend !== undefined && (
+                  <div className="flex items-center mt-1">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                    <span className="text-xs font-semibold text-green-600 ml-1">+{trend}%</span>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -687,15 +676,16 @@ const Inventory = () => {
           </div>
         )}
 
-        {/* ---------- Filters & Refresh ---------- */}
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-green-100 overflow-hidden mb-10">
-          <div className="px-6 py-5 bg-gradient-to-r from-green-50 to-emerald-50 border-b-2 border-green-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <label className="text-sm font-bold text-green-700">Filter by:</label>
+        {/* ---------- Table ---------- */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-10">
+          <div className="px-4 py-3 bg-green-50 border-b border-green-100 flex justify-between items-center">
+            <h3 className="text-base font-bold text-green-800">Inventory Items</h3>
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by:</label>
               <select
                 value={filter}
                 onChange={e => setFilter(e.target.value)}
-                className="border-2 border-green-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all bg-white"
+                className="border-2 border-green-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all bg-white"
               >
                 <option value="all">All Items</option>
                 <option value="low-stock">Low Stock</option>
@@ -707,19 +697,12 @@ const Inventory = () => {
               </select>
             </div>
           </div>
-        </div>
-
-        {/* ---------- Table ---------- */}
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-green-100 overflow-hidden mb-10">
-          <div className="px-6 py-5 bg-gradient-to-r from-green-50 to-emerald-50 border-b-2 border-green-100">
-            <h3 className="text-xl font-bold text-green-800">Inventory Items</h3>
-          </div>
           <div className="overflow-x-auto">
             <table className="min-w-full">
               <thead>
                 <tr className="bg-green-50/50">
-                  {['Image', 'Name', 'Category', 'Price', 'Current Stock', 'Unit Type', 'Available', 'Actions'].map(h => (
-                    <th key={h} className="px-6 py-4 text-left text-xs font-bold text-green-700 uppercase tracking-wider">
+                  {['Image', 'Name', 'Category', 'Current Stock', 'Unit Type', 'Available', 'Actions'].map(h => (
+                    <th key={h} className="px-4 py-3 text-left text-xs font-bold text-green-700 uppercase">
                       {h}
                     </th>
                   ))}
@@ -728,54 +711,51 @@ const Inventory = () => {
               <tbody className="divide-y divide-green-50">
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center">
+                    <td colSpan={7} className="px-4 py-8 text-center">
                       <div className="flex flex-col items-center gap-2">
-                        <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center">
-                          <svg className="w-8 h-8 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
+                          <svg className="w-6 h-6 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                           </svg>
                         </div>
-                        <p className="text-gray-500 font-medium">No inventory items found</p>
+                        <p className="text-sm font-medium text-gray-700">No inventory items found</p>
                       </div>
                     </td>
                   </tr>
                 ) : (
                   filtered.map(p => (
                     <tr key={p.id} className="hover:bg-green-50/30 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <img src={p.image_url || 'https://via.placeholder.com/60x60?text=?'} alt={p.name} className="w-12 h-12 object-cover rounded-xl" />
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <img src={p.image_url || 'https://via.placeholder.com/60x60?text=?'} alt={p.name} className="w-10 h-10 object-cover rounded-lg\" />
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
                         {safe(p.name)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
                         {safe(p.category)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        ₹{safeNum(p.price_per_unit).toFixed(2)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+
+                      <td className="px-4 py-3 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium border ${getStockColor(p.stock_quantity)}`}>
                           {safeNum(p.stock_quantity)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
                         {safe(p.unit_type)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
                           p.is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                         }`}>
                           {p.is_available ? 'Yes' : 'No'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm\">
                         <div className="flex space-x-2">
                           <button
                             onClick={() => { 
                               setUpdatingProduct(p); 
                               setNewStock(safeNum(p.stock_quantity)); 
-                              setNewPrice(safeNum(p.price_per_unit));
                               setShowStockUpdate(true); 
                             }}
                             className="text-green-600 hover:text-green-700 text-xs underline transition-colors"
@@ -809,7 +789,6 @@ const Inventory = () => {
                 </div>
                 <div className="space-y-4">
                   <p className="text-sm text-gray-600">Current Stock: <span className={`font-semibold ${getStockColor(updatingProduct.stock_quantity)}`}>{safeNum(updatingProduct.stock_quantity)}</span></p>
-                  <p className="text-sm text-gray-600">Current Price: ₹{safeNum(updatingProduct.price_per_unit).toFixed(2)}</p>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">New Stock Quantity</label>
                     <input
@@ -819,18 +798,6 @@ const Inventory = () => {
                       onChange={e => setNewStock(parseInt(e.target.value) || 0)}
                       className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
                       placeholder="New stock quantity"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">New Price per Unit</label>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={newPrice}
-                      onChange={e => setNewPrice(safeNum(e.target.value))}
-                      className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
-                      placeholder="New price"
                     />
                   </div>
                   <button
@@ -866,7 +833,6 @@ const Inventory = () => {
                       <div><p className="text-sm font-medium text-gray-600">Description</p><p className="text-gray-700">{safe(selected.description)}</p></div>
                       <div><p className="text-sm font-medium text-gray-600">Category</p><p className="font-semibold text-green-800">{safe(selected.category)}</p></div>
                       <div><p className="text-sm font-medium text-gray-600">Unit Type</p><p className="font-semibold text-green-800">{safe(selected.unit_type)}</p></div>
-                      <div><p className="text-sm font-medium text-gray-600">Price per Unit</p><p className="font-semibold text-green-800">₹{safeNum(selected.price_per_unit).toFixed(2)}</p></div>
                       <div><p className="text-sm font-medium text-gray-600">Available</p>
                         <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           selected.is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'

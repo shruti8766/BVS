@@ -355,7 +355,7 @@ const Stat = ({ label, value, color = 'text-green-700', Icon, trend }) => (
 
 const MiniTable = ({ title, headers, rows, linkTo, emptyMsg = 'No data', onRowClick }) => (
   <Card>
-    <div className="px-6 py-5 bg-gradient-to-r from-green-50 to-emerald-50 border-b-2 border-green-100 flex justify-between items-center">
+    <div className="px-6 py-5 bg-green-50 border-b border-gray-200 flex justify-between items-center">
       <h3 className="text-xl font-bold text-green-800">{title}</h3>
       {linkTo && (
         <a href={linkTo} className="text-sm font-medium text-green-600 hover:text-green-700 flex items-center gap-1 transition-colors">
@@ -369,18 +369,18 @@ const MiniTable = ({ title, headers, rows, linkTo, emptyMsg = 'No data', onRowCl
     <div className="overflow-x-auto">
       <table className="min-w-full">
         <thead>
-          <tr className="bg-green-50/50">
+          <tr className="bg-white">
             {headers.map((h, i) => (
-              <th key={i} className="px-6 py-4 text-left text-xs font-bold text-green-700 uppercase tracking-wider">
+              <th key={i} className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b">
                 {h}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-green-50">
+        <tbody className="divide-y divide-gray-200">
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={headers.length} className="px-6 py-12 text-center">
+              <td colSpan={headers.length} className="px-4 py-12 text-center">
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center">
                     <Icons.Building />
@@ -391,9 +391,9 @@ const MiniTable = ({ title, headers, rows, linkTo, emptyMsg = 'No data', onRowCl
             </tr>
           ) : (
             rows.map((r, i) => (
-              <tr key={i} className={`hover:bg-green-50/30 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`} onClick={() => onRowClick && onRowClick(r)}>
+              <tr key={i} className={`hover:bg-gray-50 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`} onClick={() => onRowClick && onRowClick(r)}>
                 {r.map((cell, j) => (
-                  <td key={j} className="px-6 py-4 text-sm font-medium text-gray-700">
+                  <td key={j} className="px-4 py-3 text-sm text-gray-700">
                     {cell}
                   </td>
                 ))}
@@ -552,12 +552,12 @@ const Hotels = () => {
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
         <div className="p-8 w-full">
           {/* ---------- Header ---------- */}
-          <div className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600 mb-2">
+              <h1 className="text-2xl font-bold text-green-800 mb-1">
                 Hotels Management
               </h1>
-              <p className="text-gray-600 text-lg font-medium">View and manage all registered hotels</p>
+              <p className="text-gray-600 text-sm">View and manage all registered hotels</p>
             </div>
             <button
               onClick={fetchHotels}
@@ -594,7 +594,7 @@ const Hotels = () => {
           {/* ---------- Table ---------- */}
           <MiniTable
             title="Hotels List"
-            headers={['ID', 'Hotel Name', 'Image', 'Username', 'Email', 'Phone', 'Address', 'Created At', 'Last Login', 'Actions']}
+            headers={['ID', 'Hotel Name', 'Image', 'Username', 'Email', 'Phone', 'Created At', 'Last Login', 'Actions']}
             rows={
               filtered.map(h => [
                 `#${safe(h.id)}`,
@@ -619,7 +619,6 @@ const Hotels = () => {
                 safe(h.username),
                 safe(h.email),
                 safe(h.phone),
-                <span key="address" className="block max-w-xs truncate">{safe(h.address)}</span>,
                 formatDate(h.created_at),
                 formatDate(h.last_login),
                 <div key="actions" className="flex space-x-2">

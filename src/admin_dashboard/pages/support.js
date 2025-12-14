@@ -440,13 +440,10 @@ const GlassCard = ({ children, className = '' }) => (
 );
 
 const Stat = ({ label, value, color = 'text-green-700' }) => (
-  <Card hover className="relative overflow-hidden group">
-    <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-    <div className="relative p-6">
-      <p className="text-sm font-medium text-gray-600 mb-1">{label}</p>
-      <p className={`text-3xl font-bold ${color}`}>{value}</p>
-    </div>
-  </Card>
+  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6">
+    <h3 className="text-sm font-medium text-gray-500 mb-1">{label}</h3>
+    <div className={`text-2xl font-semibold ${color}`}>{value}</div>
+  </div>
 );
 
 const QuickAction = ({ onClick, children, disabled = false, className = '' }) => (
@@ -736,12 +733,12 @@ const Support = () => {
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-8 w-full">
         {/* ---------- Header ---------- */}
-        <div className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600 mb-2">
+            <h1 className="text-2xl font-bold text-green-800 mb-1">
               Support Center
             </h1>
-            <p className="text-gray-600 text-lg font-medium">Manage tickets, chat with customers, view FAQs</p>
+            <p className="text-gray-600 text-sm">Manage tickets, chat with customers, view FAQs</p>
           </div>
           <QuickAction onClick={() => setShowCreate(true)}>
             + New Ticket
@@ -772,21 +769,21 @@ const Support = () => {
           </Card>
         )}
 
-        {/* ---------- Toolbar ---------- */}
-        <Card className="mb-10">
-          <div className="px-6 py-5 bg-gradient-to-r from-green-50 to-emerald-50 border-b-2 border-green-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        {/* ---------- Tickets Table with Toolbar ---------- */}
+        <Card>
+          <div className="px-6 py-5 bg-green-50 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
               <input
                 type="text"
                 placeholder="Search tickets…"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="px-4 py-2 border-2 border-green-200 rounded-xl text-sm w-64 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all bg-white"
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
               />
               <select
                 value={filterStatus}
                 onChange={e => setFilterStatus(e.target.value)}
-                className="border-2 border-green-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all bg-white"
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
               >
                 <option value="all">All</option>
                 <option value="open">Open</option>
@@ -794,24 +791,24 @@ const Support = () => {
               </select>
             </div>
             <div className="flex space-x-2">
-              <QuickAction onClick={fetchTickets} className="!px-4 !py-2 !text-sm">
+              <button onClick={fetchTickets} className="px-4 py-2 bg-white text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-50 text-sm font-medium transition-colors">
                 Refresh
-              </QuickAction>
-              <QuickAction onClick={exportCSV} className="!px-4 !py-2 !text-sm !from-gray-500 !to-gray-600">
+              </button>
+              <button onClick={exportCSV} className="px-4 py-2 bg-white text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-50 text-sm font-medium transition-colors">
                 Export CSV
-              </QuickAction>
+              </button>
             </div>
           </div>
+          <div>
+            <MiniTable
+              headers={['ID', 'Subject', 'Status', 'Created', 'Replies', 'Actions']}
+              rows={tableRows}
+              emptyMsg="No tickets found"
+              onView={handleView}
+              onClose={closeTicket}
+            />
+          </div>
         </Card>
-
-        {/* ---------- Tickets Table ---------- */}
-        <MiniTable
-          headers={['ID', 'Subject', 'Status', 'Created', 'Replies', 'Actions']}
-          rows={tableRows}
-          emptyMsg="No tickets found"
-          onView={handleView}
-          onClose={closeTicket}
-        />
 
         {/* ---------- CREATE TICKET MODAL ---------- */}
         {showCreate && (

@@ -1,9 +1,9 @@
-// src/admin_dashboard/pages/admindash.js
+// src/admin_dashboard/pages/analytics_new.js
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/layout/Layout';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 
-const Admindash = () => {
+const Analytics = () => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -76,7 +76,7 @@ const Admindash = () => {
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-green-800 mb-1">
-            Dashboard
+            Analytics Dashboard
           </h1>
           <p className="text-gray-600 text-sm">Comprehensive financial insights and revenue tracking</p>
         </div>
@@ -271,4 +271,4 @@ const Admindash = () => {
   );
 };
 
-export default Admindash;
+export default Analytics;

@@ -688,11 +688,11 @@ const Settings = () => {
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-8 w-full">
         {/* ---------- Header ---------- */}
-        <div className="mb-10">
-          <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600 mb-2">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-green-800 mb-1">
             Settings
           </h1>
-          <p className="text-gray-600 text-lg font-medium">Manage your profile, website, and system configurations</p>
+          <p className="text-gray-600 text-sm">Manage your profile, website, and system configurations</p>
         </div>
 
         {/* ---------- Tabs ---------- */}
