@@ -2996,6 +2996,558 @@ def get_pending_pricing_orders(current_user):
         conn.close()
 
 
+@app.route('/api/admin/orders/todays-vegetables', methods=['GET'])
+@token_required
+@admin_required
+def get_todays_vegetables(current_user):
+    """
+    Get aggregated list of vegetables for today's delivery (from yesterday's orders)
+    
+    LOGIC:
+    - Orders placed on Day X are for delivery on Day X+1
+    - After 1:00 AM on Day X+1, we show orders from Day X
+    - Before 1:00 AM on Day X+1, we still show orders from Day X-1
+    
+    Example: Monday orders → Shown Tuesday after 1 AM → Delivered Tuesday
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        from datetime import datetime, time
+        now = datetime.now()
+        current_time = now.time()
+        
+        # Show yesterday's orders (for today's delivery)
+        # Orders placed yesterday are for today
+        if current_time >= time(1, 0):  # After 1 AM
+            target_date = now.date() - timedelta(days=1)  # Yesterday's orders
+        else:  # Before 1 AM (still yesterday technically)
+            target_date = now.date() - timedelta(days=2)  # Day before yesterday's orders
+        
+        date_str = now.strftime('%d %B %Y')
+        day_str = now.strftime('%A')
+        
+        print(f"[{datetime.now()}] Today's vegetables - Current time: {current_time.strftime('%H:%M')}")
+        print(f"[{datetime.now()}] Today's vegetables - Order date (Day X): {target_date} → Delivery date (Day X+1): {now.date()}")
+        
+        # Get vegetables from ALL orders placed on target_date (not just pending pricing)
+        cursor.execute("""
+            SELECT 
+                p.id as product_id,
+                p.name as product_name,
+                p.category,
+                p.unit_type,
+                SUM(oi.quantity) as total_quantity,
+                COUNT(DISTINCT o.id) as order_count,
+                DATE(o.order_date) as order_date
+            FROM orders o
+            JOIN order_items oi ON o.id = oi.order_id
+            JOIN products p ON oi.product_id = p.id
+            WHERE DATE(o.order_date) = %s
+            AND o.status != 'cancelled'
+            GROUP BY p.id, p.name, p.category, p.unit_type, DATE(o.order_date)
+            ORDER BY p.category, p.name
+        """, (target_date,))
+        
+        print(f"[{datetime.now()}] Found {cursor.rowcount} vegetable records from {target_date}")
+        
+        vegetables = cursor.fetchall()
+        
+        # Calculate totals by category
+        category_totals = {}
+        for veg in vegetables:
+            cat = veg['category'] or 'Other'
+            if cat not in category_totals:
+                category_totals[cat] = {
+                    'count': 0,
+                    'total_quantity': 0
+                }
+            category_totals[cat]['count'] += 1
+            category_totals[cat]['total_quantity'] += float(veg['total_quantity'])
+        
+        return jsonify({
+            'date': date_str,
+            'day': day_str,
+            'target_date': target_date.strftime('%Y-%m-%d'),
+            'vegetables': vegetables,
+            'category_totals': category_totals,
+            'total_items': len(vegetables),
+            'total_orders': len(set([v['order_count'] for v in vegetables])) if vegetables else 0
+        })
+        
+    except Exception as e:
+        print(f"[{datetime.now()}] Error fetching today's vegetables: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route('/api/admin/orders/todays-hotels-orders', methods=['GET'])
+@token_required
+@admin_required
+def get_todays_hotels_orders(current_user):
+    """
+    Get today's orders grouped by hotel (from yesterday's orders)
+    
+    LOGIC:
+    - Orders placed on Day X are for delivery on Day X+1
+    - After 1:00 AM on Day X+1, we show orders from Day X
+    - Before 1:00 AM on Day X+1, we still show orders from Day X-1
+    
+    Example: Monday orders → Shown Tuesday after 1 AM → Delivered Tuesday
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        from datetime import datetime, time
+        now = datetime.now()
+        current_time = now.time()
+        
+        # Show yesterday's orders (for today's delivery)
+        if current_time >= time(1, 0):  # After 1 AM
+            target_date = now.date() - timedelta(days=1)  # Yesterday's orders
+        else:  # Before 1 AM
+            target_date = now.date() - timedelta(days=2)  # Day before yesterday's orders
+        
+        date_str = now.strftime('%d %B %Y')
+        day_str = now.strftime('%A')
+        
+        print(f"[{datetime.now()}] Today's hotels orders - Current time: {current_time.strftime('%H:%M')}")
+        print(f"[{datetime.now()}] Today's hotels orders - Order date (Day X): {target_date} → Delivery date (Day X+1): {now.date()}")
+        
+        # Get all orders from target_date with hotel details
+        cursor.execute("""
+            SELECT 
+                o.id as order_id,
+                o.order_date,
+                o.delivery_date,
+                o.total_amount,
+                o.status,
+                o.pricing_status,
+                o.special_instructions,
+                u.id as hotel_id,
+                u.hotel_name,
+                u.email,
+                u.phone,
+                u.address
+            FROM orders o
+            JOIN users u ON o.user_id = u.id
+            WHERE DATE(o.order_date) = %s
+            AND o.status != 'cancelled'
+            ORDER BY u.hotel_name, o.id
+        """, (target_date,))
+        
+        orders = cursor.fetchall()
+        
+        # Get items for each order
+        for order in orders:
+            cursor.execute("""
+                SELECT 
+                    oi.product_id,
+                    oi.quantity,
+                    oi.price_at_order,
+                    p.name as product_name,
+                    p.unit_type,
+                    p.category
+                FROM order_items oi
+                JOIN products p ON oi.product_id = p.id
+                WHERE oi.order_id = %s
+                ORDER BY p.category, p.name
+            """, (order['order_id'],))
+            order['items'] = cursor.fetchall()
+        
+        return jsonify({
+            'date': date_str,
+            'day': day_str,
+            'target_date': target_date.strftime('%Y-%m-%d'),
+            'orders': orders,
+            'total_orders': len(orders)
+        })
+        
+    except Exception as e:
+        print(f"[{datetime.now()}] Error fetching today's hotels orders: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route('/api/admin/orders/vegetables-history', methods=['GET'])
+@token_required
+@admin_required
+def get_vegetables_history(current_user):
+    """Get aggregated vegetables for a specific date (history view)"""
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        # Get date parameter from query string (format: YYYY-MM-DD)
+        selected_date_str = request.args.get('date')
+        
+        if not selected_date_str:
+            return jsonify({'error': 'Date parameter required (format: YYYY-MM-DD)'}), 400
+        
+        # Parse the date - this is the date we want to VIEW
+        selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+        
+        # Show vegetables from the DAY BEFORE selected date
+        # Because orders placed on day X are for delivery on day X+1
+        target_date = selected_date - timedelta(days=1)
+        
+        date_str = selected_date.strftime('%d %B %Y')
+        day_str = selected_date.strftime('%A')
+        
+        print(f"[{datetime.now()}] ========================================")
+        print(f"[{datetime.now()}] VEGETABLES HISTORY REQUEST")
+        print(f"[{datetime.now()}] Selected date (viewing): {selected_date}")
+        print(f"[{datetime.now()}] Target date (orders from): {target_date}")
+        print(f"[{datetime.now()}] ========================================")
+        
+        # Get vegetables from orders placed on target_date (day before)
+        cursor.execute("""
+            SELECT 
+                p.id as product_id,
+                p.name as product_name,
+                p.category,
+                p.unit_type,
+                SUM(oi.quantity) as total_quantity,
+                COUNT(DISTINCT o.id) as order_count,
+                DATE(o.order_date) as order_date
+            FROM orders o
+            JOIN order_items oi ON o.id = oi.order_id
+            JOIN products p ON oi.product_id = p.id
+            WHERE DATE(o.order_date) = %s
+            AND o.status != 'cancelled'
+            GROUP BY p.id, p.name, p.category, p.unit_type, DATE(o.order_date)
+            ORDER BY p.category, p.name
+        """, (target_date,))
+        
+        vegetables = cursor.fetchall()
+        
+        print(f"[{datetime.now()}] Found {len(vegetables)} unique products from {target_date}")
+        print(f"[{datetime.now()}] ========================================")
+        
+        # Calculate totals by category
+        category_totals = {}
+        for veg in vegetables:
+            cat = veg['category'] or 'Other'
+            if cat not in category_totals:
+                category_totals[cat] = {
+                    'count': 0,
+                    'total_quantity': 0
+                }
+            category_totals[cat]['count'] += 1
+            category_totals[cat]['total_quantity'] += float(veg['total_quantity'])
+        
+        return jsonify({
+            'date': date_str,
+            'day': day_str,
+            'selected_date': selected_date_str,
+            'target_date': target_date.strftime('%Y-%m-%d'),  # ADD THIS!
+            'vegetables': vegetables,
+            'category_totals': category_totals,
+            'total_items': len(vegetables),
+            'total_orders': len(vegetables)
+        })
+        
+    except ValueError:
+        return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+    except Exception as e:
+        print(f"[{datetime.now()}] Error fetching vegetables history: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route('/api/admin/orders/todays-filling', methods=['GET'])
+@token_required
+@admin_required
+def get_todays_filling(current_user):
+    """
+    Get today's orders in matrix format (products x hotels)
+    
+    LOGIC:
+    - Orders placed on Day X are for delivery on Day X+1
+    - After 1:00 AM on Day X+1, we show orders from Day X
+    - Before 1:00 AM on Day X+1, we still show orders from Day X-1
+    
+    Example: Monday orders → Shown Tuesday after 1 AM → Delivered Tuesday
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        from datetime import datetime, time
+        now = datetime.now()
+        current_time = now.time()
+        
+        # Show yesterday's orders (for today's delivery)
+        if current_time >= time(1, 0):  # After 1 AM
+            target_date = now.date() - timedelta(days=1)
+        else:  # Before 1 AM
+            target_date = now.date() - timedelta(days=2)
+        
+        date_str = now.strftime('%d %B %Y')
+        day_str = now.strftime('%A')
+        
+        print(f"[{datetime.now()}] Today's filling matrix - Current time: {current_time.strftime('%H:%M')}")
+        print(f"[{datetime.now()}] Today's filling matrix - Order date (Day X): {target_date} → Delivery date (Day X+1): {now.date()}")
+        
+        # Get all hotels with orders on target_date
+        cursor.execute("""
+            SELECT DISTINCT
+                u.id as hotel_id,
+                u.hotel_name
+            FROM orders o
+            JOIN users u ON o.user_id = u.id
+            WHERE DATE(o.order_date) = %s
+            AND o.status != 'cancelled'
+            ORDER BY u.hotel_name
+        """, (target_date,))
+        
+        hotels = cursor.fetchall()
+        
+        # Get all products ordered on target_date with quantities per hotel
+        cursor.execute("""
+            SELECT 
+                p.id as product_id,
+                p.name as product_name,
+                p.unit_type,
+                p.category,
+                u.id as hotel_id,
+                SUM(oi.quantity) as quantity
+            FROM orders o
+            JOIN users u ON o.user_id = u.id
+            JOIN order_items oi ON o.id = oi.order_id
+            JOIN products p ON oi.product_id = p.id
+            WHERE DATE(o.order_date) = %s
+            AND o.status != 'cancelled'
+            GROUP BY p.id, p.name, p.unit_type, p.category, u.id
+            ORDER BY p.category, p.name
+        """, (target_date,))
+        
+        items = cursor.fetchall()
+        
+        # Build products list with quantities dictionary
+        products_dict = {}
+        for item in items:
+            product_id = item['product_id']
+            if product_id not in products_dict:
+                products_dict[product_id] = {
+                    'product_id': product_id,
+                    'product_name': item['product_name'],
+                    'unit_type': item['unit_type'],
+                    'category': item['category'],
+                    'quantities': {}
+                }
+            products_dict[product_id]['quantities'][item['hotel_id']] = float(item['quantity'])
+        
+        products = list(products_dict.values())
+        
+        return jsonify({
+            'date': date_str,
+            'day': day_str,
+            'target_date': target_date.strftime('%Y-%m-%d'),
+            'hotels': hotels,
+            'products': products,
+            'total_hotels': len(hotels),
+            'total_products': len(products)
+        })
+        
+    except Exception as e:
+        print(f"[{datetime.now()}] Error fetching today's filling: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route('/api/admin/orders/filling-history', methods=['GET'])
+@token_required
+@admin_required
+def get_filling_history(current_user):
+    """Get filling orders for a specific date in matrix format (history view)"""
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        selected_date_str = request.args.get('date')
+        
+        if not selected_date_str:
+            return jsonify({'error': 'Date parameter required (format: YYYY-MM-DD)'}), 400
+        
+        selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+        target_date = selected_date - timedelta(days=1)
+        
+        date_str = selected_date.strftime('%d %B %Y')
+        day_str = selected_date.strftime('%A')
+        
+        print(f"[{datetime.now()}] Filling History Matrix for {selected_date} - showing orders from: {target_date}")
+        
+        # Get all hotels with orders on target_date
+        cursor.execute("""
+            SELECT DISTINCT
+                u.id as hotel_id,
+                u.hotel_name
+            FROM orders o
+            JOIN users u ON o.user_id = u.id
+            WHERE DATE(o.order_date) = %s
+            AND o.status != 'cancelled'
+            ORDER BY u.hotel_name
+        """, (target_date,))
+        
+        hotels = cursor.fetchall()
+        
+        # Get all products ordered on target_date with quantities per hotel
+        cursor.execute("""
+            SELECT 
+                p.id as product_id,
+                p.name as product_name,
+                p.unit_type,
+                p.category,
+                u.id as hotel_id,
+                SUM(oi.quantity) as quantity
+            FROM orders o
+            JOIN users u ON o.user_id = u.id
+            JOIN order_items oi ON o.id = oi.order_id
+            JOIN products p ON oi.product_id = p.id
+            WHERE DATE(o.order_date) = %s
+            AND o.status != 'cancelled'
+            GROUP BY p.id, p.name, p.unit_type, p.category, u.id
+            ORDER BY p.category, p.name
+        """, (target_date,))
+        
+        items = cursor.fetchall()
+        
+        # Build products list with quantities dictionary
+        products_dict = {}
+        for item in items:
+            product_id = item['product_id']
+            if product_id not in products_dict:
+                products_dict[product_id] = {
+                    'product_id': product_id,
+                    'product_name': item['product_name'],
+                    'unit_type': item['unit_type'],
+                    'category': item['category'],
+                    'quantities': {}
+                }
+            products_dict[product_id]['quantities'][item['hotel_id']] = float(item['quantity'])
+        
+        products = list(products_dict.values())
+        
+        return jsonify({
+            'date': date_str,
+            'day': day_str,
+            'selected_date': selected_date_str,
+            'target_date': target_date.strftime('%Y-%m-%d'),
+            'hotels': hotels,
+            'products': products,
+            'total_hotels': len(hotels),
+            'total_products': len(products)
+        })
+        
+    except ValueError:
+        return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+    except Exception as e:
+        print(f"[{datetime.now()}] Error fetching filling history: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route('/api/admin/orders/hotels-orders-history', methods=['GET'])
+@token_required
+@admin_required
+def get_hotels_orders_history(current_user):
+    """Get hotels orders for a specific date (history view)"""
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        # Get date parameter from query string (format: YYYY-MM-DD)
+        selected_date_str = request.args.get('date')
+        
+        if not selected_date_str:
+            return jsonify({'error': 'Date parameter required (format: YYYY-MM-DD)'}), 400
+        
+        # Parse the date - this is the date we want to VIEW
+        selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+        
+        # Show orders from the DAY BEFORE selected date
+        # Because orders placed on day X are for delivery on day X+1
+        target_date = selected_date - timedelta(days=1)
+        
+        date_str = selected_date.strftime('%d %B %Y')
+        day_str = selected_date.strftime('%A')
+        
+        print(f"[{datetime.now()}] Hotels Orders History for {selected_date} - showing orders from: {target_date}")
+        
+        # Get orders with hotel details
+        cursor.execute("""
+            SELECT 
+                o.id as order_id,
+                o.order_date,
+                o.delivery_date,
+                o.status,
+                o.pricing_status,
+                o.special_instructions,
+                u.id as hotel_id,
+                u.hotel_name,
+                u.email,
+                u.phone,
+                u.address
+            FROM orders o
+            JOIN users u ON o.user_id = u.id
+            WHERE DATE(o.order_date) = %s
+            AND o.status != 'cancelled'
+            ORDER BY u.hotel_name, o.id
+        """, (target_date,))
+        
+        orders = cursor.fetchall()
+        
+        print(f"[{datetime.now()}] Found {len(orders)} orders from {target_date} for viewing on {selected_date}")
+        
+        # Fetch items for each order
+        for order in orders:
+            cursor.execute("""
+                SELECT 
+                    oi.product_id,
+                    p.name as product_name,
+                    oi.quantity,
+                    oi.price_at_order,
+                    p.unit_type,
+                    p.category
+                FROM order_items oi
+                JOIN products p ON oi.product_id = p.id
+                WHERE oi.order_id = %s
+                ORDER BY p.name
+            """, (order['order_id'],))
+            order['items'] = cursor.fetchall()
+        
+        return jsonify({
+            'date': date_str,
+            'day': day_str,
+            'selected_date': selected_date_str,
+            'target_date': target_date.strftime('%Y-%m-%d'),
+            'orders': orders,
+            'total_orders': len(orders)
+        })
+        
+    except ValueError:
+        return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+    except Exception as e:
+        print(f"[{datetime.now()}] Error fetching hotels orders history: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
 @app.route('/api/admin/orders/<int:order_id>/finalize-prices', methods=['PUT'])
 @token_required
 @admin_required

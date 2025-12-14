@@ -173,7 +173,7 @@ const PendingOrders = () => {
         <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading pending orders...</p>
+            <p className="text-gray-600">Loading today's orders...</p>
           </div>
         </div>
       </Layout>
@@ -186,14 +186,14 @@ const PendingOrders = () => {
         <div className="max-w-full">
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-green-800 mb-1">Pending Orders</h1>
-            <p className="text-gray-600 text-sm">New orders awaiting confirmation with locked prices</p>
+            <h1 className="text-2xl font-bold text-green-800 mb-1">Today's Orders</h1>
+            <p className="text-gray-600 text-sm">Orders placed before 12 PM for tomorrow's delivery - awaiting price finalization</p>
           </div>
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-            <Stat label="Pending Orders" value={stats.total} color="text-yellow-700" />
-            <Stat label="Pending Pricing" value={pendingPricingOrders.length || 0} color="text-orange-600" />
+            <Stat label="Today's Orders" value={stats.total} color="text-yellow-700" />
+            <Stat label="Awaiting Pricing" value={pendingPricingOrders.length || 0} color="text-orange-600" />
             <Stat label="Total Value" value={`₹${stats.totalValue.toFixed(2)}`} color="text-green-700" />
           </div>
 

@@ -19,11 +19,15 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ClockIcon,
+  SquaresPlusIcon,
 } from '@heroicons/react/24/outline';
 
 const navItems = [
   { href: '/admin/dashboard', icon: HomeIcon, label: 'Dashboard' },
-  { href: '/admin/pending-orders', icon: ClockIcon, label: 'Pending Orders' },
+  { href: '/admin/pending-orders', icon: ClockIcon, label: "Today's Orders" },
+  { href: '/admin/todays-vegetables', icon: SquaresPlusIcon, label: "Today's Vegetables" },
+  { href: '/admin/todays-hotels-orders', icon: BuildingOfficeIcon, label: "Today's Hotels Orders" },
+  { href: '/admin/todays-filling', icon: CubeIcon, label: "Today's Filling" },
   { href: '/admin/orders',    icon: ShoppingCartIcon, label: 'Orders' },
   { href: '/admin/hotels',    icon: BuildingOfficeIcon, label: 'Hotels' },
   { href: '/admin/inventory', icon: CubeIcon, label: 'Inventory' },

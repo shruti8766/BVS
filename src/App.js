@@ -112,6 +112,9 @@ import Login from './frontend/login';
 // ----- Admin Pages -----
 import Admindash from './admin_dashboard/pages/admindash';
 import PendingOrders from './admin_dashboard/pages/pendingOrders';
+import TodaysVegetables from './admin_dashboard/pages/TodaysVegetables';
+import TodaysHotelsOrders from './admin_dashboard/pages/TodaysHotelsOrders';
+import TodaysFilling from './admin_dashboard/pages/TodaysFilling';
 import Orders from './admin_dashboard/pages/orders';
 import Hotels from './admin_dashboard/pages/hotels';
 import HotelDetail from './admin_dashboard/pages/HotelDetail';
@@ -135,6 +138,7 @@ import HotelSettings from './hotel_dashboard/components/pages/settings';
 import HotelProfile from './hotel_dashboard/components/pages/profile';
 import HotelBills from './hotel_dashboard/components/pages/bills';
 import HotelOrders from './hotel_dashboard/components/pages/orders';
+import OrderHistory from './hotel_dashboard/components/pages/history';
 // -------------------------------------------------
 // 1. Auth Helpers – Check tokens based on role
 // -------------------------------------------------
@@ -176,6 +180,9 @@ function App() {
         <Route element={<AdminProtectedLayout />}>
           <Route path="/admin/dashboard" element={<Admindash />} />
           <Route path="/admin/pending-orders" element={<PendingOrders />} />
+          <Route path="/admin/todays-vegetables" element={<TodaysVegetables />} />
+          <Route path="/admin/todays-hotels-orders" element={<TodaysHotelsOrders />} />
+          <Route path="/admin/todays-filling" element={<TodaysFilling />} />
           <Route path="/admin/orders" element={<Orders />} />
           <Route path="/admin/hotels" element={<Hotels />} />
           <Route path="/admin/hotels/:id" element={<HotelDetail />} />
@@ -202,6 +209,7 @@ function App() {
           <Route path="/hotel/profile" element={<HotelProfile />} />
           <Route path="/hotel/bills" element={<HotelBills />} />
           <Route path="/hotel/orders" element={<HotelOrders />} />
+          <Route path="/hotel/history" element={<OrderHistory />} />
           <Route path="/hotel/*" element={<Navigate to="/hotel/dashboard" replace />} />
         </Route>
 

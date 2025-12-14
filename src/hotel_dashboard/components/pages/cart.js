@@ -205,13 +205,17 @@ export default function Cart() {
   // Remove from cart (triggers auto-recalculate via useEffect)
   const removeFromCart = async (productId) => {
     try {
+      console.log('🗑️ Removing product from cart:', productId);
       const token = localStorage.getItem('hotelToken');
       const res = await fetch(`${BASE_URL}/api/hotel/cart/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
+
+      console.log('🗑️ Remove response status:', res.status);
 
       if (!res.ok) {
         if (res.status === 401) {
@@ -219,14 +223,25 @@ export default function Cart() {
           navigate('/login');
           return;
         }
+        if (res.status === 404) {
+          // Item not in cart on server, but might be in local state
+          console.warn('⚠️ Item not found on server, removing from local state anyway');
+          setCart(prev => prev.filter(item => item.product_id !== productId));
+          return; // Don't throw error, just remove locally
+        }
+        const errorText = await res.text();
+        console.error('❌ Remove error:', errorText);
         throw new Error(`Failed to remove item: ${res.status}`);
       }
 
+      console.log('✅ Item removed successfully');
       // Update local state
       setCart(prev => prev.filter(item => item.product_id !== productId));
     } catch (err) {
-      console.error('Remove from cart error:', err);
+      console.error('❌ Remove from cart error:', err);
       setError(err.message);
+      // Clear error after 3 seconds
+      setTimeout(() => setError(''), 3000);
     }
   };
 

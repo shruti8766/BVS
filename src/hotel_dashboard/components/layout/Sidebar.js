@@ -15,11 +15,13 @@ import {
   UserCircleIcon as ProfileIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  ClockIcon,
 } from '@heroicons/react/24/outline';
 
 const navItems = [
   { href: '/hotel/dashboard', icon: HomeIcon, label: 'Dashboard' },
   { href: '/hotel/orders', icon: DocumentTextIcon, label: 'Orders' },
+  { href: '/hotel/history', icon: ClockIcon, label: 'History' },
   { href: '/hotel/bills', icon: ChartBarIcon, label: 'Bills' },
   { href: '/hotel/products', icon: TagIcon, label: 'Products' },
   { href: '/hotel/cart', icon: ShoppingCartIcon, label: 'Cart' },

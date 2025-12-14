@@ -176,3 +176,30 @@ export const createSupportTicket = async (data) => {
   if (!response.ok) throw new Error('Failed to create support ticket');
   return response.json();
 };
+
+// ==================== ORDER HISTORY ====================
+export const fetchOrderHistory = async (filters = {}) => {
+  const params = new URLSearchParams();
+  if (filters.startDate) params.append('start_date', filters.startDate);
+  if (filters.endDate) params.append('end_date', filters.endDate);
+  if (filters.status) params.append('status', filters.status);
+  
+  const queryString = params.toString();
+  const url = `${BASE_URL}/api/hotel/orders${queryString ? `?${queryString}` : ''}`;
+  
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeader(),
+  });
+  if (!response.ok) throw new Error('Failed to fetch order history');
+  return response.json();
+};
+
+export const reorderFromHistory = async (orderId) => {
+  const response = await fetch(`${BASE_URL}/api/hotel/orders/${orderId}/reorder`, {
+    method: 'POST',
+    headers: getAuthHeader(),
+  });
+  if (!response.ok) throw new Error('Failed to reorder');
+  return response.json();
+};
