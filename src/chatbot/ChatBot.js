@@ -106,7 +106,7 @@ function ChatBot() {
         if (isUser) {
             messageDiv.className += ' justify-end';
             messageDiv.innerHTML = `
-                <div class="bg-green-500 text-white rounded-2xl rounded-tr-sm p-4 max-w-xs">
+                <div class="bg-green-700 text-white rounded-2xl rounded-tr-sm p-4 max-w-xs">
                     <p class="text-sm">${message}</p>
                 </div>
                 <div class="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white text-sm flex-shrink-0">👤</div>
@@ -140,8 +140,8 @@ function ChatBot() {
             }
             
             messageDiv.innerHTML = `
-                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm flex-shrink-0">🥕</div>
-                <div class="bg-green-50 border border-green-200 rounded-2xl rounded-tl-sm p-4 max-w-[80%] message-content markdown">
+                <div class="w-8 h-8 bg-green-700 rounded-full flex items-center justify-center text-white text-sm flex-shrink-0">🥕</div>
+                <div class="bg-green-100 border border-green-400 rounded-2xl rounded-tl-sm p-4 max-w-[80%] message-content markdown">
                     ${messageContent}
                     ${menuHTML}
                 </div>
@@ -819,7 +819,7 @@ function ChatBot() {
             <div className="absolute inset-0 background-image bg-cover bg-center" />
             <div className="chat-container w-full h-full rounded-2xl shadow-2xl border border-green-200 flex flex-col relative">
                 {/* Header with Speech Controls */}
-                <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-t-2xl flex-shrink-0">
+                <div className="bg-gradient-to-r from-green-700 to-green-800 text-white p-4 rounded-t-2xl flex-shrink-0">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                     <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-xl">
@@ -849,7 +849,7 @@ function ChatBot() {
                     {/* Mute/Unmute Button */}
                     <button
                     id="muteBtn"
-                    className="mute-btn text-white p-1 rounded-full bg-green-400 hover:bg-green-300 transition-colors"
+                    className="mute-btn text-white p-1 rounded-full bg-green-600 hover:bg-green-700 transition-colors"
                     >
                     🔊
                     </button>
@@ -868,10 +868,10 @@ function ChatBot() {
                     className="message-bubble flex items-start space-x-3"
                     id="welcomeMessage"
                 >
-                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">
+                    <div className="w-8 h-8 bg-green-700 rounded-full flex items-center justify-center text-white text-sm">
                     🥕
                     </div>
-                    <div className="bg-green-50 border border-green-200 rounded-2xl rounded-tl-sm p-4 max-w-xs">
+                    <div className="bg-green-100 border border-green-400 rounded-2xl rounded-tl-sm p-4 max-w-xs">
                     <p className="text-gray-800 text-sm mb-3">
                         Hello! Welcome to BVS—fresh veggies for hotels and caterers.
                         What can I help you with today?
@@ -925,14 +925,14 @@ function ChatBot() {
                 >
                 <div className="p-4">
                     <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm flex-shrink-0">
+                    <div className="w-8 h-8 bg-green-700 rounded-full flex items-center justify-center text-white text-sm flex-shrink-0">
                         🥕
                     </div>
-                    <div className="bg-green-50 border border-green-200 rounded-2xl rounded-tl-sm p-4">
+                    <div className="bg-green-100 border border-green-400 rounded-2xl rounded-tl-sm p-4">
                         <div className="typing-indicator flex space-x-1">
-                        <div className="w-2 h-2 bg-green-400 rounded-full" />
-                        <div className="w-2 h-2 bg-green-400 rounded-full" />
-                        <div className="w-2 h-2 bg-green-400 rounded-full" />
+                        <div className="w-2 h-2 bg-green-600 rounded-full" />
+                        <div className="w-2 h-2 bg-green-600 rounded-full" />
+                        <div className="w-2 h-2 bg-green-600 rounded-full" />
                         </div>
                     </div>
                     </div>
@@ -944,7 +944,7 @@ function ChatBot() {
                 <div className="mode-toggle flex mb-3 bg-gray-100 rounded-lg overflow-hidden">
                     <button
                     id="textModeBtn"
-                    className="flex-1 py-2 px-4 bg-green-500 text-white font-medium active"
+                    className="flex-1 py-2 px-4 bg-green-700 text-white font-medium active"
                     >
                     Text
                     </button>
@@ -961,12 +961,12 @@ function ChatBot() {
                     type="text"
                     id="messageInput"
                     placeholder="Ask about vegetables, pricing, delivery, or orders..."
-                    className="flex-1 px-3 py-3 border border-green-200 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+                    className="flex-1 px-3 py-3 border border-green-400 rounded-full focus:outline-none focus:ring-2 focus:ring-green-700 focus:border-transparent" 
                     autoComplete="off"
                 />
                 <button
                     type="submit"
-                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-full font-medium transition-colors duration-200 flex items-center space-x-2 flex-shrink-0" 
+                    className="bg-green-700 hover:bg-green-800 text-white px-4 py-3 rounded-full font-medium transition-colors duration-200 flex items-center space-x-2 flex-shrink-0" 
                 >
                     <span>Send</span>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -976,7 +976,7 @@ function ChatBot() {
                 <button
                     type="button"
                     id="micButtonInput"
-                    className="mic-button bg-green-400 hover:bg-green-300 text-green-900 px-3 py-3 rounded-full font-medium transition-colors duration-200 flex items-center justify-center flex-shrink-0" 
+                    className="mic-button bg-green-600 hover:bg-green-700 text-white px-3 py-3 rounded-full font-medium transition-colors duration-200 flex items-center justify-center flex-shrink-0" 
                     title="Voice input (Ctrl+M)"
                 >
                     {/* Emoji with SVG fallback */}
@@ -993,7 +993,7 @@ function ChatBot() {
                 <button
                     type="button"
                     id="voiceMicBtn"
-                    className="voice-mic bg-green-500 hover:bg-green-600 text-white p-6 rounded-full w-20 h-20 flex items-center justify-center text-3xl font-medium transition-all duration-200 shadow-lg flex-shrink-0" 
+                    className="voice-mic bg-green-700 hover:bg-green-800 text-white p-6 rounded-full w-20 h-20 flex items-center justify-center text-3xl font-medium transition-all duration-200 shadow-lg flex-shrink-0" 
                     title="Tap to speak"
                 >
                     <span aria-hidden="true">🎤</span>

@@ -425,7 +425,7 @@ export default function HotelBills() {
           <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
             <div className="text-center">
               <img
-                src="/broc.jpg" // Replace with the actual path to your broccoli image (e.g., public/images/broccoli-loading.png)
+                src="/broc.jpg"
                 alt="Loading"
                 className="h-32 w-32 mx-auto mb-4 animate-[run_1s_ease-in-out_infinite]"
               />

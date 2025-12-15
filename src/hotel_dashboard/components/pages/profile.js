@@ -111,8 +111,8 @@ export default function HotelProfile() {
   // Save changes
   const saveChanges = () => {
     // Basic validation
-    if (!profile.hotel_name.trim() || !profile.email.trim() || !profile.phone.trim() || !profile.address.trim()) {
-      setError('All fields are required');
+    if (!profile.hotel_name.trim() || !profile.phone.trim() || !profile.address.trim()) {
+      setError('Hotel name, phone, and address are required');
       return;
     }
     updateProfile({
@@ -135,7 +135,7 @@ export default function HotelProfile() {
           <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
             <div className="text-center">
               <img
-                src="/broc.jpg" // Replace with the actual path to your broccoli image (e.g., public/images/broccoli-loading.png)
+                src="/broc.jpg"
                 alt="Loading"
                 className="h-32 w-32 mx-auto mb-4 animate-[run_1s_ease-in-out_infinite]"
               />
@@ -241,13 +241,12 @@ export default function HotelProfile() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-green-700 mb-2">Email</label>
+                    <label className="block text-sm font-medium text-green-700 mb-2">Email (Optional)</label>
                     <input
                       type="email"
                       value={profile.email}
                       onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                       className="w-full px-3 py-2 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 text-sm"
-                      required
                     />
                   </div>
                   <div>

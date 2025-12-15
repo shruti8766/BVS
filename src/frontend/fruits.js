@@ -1,13 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ChatBot from '../chatbot/ChatBot'; // Import your chatbot component
 
 const Fruits = () => {
   const [showChatbot, setShowChatbot] = useState(false);
+  const chatbotRef = useRef(null);
 
-    const toggleChatbot = () => {
-      setShowChatbot(!showChatbot);
+  const toggleChatbot = () => {
+    setShowChatbot(!showChatbot);
+  };
+
+  // Handle click outside to close chatbot
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showChatbot && chatbotRef.current && !chatbotRef.current.contains(event.target)) {
+        const toggleButton = document.querySelector('.chatbot-toggle');
+        if (toggleButton && !toggleButton.contains(event.target)) {
+          setShowChatbot(false);
+        }
+      }
     };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showChatbot]);
 
   return (
     <>
@@ -83,7 +101,7 @@ const Fruits = () => {
         /* Compact Chatbot Widget Styles */
         .chatbot-window {
           position: fixed;
-          bottom: 80px;
+          bottom: 90px;
           right: 20px;
           z-index: 1000;
           width: 350px;
@@ -95,13 +113,13 @@ const Fruits = () => {
           display: flex;
           flex-direction: column;
           transition: all 0.3s ease-in-out;
-          transform: scale(0.95);
+          transform: translateY(20px) scale(0.95);
           opacity: 0;
           visibility: hidden;
         }
 
         .chatbot-window.visible {
-          transform: scale(1);
+          transform: translateY(0) scale(1);
           opacity: 1;
           visibility: visible;
         }
@@ -122,27 +140,45 @@ const Fruits = () => {
           bottom: 20px;
           right: 20px;
           z-index: 1001;
-          background: #10b981;
-          color: white;
+          background: transparent;
           border: none;
-          border-radius: 50%;
-          width: 60px;
-          height: 60px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          padding: 0;
           cursor: pointer;
-          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
           transition: all 0.3s ease;
         }
 
         .chatbot-toggle:hover {
-          background: #059669;
           transform: scale(1.1);
         }
 
         .chatbot-toggle:active {
           transform: scale(0.95);
+        }
+
+        /* Chatbot message tooltip */
+        .chatbot-message {
+          position: fixed;
+          bottom: 110px;
+          right: 20px;
+          z-index: 1000;
+          background: white;
+          color: #1f2937;
+          padding: 12px 16px;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          max-width: 200px;
+          font-size: 14px;
+          font-weight: 500;
+          animation: popMessage 15s ease-in-out infinite;
+          opacity: 0;
+        }
+
+        @keyframes popMessage {
+          0% { opacity: 0; transform: translateY(10px); }
+          5% { opacity: 1; transform: translateY(0); }
+          33.33% { opacity: 1; transform: translateY(0); }
+          40% { opacity: 0; transform: translateY(10px); }
+          100% { opacity: 0; transform: translateY(10px); }
         }
 
         .chatbot-close {
@@ -259,7 +295,7 @@ const Fruits = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-green-50 via-white to-emerald-50 py-16">
+        <div className="bg-gradient-to-br from-green-50 via-white to-emerald-50 pt-16 pb-0">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {/* Section Header */}
             <div className="text-center mb-16">
@@ -379,74 +415,111 @@ const Fruits = () => {
             </div>
           </div>
 
-          {/* Nutritional Benefits Section */}
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-16">
-            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
-              <div className="grid md:grid-cols-2 gap-0">
-                <div className="bg-gradient-to-br from-green-600 to-emerald-600 p-8 md:p-12 text-white">
-                  <h3 className="text-3xl font-bold mb-6 flex items-center">
-                    <span className="mr-3">🍊</span> Why Choose Fresh Fruits?
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="flex items-start">
-                      <span className="text-2xl mr-3">💪</span>
-                      <div>
-                        <h4 className="font-semibold text-lg mb-1">Boosts Immunity</h4>
-                        <p className="text-green-100">Rich in Vitamin C and antioxidants to strengthen your immune system</p>
-                      </div>
+          {/* Quote */}
+            <section className="relative isolate overflow-hidden bg-green-800 px-6 py-12 sm:py-16 lg:px-8 mb-0 mt-16">
+              <div className="absolute inset-0 -z-10 bg-[radial-gradient(45rem_50rem_at_top,rgba(34,197,94,0.3),transparent)]"></div>
+              <div className="absolute inset-y-0 right-1/2 -z-10 mr-16 w-[200%] origin-bottom-left skew-x-[-30deg] bg-green-900 shadow-xl ring-1 shadow-green-500/10 ring-white/5 sm:mr-28 lg:mr-0 xl:mr-16 xl:origin-center"></div>
+              <div className="mx-auto max-w-2xl lg:max-w-4xl">
+                <img src="/mainlogo.jpg" alt="BVS Logo" className="mx-auto h-14" />
+                <figure className="mt-6">
+                  <blockquote className="text-center text-xl/8 font-semibold text-white sm:text-2xl/9">
+                    <p>“From soil to chef’s table, we don’t just deliver vegetables—we deliver standards, accountability, and the backbone of every menu. When quality is your culture, not your campaign, success naturally follows.”</p>
+                  </blockquote>
+                  <figcaption className="mt-6">
+                    <img src="./suraj.png" alt="Suraj Gaikwad" className="mx-auto size-11 rounded-full" />
+                    <div className="mt-4 flex items-center justify-center space-x-3 text-base">
+                      <div className="font-semibold text-white">Suraj Gaikwad</div>
+                      <svg viewBox="0 0 2 2" width="3" height="3" aria-hidden="true" className="fill-white">
+                        <circle r="1" cx="1" cy="1" />
+                      </svg>
+                      <div className="text-green-200">CEO of BVS</div>
                     </div>
-                    <div className="flex items-start">
-                      <span className="text-2xl mr-3">❤️</span>
-                      <div>
-                        <h4 className="font-semibold text-lg mb-1">Heart Health</h4>
-                        <p className="text-green-100">Natural fiber and potassium support cardiovascular wellness</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <span className="text-2xl mr-3">✨</span>
-                      <div>
-                        <h4 className="font-semibold text-lg mb-1">Glowing Skin</h4>
-                        <p className="text-green-100">Vitamins A, C, and E promote healthy, radiant skin</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <span className="text-2xl mr-3">⚡</span>
-                      <div>
-                        <h4 className="font-semibold text-lg mb-1">Natural Energy</h4>
-                        <p className="text-green-100">Natural sugars and nutrients provide sustained energy without crashes</p>
-                      </div>
-                    </div>
+                  </figcaption>
+                </figure>
+              </div>
+            </section>
+        </div>
+
+        {/* What Makes Our Fruits Special */}
+        <div className="bg-gradient-to-br from-green-50 via-white to-emerald-50 py-20 px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="text-center mb-12">
+              <span className="inline-block px-4 py-1.5 mb-3 text-xs font-semibold text-green-700 bg-green-50 border border-green-200 rounded-full uppercase tracking-wide">
+                Quality Standards
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+                What Makes Our Fruits Special
+              </h2>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                The standards that ensure premium quality in every delivery
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+              {/* Value Card 1 */}
+              <div className="group bg-white p-7 rounded-xl border border-gray-200 hover:border-green-500 hover:shadow-lg transition-all duration-300">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-11 h-11 bg-green-100 rounded-lg flex items-center justify-center text-2xl group-hover:bg-green-500 transition-colors">
+                    🍎
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      Peak Ripeness Selection
+                    </h3>
+                    <p className="text-gray-600 text-[15px] leading-relaxed">
+                      Every fruit is hand-picked at optimal ripeness for maximum flavor and nutrition.
+                    </p>
                   </div>
                 </div>
-                <div className="p-8 md:p-12 bg-gradient-to-br from-green-50 to-emerald-50">
-                  <h3 className="text-3xl font-bold mb-6 text-green-800 flex items-center">
-                    <span className="mr-3">🛒</span> Fruit Selection Tips
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-500">
-                      <h4 className="font-semibold text-green-800 mb-2 flex items-center">
-                        <span className="mr-2">🔍</span> Check for Freshness
-                      </h4>
-                      <p className="text-gray-600 text-sm">Look for bright colors, firm texture, and pleasant aroma. Avoid bruises or soft spots.</p>
-                    </div>
-                    <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-500">
-                      <h4 className="font-semibold text-blue-800 mb-2 flex items-center">
-                        <span className="mr-2">📅</span> Seasonal is Best
-                      </h4>
-                      <p className="text-gray-600 text-sm">Choose fruits in season for peak flavor, nutrition, and better prices.</p>
-                    </div>
-                    <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-orange-500">
-                      <h4 className="font-semibold text-orange-800 mb-2 flex items-center">
-                        <span className="mr-2">🌡️</span> Storage Matters
-                      </h4>
-                      <p className="text-gray-600 text-sm">Some fruits ripen at room temperature (bananas, avocados), others need refrigeration (berries, grapes).</p>
-                    </div>
-                    <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-purple-500">
-                      <h4 className="font-semibold text-purple-800 mb-2 flex items-center">
-                        <span className="mr-2">🍎</span> Mix & Match
-                      </h4>
-                      <p className="text-gray-600 text-sm">Combine different colors for maximum nutritional benefits - each color offers unique nutrients!</p>
-                    </div>
+              </div>
+
+              {/* Value Card 2 */}
+              <div className="group bg-white p-7 rounded-xl border border-gray-200 hover:border-green-500 hover:shadow-lg transition-all duration-300">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-11 h-11 bg-green-100 rounded-lg flex items-center justify-center text-2xl group-hover:bg-green-500 transition-colors">
+                    ✨
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      Quality Inspected
+                    </h3>
+                    <p className="text-gray-600 text-[15px] leading-relaxed">
+                      Each batch thoroughly inspected to meet our strict quality and hygiene standards.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Value Card 3 */}
+              <div className="group bg-white p-7 rounded-xl border border-gray-200 hover:border-green-500 hover:shadow-lg transition-all duration-300">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-11 h-11 bg-green-100 rounded-lg flex items-center justify-center text-2xl group-hover:bg-green-500 transition-colors">
+                    🌿
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      Natural & Seasonal
+                    </h3>
+                    <p className="text-gray-600 text-[15px] leading-relaxed">
+                      Seasonal fruits sourced naturally for authentic taste and better health benefits.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Value Card 4 */}
+              <div className="group bg-white p-7 rounded-xl border border-gray-200 hover:border-green-500 hover:shadow-lg transition-all duration-300">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-11 h-11 bg-green-100 rounded-lg flex items-center justify-center text-2xl group-hover:bg-green-500 transition-colors">
+                    ⚡
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      Daily Fresh Supply
+                    </h3>
+                    <p className="text-gray-600 text-[15px] leading-relaxed">
+                      Delivered fresh every day ensuring you receive fruits at their absolute best.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -477,19 +550,24 @@ const Fruits = () => {
           </div>
           </footer>
 
+          {/* Chatbot message tooltip */}
+          {!showChatbot && (
+            <div className="chatbot-message">
+              Hi! What would you like to know today?
+            </div>
+          )}
+
           {/* Chatbot Toggle Button */}
           <button 
             className="chatbot-toggle"
             onClick={toggleChatbot}
             aria-label="Open chatbot"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-            </svg>
+            <img src="/chatboticon.png" alt="Chatbot" className="w-16 h-16" />
           </button>
 
           {/* Chatbot Window */}
-          <div className={`chatbot-window ${showChatbot ? 'visible' : 'hidden'}`}>
+          <div ref={chatbotRef} className={`chatbot-window ${showChatbot ? 'visible' : 'hidden'}`}>
             <button 
               className="chatbot-close"
               onClick={toggleChatbot}

@@ -1,13 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ChatBot from '../chatbot/ChatBot'; // Import your chatbot component
 
 const More = () => {
     const [showChatbot, setShowChatbot] = useState(false);
+    const chatbotRef = useRef(null);
 
     const toggleChatbot = () => {
       setShowChatbot(!showChatbot);
     };
+
+    // Handle click outside to close chatbot
+    useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (showChatbot && chatbotRef.current && !chatbotRef.current.contains(event.target)) {
+          const toggleButton = document.querySelector('.chatbot-toggle');
+          if (toggleButton && !toggleButton.contains(event.target)) {
+            setShowChatbot(false);
+          }
+        }
+      };
+
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, [showChatbot]);
     
 
   return (
@@ -61,7 +79,7 @@ const More = () => {
         /* Compact Chatbot Widget Styles */
         .chatbot-window {
           position: fixed;
-          bottom: 80px;
+          bottom: 90px;
           right: 20px;
           z-index: 1000;
           width: 350px;
@@ -73,13 +91,13 @@ const More = () => {
           display: flex;
           flex-direction: column;
           transition: all 0.3s ease-in-out;
-          transform: scale(0.95);
+          transform: translateY(20px) scale(0.95);
           opacity: 0;
           visibility: hidden;
         }
 
         .chatbot-window.visible {
-          transform: scale(1);
+          transform: translateY(0) scale(1);
           opacity: 1;
           visibility: visible;
         }
@@ -100,27 +118,45 @@ const More = () => {
           bottom: 20px;
           right: 20px;
           z-index: 1001;
-          background: #10b981;
-          color: white;
+          background: transparent;
           border: none;
-          border-radius: 50%;
-          width: 60px;
-          height: 60px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          padding: 0;
           cursor: pointer;
-          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
           transition: all 0.3s ease;
         }
 
         .chatbot-toggle:hover {
-          background: #059669;
           transform: scale(1.1);
         }
 
         .chatbot-toggle:active {
           transform: scale(0.95);
+        }
+
+        /* Chatbot message tooltip */
+        .chatbot-message {
+          position: fixed;
+          bottom: 110px;
+          right: 20px;
+          z-index: 1000;
+          background: white;
+          color: #1f2937;
+          padding: 12px 16px;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          max-width: 200px;
+          font-size: 14px;
+          font-weight: 500;
+          animation: popMessage 15s ease-in-out infinite;
+          opacity: 0;
+        }
+
+        @keyframes popMessage {
+          0% { opacity: 0; transform: translateY(10px); }
+          5% { opacity: 1; transform: translateY(0); }
+          33.33% { opacity: 1; transform: translateY(0); }
+          40% { opacity: 0; transform: translateY(10px); }
+          100% { opacity: 0; transform: translateY(10px); }
         }
 
         .chatbot-close {
@@ -409,59 +445,7 @@ const More = () => {
               </div>
             </div>
 
-            {/* Bulk Ordering Benefits */}
-            <div className="mx-auto max-w-7xl mt-16">
-              <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
-                <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-8 md:p-10 text-center">
-                  <h3 className="text-3xl font-bold text-white mb-3">
-                    Why Hotels & Restaurants Choose BVS
-                  </h3>
-                  <p className="text-green-100 max-w-2xl mx-auto">
-                    Trusted by 500+ establishments across Pune for consistent quality and reliable service
-                  </p>
-                </div>
-                
-                <div className="grid md:grid-cols-4 gap-6 p-8 md:p-10">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <span className="text-3xl">💰</span>
-                    </div>
-                    <h4 className="font-bold text-gray-800 mb-2">Bulk Pricing</h4>
-                    <p className="text-sm text-gray-600">Competitive wholesale rates for large orders</p>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <span className="text-3xl">🚚</span>
-                    </div>
-                    <h4 className="font-bold text-gray-800 mb-2">Daily Delivery</h4>
-                    <p className="text-sm text-gray-600">Fresh supplies delivered to your doorstep every day</p>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <span className="text-3xl">✅</span>
-                    </div>
-                    <h4 className="font-bold text-gray-800 mb-2">Quality Assured</h4>
-                    <p className="text-sm text-gray-600">Premium grade products, carefully selected</p>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <span className="text-3xl">📞</span>
-                    </div>
-                    <h4 className="font-bold text-gray-800 mb-2">24/7 Support</h4>
-                    <p className="text-sm text-gray-600">Dedicated customer service for urgent needs</p>
-                  </div>
-                </div>
-                
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 text-center">
-                  <a href="/login" className="inline-flex items-center px-8 py-4 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                    Start Your Bulk Order Today
-                  </a>
-                </div>
-              </div>
-            </div>
+            
           </div>
         </div>
 
@@ -485,19 +469,24 @@ const More = () => {
           </div>
         </footer>
 
-         {/* Chatbot Toggle Button */}
+         {/* Chatbot message tooltip */}
+        {!showChatbot && (
+          <div className="chatbot-message">
+            Hi! What would you like to know today?
+          </div>
+        )}
+
+        {/* Chatbot Toggle Button */}
         <button 
           className="chatbot-toggle"
           onClick={toggleChatbot}
           aria-label="Open chatbot"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-          </svg>
+          <img src="/chatboticon.png" alt="Chatbot" className="w-16 h-16" />
         </button>
 
         {/* Chatbot Window */}
-        <div className={`chatbot-window ${showChatbot ? 'visible' : 'hidden'}`}>
+        <div ref={chatbotRef} className={`chatbot-window ${showChatbot ? 'visible' : 'hidden'}`}>
           <button 
             className="chatbot-close"
             onClick={toggleChatbot}
