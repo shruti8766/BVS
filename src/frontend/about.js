@@ -246,6 +246,21 @@ const About = () => {
           max-height: 350px !important;
           flex: 1 !important;
         }
+
+        /* Decorative line separator */
+        .decorative-line {
+          height: 1px;
+          background: linear-gradient(90deg, transparent 0%, white 10%, white 90%, transparent 100%);
+          margin: 0 auto;
+          width: 95%;
+          position: absolute;
+          top: 120px;
+          left: 2.5%;
+          right: 2.5%;
+          z-index: 45;
+          opacity: 0.8;
+          box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
     `;
     document.head.appendChild(style);
 
@@ -901,6 +916,9 @@ const About = () => {
                     </div>
                   </nav>
                 </header>
+                
+                {/* Decorative line separator */}
+                <div className="decorative-line"></div>
           
                 {/* FIXED: Hero section with proper overlay containment */}
                 {/* FIXED: Hero section with centered content */}

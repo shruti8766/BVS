@@ -177,7 +177,7 @@ const Home = () => {
           right: 20px;
           z-index: 1000;
           width: 350px;
-          height: 600px;
+          height: 500px;
           background: white;
           border-radius: 12px;
           box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
@@ -291,6 +291,21 @@ const Home = () => {
           max-height: 350px !important;
           flex: 1 !important;
         }
+
+        /* Decorative line separator */
+        .decorative-line {
+          height: 1px;
+          background: linear-gradient(90deg, transparent 0%, white 10%, white 90%, transparent 100%);
+          margin: 0 auto;
+          width: 95%;
+          position: absolute;
+          top: 120px;
+          left: 2.5%;
+          right: 2.5%;
+          z-index: 45;
+          opacity: 0.8;
+          box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
       `}</style>
       <div className="hero-bg">
         <header className="absolute inset-x-0 top-0 z-50">
@@ -357,6 +372,9 @@ const Home = () => {
             </dialog>
           </el-dialog>
         </header>
+        
+        {/* Decorative line separator */}
+        <div className="decorative-line"></div>
 
         <div className="relative isolate px-6 pt-14 lg:px-8 hero-content">
             <div aria-hidden="true" className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">

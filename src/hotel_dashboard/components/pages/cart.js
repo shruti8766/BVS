@@ -367,12 +367,12 @@ export default function Cart() {
     }
 
     // Check availability (closed on Saturday, unavailable for Friday orders)
-    // const today = new Date();
-    // const day = today.getDay(); // 0=Sun, 1=Mon, ..., 5=Fri, 6=Sat
-    // if (day === 5 || day === 6) {
-    //   setError('We are unavailable on weekends. Please place your order from Sunday to Thursday.');
-    //   return;
-    // }
+    const today = new Date();
+    const day = today.getDay(); // 0=Sun, 1=Mon, ..., 5=Fri, 6=Sat
+    if (day === 5) {
+      setError('We are closed on Saturday. Orders cannot be placed on Friday as they cannot be fulfilled. Please place your order from Saturday to Thursday.');
+      return;
+    }
 
     // Open confirmation modal
     setShowConfirmModal(true);

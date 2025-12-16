@@ -59,7 +59,7 @@ const Vegetables = () => {
         // }
 
         .hero-section {
-          background-image: url('/vegetables.jpg');
+          background-image: url('/vegetables1.jpg');
           background-size: cover;
           background-position: center;
           background-repeat: no-repeat;
@@ -77,7 +77,7 @@ const Vegetables = () => {
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(40, 168, 40, 0.7); /* Green overlay */
+          background: rgba(35, 137, 35, 0.7); /* Green overlay */
           z-index: 0;
         }
 
@@ -242,6 +242,21 @@ const Vegetables = () => {
           max-height: 350px !important;
           flex: 1 !important;
         }
+
+        /* Decorative line separator */
+        .decorative-line {
+          height: 1px;
+          background: linear-gradient(90deg, transparent 0%, white 10%, white 90%, transparent 100%);
+          margin: 0 auto;
+          width: 95%;
+          position: absolute;
+          top: 120px;
+          left: 2.5%;
+          right: 2.5%;
+          z-index: 45;
+          opacity: 0.8;
+          box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
       `}</style>
       <div className="bg-white">
         <header className="header-section">
@@ -265,10 +280,13 @@ const Vegetables = () => {
           </div>
         </nav>
       </header>
+      
+      {/* Decorative line separator */}
+      <div className="decorative-line"></div>
 
       {/* FIXED: Hero section with proper overlay containment */}
       <div className="hero-section">
-        <div className="hero-content mx-auto max-w-7xl px-6 lg:px-8 w-full">
+        <div className="hero-content mx-auto max-w-7xl px-6 lg:px-8 w-full pt-24">
           <div className="mx-auto max-w-2xl lg:mx-0">
             <h2 className="text-5xl font-semibold tracking-tight text-white sm:text-7xl">
               Vegetables for every need

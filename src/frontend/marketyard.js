@@ -164,6 +164,21 @@ const MarketYard = () => {
           background: #f3f4f6;
           color: #374151;
         }
+
+        /* Decorative line separator */
+        .decorative-line {
+          height: 1px;
+          background: linear-gradient(90deg, transparent 0%, white 10%, white 90%, transparent 100%);
+          margin: 0 auto;
+          width: 95%;
+          position: absolute;
+          top: 120px;
+          left: 2.5%;
+          right: 2.5%;
+          z-index: 45;
+          opacity: 0.8;
+          box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
       `}</style>
 
       {/* Navigation */}
@@ -188,6 +203,9 @@ const MarketYard = () => {
           </div>
         </nav>
       </header>
+      
+      {/* Decorative line separator */}
+      <div className="decorative-line"></div>
 
       {/* Hero Section */}
       <div className="hero-marketyard">

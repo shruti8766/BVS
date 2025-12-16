@@ -7,7 +7,7 @@ const Login = () => {
   const [showChatbot, setShowChatbot] = useState(false);
   const mobileMenuBtnRef = useRef(null);
   const mobileMenuRef = useRef(null);
-
+  const chatbotRef = useRef(null);
    const toggleChatbot = () => {
     setShowChatbot(!showChatbot);
   };
@@ -81,11 +81,11 @@ const Login = () => {
         /* Compact Chatbot Widget Styles */
         .chatbot-window {
           position: fixed;
-          bottom: 80px;
+          bottom: 90px;
           right: 20px;
           z-index: 1000;
           width: 350px;
-          height: 600px;
+          height: 500px;
           background: white;
           border-radius: 12px;
           box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
@@ -93,13 +93,13 @@ const Login = () => {
           display: flex;
           flex-direction: column;
           transition: all 0.3s ease-in-out;
-          transform: scale(0.95);
+          transform: translateY(20px) scale(0.95);
           opacity: 0;
           visibility: hidden;
         }
 
         .chatbot-window.visible {
-          transform: scale(1);
+          transform: translateY(0) scale(1);
           opacity: 1;
           visibility: visible;
         }
@@ -120,27 +120,45 @@ const Login = () => {
           bottom: 20px;
           right: 20px;
           z-index: 1001;
-          background: #10b981;
-          color: white;
+          background: transparent;
           border: none;
-          border-radius: 50%;
-          width: 60px;
-          height: 60px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          padding: 0;
           cursor: pointer;
-          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
           transition: all 0.3s ease;
         }
 
         .chatbot-toggle:hover {
-          background: #059669;
           transform: scale(1.1);
         }
 
         .chatbot-toggle:active {
           transform: scale(0.95);
+        }
+
+        /* Chatbot message tooltip */
+        .chatbot-message {
+          position: fixed;
+          bottom: 110px;
+          right: 20px;
+          z-index: 1000;
+          background: white;
+          color: #1f2937;
+          padding: 12px 16px;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          max-width: 200px;
+          font-size: 14px;
+          font-weight: 500;
+          animation: popMessage 15s ease-in-out infinite;
+          opacity: 0;
+        }
+
+        @keyframes popMessage {
+          0% { opacity: 0; transform: translateY(10px); }
+          5% { opacity: 1; transform: translateY(0); }
+          33.33% { opacity: 1; transform: translateY(0); }
+          40% { opacity: 0; transform: translateY(10px); }
+          100% { opacity: 0; transform: translateY(10px); }
         }
 
         .chatbot-close {
@@ -181,6 +199,21 @@ const Login = () => {
           max-height: 350px !important;
           flex: 1 !important;
         }
+
+        /* Decorative line separator */
+        .decorative-line {
+          height: 1px;
+          background: linear-gradient(90deg, transparent 0%, #10b981 10%, #10b981 90%, transparent 100%);
+          margin: 0 auto;
+          width: 95%;
+          position: absolute;
+          top: 120px;
+          left: 2.5%;
+          right: 2.5%;
+          z-index: 45;
+          opacity: 0.8;
+          box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+        }
           
       .footer-fix {
         position: absolute;
@@ -195,6 +228,21 @@ const Login = () => {
 
       .text-center.py-6 {
         margin-top: auto;
+      }
+
+      /* Decorative line separator */
+      .decorative-line {
+        height: 1px;
+        background: linear-gradient(90deg, transparent 0%, #22c55e 10%, #22c55e 90%, transparent 100%);
+        margin: 0 auto;
+        width: 95%;
+        position: absolute;
+        top: 120px;
+        left: 2.5%;
+        right: 2.5%;
+        z-index: 45;
+        opacity: 0.3;
+        box-shadow: 0 0 8px rgba(34, 197, 94, 0.2);
       }
       `}</style>
 
@@ -220,6 +268,7 @@ const Login = () => {
                 <Link to="/vegetables" className="text-sm font-semibold text-gray-700 hover:text-green-600">Vegetables</Link>
                 <Link to="/fruits" className="text-sm font-semibold text-gray-700 hover:text-green-600">Fruits</Link>
                 <Link to="/more" className="text-sm font-semibold text-gray-700 hover:text-green-600">More</Link>
+                <Link to="/features" className="text-sm font-semibold text-gray-700 hover:text-green-600">Features</Link>
                 <Link to="/about" className="text-sm font-semibold text-gray-700 hover:text-green-600">About Us</Link>
               </div>
               <div className="hidden lg:flex lg:flex-1 lg:justify-end">
@@ -239,16 +288,19 @@ const Login = () => {
           </div>
       </header>
 
+      {/* Decorative line separator */}
+      <div className="decorative-line" />
+
       {/* ── MAIN LOGIN SECTION ── */}
       <div className="flex flex-col min-h-screen">
         <div className="pt-32" />
         <div className="flex-grow flex items-center justify-center p-4">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-green-800 mb-2">
+              {/* <p className="text-3xl font-bold text-green-800 mb-2">
                 Bhairavnath Vegetable Suppliers
-              </h1>
-              <p className="text-green-700 text-lg">Farm se Foodservice, Seedha.</p>
+              </p> */}
+              <p className="text-green-700 text-lg">BVS Partner Login – your supply, simplified.</p>
             </div>
 
             <div className="bg-white rounded-2xl shadow-2xl p-8">
@@ -343,27 +395,48 @@ const Login = () => {
       </div>
 
       {/* Chatbot Toggle Button */}
-        <button 
-          className="chatbot-toggle"
-          onClick={toggleChatbot}
-          aria-label="Open chatbot"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-          </svg>
-        </button>
-
-        {/* Chatbot Window */}
-        <div className={`chatbot-window ${showChatbot ? 'visible' : 'hidden'}`}>
-          <button 
-            className="chatbot-close"
-            onClick={toggleChatbot}
-            aria-label="Close chatbot"
-          >
-            ×
-          </button>
-          <ChatBot />
+      {!showChatbot && (
+        <div className="chatbot-message">
+          Hi! What would you like to know today?
         </div>
+      )}
+
+      {/* Chatbot Toggle Button */}
+      <button 
+        className="chatbot-toggle"
+        onClick={toggleChatbot}
+        aria-label="Open chatbot"
+      >
+        <img src="/chatboticon.png" alt="Chatbot" className="w-16 h-16" />
+      </button>
+
+      {/* Chatbot message tooltip */}
+            {!showChatbot && (
+              <div className="chatbot-message">
+                Hi! What would you like to know today?
+              </div>
+            )}
+      
+            {/* Chatbot Toggle Button */}
+            <button 
+              className="chatbot-toggle"
+              onClick={toggleChatbot}
+              aria-label="Open chatbot"
+            >
+              <img src="/chatboticon.png" alt="Chatbot" className="w-16 h-16" />
+            </button>
+      
+            {/* Chatbot Window */}
+            <div ref={chatbotRef} className={`chatbot-window ${showChatbot ? 'visible' : 'hidden'}`}>
+              <button 
+                className="chatbot-close"
+                onClick={toggleChatbot}
+                aria-label="Close chatbot"
+              >
+                ×
+              </button>
+              <ChatBot />
+            </div>
     </>
   );
 };

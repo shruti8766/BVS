@@ -239,7 +239,7 @@ const Features = () => {
           right: 20px;
           z-index: 1000;
           width: 350px;
-          height: 600px;
+          height: 500px;
           background: white;
           border-radius: 12px;
           box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
@@ -353,6 +353,21 @@ const Features = () => {
           max-height: 350px !important;
           flex: 1 !important;
         }
+
+        /* Decorative line separator */
+        .decorative-line {
+          height: 1px;
+          background: linear-gradient(90deg, transparent 0%, white 10%, white 90%, transparent 100%);
+          margin: 0 auto;
+          width: 95%;
+          position: absolute;
+          top: 120px;
+          left: 2.5%;
+          right: 2.5%;
+          z-index: 45;
+          opacity: 0.8;
+          box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
       `}</style>
 
       <div className="bg-white">
@@ -379,6 +394,9 @@ const Features = () => {
             </div>
           </nav>
         </header>
+        
+        {/* Decorative line separator */}
+        <div className="decorative-line"></div>
 
         {/* Hero Section */}
         <div className="hero-features-bg">
