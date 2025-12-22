@@ -4,12 +4,17 @@ import ChatBot from '../chatbot/ChatBot';
 
 const Features = () => {
   const [showChatbot, setShowChatbot] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [hoveredFeature, setHoveredFeature] = useState(null);
   const chatbotRef = useRef(null);
 
   const toggleChatbot = () => {
     setShowChatbot(!showChatbot);
+  };
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
   };
 
   // Handle click outside to close chatbot
@@ -128,7 +133,29 @@ const Features = () => {
           background-position: center;
           background-repeat: no-repeat;
           position: relative;
-          min-height: 100vh;
+          display: block;
+        }
+
+        /* Mobile: Add responsive padding like Home page */
+        @media (max-width: 640px) {
+          .hero-features-bg {
+            padding-top: 5rem;
+            padding-bottom: 2rem;
+          }
+        }
+
+        @media (min-width: 641px) and (max-width: 768px) {
+          .hero-features-bg {
+            padding-top: 8rem;
+            padding-bottom: 3rem;
+          }
+        }
+
+        @media (min-width: 769px) {
+          .hero-features-bg {
+            padding-top: 8rem;
+            padding-bottom: 4rem;
+          }
         }
         
         .hero-features-bg::before {
@@ -373,11 +400,19 @@ const Features = () => {
       <div className="bg-white">
         {/* Navigation */}
         <header className="absolute inset-x-0 top-0 z-[60]">
-          <nav className="flex items-center justify-between p-6 lg:px-8">
+          <nav className="flex items-center justify-between p-4 sm:p-6 lg:px-8">
             <div className="flex lg:flex-1 relative z-[70]">
               <Link to="/" className="-m-1.5 p-1.5">
-                <img src="/logo1.png" alt="BVS Logo" className="h-24 w-auto drop-shadow-xl" />
+                <img src="/logo1.png" alt="BVS Logo" className="h-16 sm:h-20 md:h-24 w-auto drop-shadow-xl" />
               </Link>
+            </div>
+            <div className="flex lg:hidden relative z-[70]">
+              <button type="button" onClick={toggleMobileMenu} className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-white hover:bg-white/10 transition-colors">
+                <span className="sr-only">Open main menu</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="size-6">
+                  <path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
             </div>
             <div className="hidden lg:flex lg:gap-x-12">
               <Link to="/" className="text-sm font-semibold text-white hover:text-green-200 transition-colors">Home</Link>
@@ -393,6 +428,20 @@ const Features = () => {
               </Link>
             </div>
           </nav>
+          {/* Mobile menu dropdown */}
+          {mobileMenuOpen && (
+            <div className="lg:hidden bg-green-800 border-t border-white/10 relative z-[70]">
+              <div className="px-6 py-4 space-y-2">
+                <Link to="/" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">Home</Link>
+                <Link to="/vegetables" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">Vegetables</Link>
+                <Link to="/fruits" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">Fruits</Link>
+                <Link to="/more" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">More</Link>
+                <Link to="/features" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">Features</Link>
+                <Link to="/about" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">About Us</Link>
+                <Link to="/login" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-green-200 border-t border-white/10 mt-2 pt-4">Log in</Link>
+              </div>
+            </div>
+          )}
         </header>
         
         {/* Decorative line separator */}
@@ -400,17 +449,17 @@ const Features = () => {
 
         {/* Hero Section */}
         <div className="hero-features-bg">
-          <div className="relative z-10 px-6 py-32 sm:py-40 lg:px-8 flex items-center min-h-screen">
+          <div className="relative z-10 px-4 sm:px-6 py-20 sm:py-32 md:py-12 lg:py-16 lg:px-8">
             <div className="mx-auto max-w-4xl text-center">
-              <h1 className="text-5xl font-bold tracking-tight text-white sm:text-7xl mb-6">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-white mb-4 sm:mb-6 px-4">
                 Manage Your Restaurant Supply Chain Like Never Before
               </h1>
-              <p className="mt-6 text-xl leading-8 text-green-50 max-w-2xl mx-auto">
+              <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl leading-7 sm:leading-8 text-green-50 max-w-2xl mx-auto px-4">
                 A complete digital dashboard for hotels, restaurants, canteens & caterers
               </p>
               
               {/* Quick Stats */}
-              <div className="mt-16 grid grid-cols-2 gap-6 sm:grid-cols-4">
+              <div className="mt-12 sm:mt-16 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4">
                 {stats.map((stat, index) => (
                   <div key={index} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                     <div className="text-3xl font-bold text-white">{stat.number}</div>

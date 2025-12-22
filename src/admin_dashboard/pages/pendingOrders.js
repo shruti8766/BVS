@@ -17,7 +17,7 @@ const PendingOrders = () => {
   const [pricingData, setPricingData] = useState({});
   const [finalizingPrices, setFinalizingPrices] = useState(false);
 
-  const BASE_URL = 'http://localhost:5000';
+  const BASE_URL = 'https://api-aso3bjldka-uc.a.run.app';
 
   // Helper utilities
   const safe = (v, fb = '-') => (v !== undefined && v !== null ? v : fb);
@@ -68,8 +68,32 @@ const PendingOrders = () => {
 
   // NEW: Finalize prices for an order
   const finalizePrices = async (orderId) => {
-    if (!selectedOrderForPricing || Object.keys(pricingData).length === 0) {
-      alert('Please enter prices for all items');
+    if (!selectedOrderForPricing) {
+      alert('No order selected for pricing');
+      return;
+    }
+
+    // Validate that all items have prices entered
+    const requiredItems = selectedOrderForPricing.items || [];
+    const missingPrices = [];
+    let hasZeroPrices = false;
+
+    for (const item of requiredItems) {
+      const price = parseFloat(pricingData[item.product_id] || '');
+      if (!price || isNaN(price)) {
+        missingPrices.push(`${item.product_name} (ID: ${item.product_id})`);
+      } else if (price <= 0) {
+        hasZeroPrices = true;
+      }
+    }
+
+    if (missingPrices.length > 0) {
+      alert(`❌ Please enter valid prices for:\n${missingPrices.join('\n')}`);
+      return;
+    }
+
+    if (hasZeroPrices) {
+      alert('❌ Price cannot be zero. Please enter valid amounts for all items.');
       return;
     }
 
@@ -78,7 +102,7 @@ const PendingOrders = () => {
       const token = localStorage.getItem('adminToken');
       const items = selectedOrderForPricing.items.map(item => ({
         product_id: item.product_id,
-        price_per_unit: parseFloat(pricingData[item.product_id] || item.current_price),
+        price_per_unit: parseFloat(pricingData[item.product_id]),
       }));
 
       const res = await fetch(`${BASE_URL}/api/admin/orders/${orderId}/finalize-prices`, {
@@ -91,17 +115,17 @@ const PendingOrders = () => {
       });
 
       if (res.ok) {
-        alert('Prices finalized successfully!');
+        alert('✅ Prices finalized successfully!');
         setPricingData({});
         setShowPricingForm(false);
         setSelectedOrderForPricing(null);
         await fetchPendingOrders();
       } else {
         const err = await res.json();
-        alert(`Error: ${err.error}`);
+        alert(`❌ Error: ${err.error || 'Failed to finalize prices'}`);
       }
     } catch (e) {
-      alert(`Error finalizing prices: ${e.message}`);
+      alert(`❌ Error finalizing prices: ${e.message}`);
     } finally {
       setFinalizingPrices(false);
     }
@@ -109,6 +133,16 @@ const PendingOrders = () => {
 
   // Confirm order (lock price and move to confirmed)
   const confirmOrder = async (orderId) => {
+    // Check if this order is still pending pricing
+    const orderNeedsPricing = pendingPricingOrders.find(o => o.id === orderId);
+    
+    if (orderNeedsPricing) {
+      alert('⚠️ This order still needs price finalization!\n\nPlease enter prices in the "Pending Price Finalization" section above before confirming.');
+      // Scroll to pricing section
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    
     try {
       await ordersApi.updateStatus(orderId, 'confirmed');
       await fetchPendingOrders();
@@ -334,10 +368,14 @@ const PendingOrders = () => {
                   ) : (
                     orders.map((order) => {
                       const itemsArray = Array.isArray(order.items) ? order.items : [];
+                      const needsPricing = pendingPricingOrders.some(o => o.id === order.id);
                       return (
-                        <tr key={order.id} className="hover:bg-yellow-50 transition-colors">
+                        <tr key={order.id} className={`${needsPricing ? 'bg-orange-50' : 'hover:bg-yellow-50'} transition-colors`}>
                           <td className="px-4 py-3 text-sm font-medium text-gray-700">
-                            #{safe(order.id)}
+                            <div className="flex items-center gap-2">
+                              {needsPricing && <span className="text-orange-600 text-lg">⏳</span>}
+                              #{safe(order.id)}
+                            </div>
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-700">
                             {safe(order.hotel_name)}
@@ -348,17 +386,40 @@ const PendingOrders = () => {
                           <td className="px-4 py-3 text-sm text-gray-700">
                             {itemsArray.length} item(s)
                           </td>
-                          <td className="px-4 py-3 text-sm font-bold text-green-700">
-                            ₹{safeNum(order.total_amount).toFixed(2)}
+                          <td className="px-4 py-3 text-sm font-bold">
+                            {needsPricing ? (
+                              <span className="text-orange-600 bg-orange-100 px-2 py-1 rounded text-xs font-semibold">⚠️ Pending Pricing</span>
+                            ) : (
+                              <span className="text-green-700">✓ ₹{safeNum(order.total_amount).toFixed(2)}</span>
+                            )}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
                             <div className="flex space-x-2">
-                              <button
-                                onClick={() => confirmOrder(order.id)}
-                                className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
-                              >
-                                Confirm
-                              </button>
+                              {needsPricing ? (
+                                <button
+                                  onClick={() => {
+                                    setSelectedOrderForPricing(pendingPricingOrders.find(o => o.id === order.id));
+                                    const initialPrices = {};
+                                    const pricingOrder = pendingPricingOrders.find(o => o.id === order.id);
+                                    pricingOrder?.items?.forEach(item => {
+                                      initialPrices[item.product_id] = item.current_price || '';
+                                    });
+                                    setPricingData(initialPrices);
+                                    setShowPricingForm(true);
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                  }}
+                                  className="px-3 py-1 bg-orange-600 text-white rounded text-xs hover:bg-orange-700 transition-colors font-semibold"
+                                >
+                                  Lock Price
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => confirmOrder(order.id)}
+                                  className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
+                                >
+                                  Confirm
+                                </button>
+                              )}
                               <button
                                 onClick={() => setSelected(order)}
                                 className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors"

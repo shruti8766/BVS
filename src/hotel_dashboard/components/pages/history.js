@@ -24,7 +24,7 @@ export default function OrderHistory() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showOrderDetails, setShowOrderDetails] = useState(false);
 
-  const BASE_URL = 'http://localhost:5000';
+  const BASE_URL = 'https://api-aso3bjldka-uc.a.run.app';
 
   // Fetch orders and products
   useEffect(() => {
@@ -60,8 +60,10 @@ export default function OrderHistory() {
 
         const ordersData = await ordersRes.json();
         console.log('📋 Fetched orders:', ordersData);
+        // Extract orders array from response {orders: [...], success: true}
+        const ordersArray = ordersData.orders || (Array.isArray(ordersData) ? ordersData : []);
         // Sort by date descending (newest first)
-        const sortedOrders = (Array.isArray(ordersData) ? ordersData : []).sort(
+        const sortedOrders = ordersArray.sort(
           (a, b) => new Date(b.order_date) - new Date(a.order_date)
         );
         console.log('📊 Total orders:', sortedOrders.length);
@@ -82,7 +84,9 @@ export default function OrderHistory() {
 
         if (productsRes.ok) {
           const productsData = await productsRes.json();
-          setProducts(Array.isArray(productsData) ? productsData : []);
+          // Extract products array from response {products: [...], success: true}
+          const productsArray = productsData.products || (Array.isArray(productsData) ? productsData : []);
+          setProducts(productsArray);
         }
       } catch (err) {
         console.error('Fetch error:', err);
@@ -178,14 +182,29 @@ export default function OrderHistory() {
       setSuccessMessage('');
       const token = localStorage.getItem('hotelToken');
 
-      console.log('🔄 Starting reorder for order:', order.id);
-      console.log('📦 Items to reorder:', order.items);
+      console.log('🔄 Starting reorder for order:', order.order_id);
+      console.log('� Items to reorder:', order.items);
+
+      // Clear existing cart first
+      console.log('🗑️ Clearing existing cart...');
+      try {
+        await fetch(`${BASE_URL}/api/hotel/cart/clear`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        console.log('✅ Cart cleared');
+      } catch (clearErr) {
+        console.warn('⚠️ Could not clear cart, continuing anyway:', clearErr);
+      }
 
       let addedCount = 0;
       let skippedCount = 0;
 
       // Prepare items for parallel requests
-      const itemsToAdd = order.items
+      const itemsToAdd = (order.items || [])
         .map(item => {
           const product = getProduct(item.product_id);
           if (!product) {
@@ -261,7 +280,7 @@ export default function OrderHistory() {
 
   // Quick reorder for common orders
   const quickReorder = async (orderId) => {
-    const order = orders.find(o => o.id === orderId);
+    const order = orders.find(o => o.order_id === orderId);
     if (!order) {
       console.error('❌ Order not found:', orderId);
       return;
@@ -284,8 +303,10 @@ export default function OrderHistory() {
         });
 
         if (response.ok) {
-          const fullOrder = await response.json();
-          console.log('✅ Fetched full order:', fullOrder);
+          const responseData = await response.json();
+          console.log('✅ Fetched full order:', responseData);
+          // Extract order from response {order: {...}, success: true}
+          const fullOrder = responseData.order || responseData;
           await handleReorder(fullOrder);
         } else {
           setError('Failed to fetch order details');
@@ -558,7 +579,7 @@ export default function OrderHistory() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {dateOrders.map((order) => (
                       <div
-                        key={order.id}
+                        key={order.order_id}
                         className="bg-white rounded-xl shadow-md border border-green-200 hover:shadow-lg transition-shadow"
                       >
                         <div className="p-6">
@@ -567,7 +588,7 @@ export default function OrderHistory() {
                             <div>
                               <div className="flex items-center gap-3 mb-2">
                                 <h3 className="text-lg font-bold text-green-800">
-                                  Order #{order.id}
+                                  Order #{order.order_id}
                                 </h3>
                                 {getStatusBadge(order.status)}
                               </div>
@@ -589,7 +610,7 @@ export default function OrderHistory() {
                           <div className="border-t border-green-100 pt-4 mb-4 bg-green-50 p-3 rounded-lg">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               {order.items?.slice(0, 4).map((item, idx) => (
-                                <div key={idx} className="flex items-center gap-2 text-sm">
+                                <div key={`${item.product_id}-${idx}`} className="flex items-center gap-2 text-sm">
                                   <span className="text-green-600 font-bold">✓</span>
                                   <span className="font-medium text-gray-900">
                                     {item.product_name || getProductName(item.product_id)}
@@ -616,7 +637,7 @@ export default function OrderHistory() {
                               🔍 View Details
                             </button>
                             <button
-                              onClick={() => quickReorder(order.id)}
+                              onClick={() => quickReorder(order.order_id)}
                               disabled={reordering}
                               className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                             >
@@ -673,7 +694,7 @@ export default function OrderHistory() {
                         const itemTotal = price * item.quantity;
                         return (
                           <div
-                            key={idx}
+                            key={`${item.product_id}-${idx}`}
                             className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200 hover:bg-green-100 transition"
                           >
                             <div className="flex-1">
@@ -724,7 +745,7 @@ export default function OrderHistory() {
                     <button
                       onClick={() => {
                         setShowOrderDetails(false);
-                        quickReorder(selectedOrder.id);
+                        quickReorder(selectedOrder.order_id);
                       }}
                       disabled={reordering}
                       className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-bold disabled:opacity-50 disabled:cursor-not-allowed"

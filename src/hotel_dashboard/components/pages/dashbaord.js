@@ -23,7 +23,7 @@ export default function HotelDashboard() {
     day: 'numeric' 
   }));
 
-  const BASE_URL = 'http://localhost:5000';
+  const BASE_URL = 'https://api-aso3bjldka-uc.a.run.app';
 
   // NEW: Fetch cart from backend API (same as cart.jsx)
   const fetchCartFromAPI = async () => {
@@ -120,22 +120,23 @@ export default function HotelDashboard() {
         if (!billsResponse.ok) throw new Error('Failed to fetch bills');
         if (!productsResponse.ok) throw new Error('Failed to fetch products');
 
-        const orders = await ordersResponse.json();
-        const bills = await billsResponse.json();
-        const products = await productsResponse.json();
+        const ordersData = await ordersResponse.json();
+        const billsData = await billsResponse.json();
+        const productsData = await productsResponse.json();
+
+        // Extract data from wrapped API responses
+        const orders = ordersData.orders || ordersData;
+        const bills = billsData.bills || billsData;
+        const products = productsData.products || productsData;
 
         console.log('Dashboard API Data:', { orders, bills, products });
 
         // Calculate stats
         const totalOrders = Array.isArray(orders) ? orders.length : 0;
         
-        // Count pending bills
+        // Count pending bills (unpaid bills where paid !== true)
         const pendingBills = Array.isArray(bills) 
-          ? bills.filter(bill => {
-              const isPaid = bill.paid === false || bill.paid === 0;
-              const isPendingStatus = bill.status === 'pending' || bill.payment_status === 'pending';
-              return isPaid || isPendingStatus;
-            }).length 
+          ? bills.filter(bill => bill.paid !== true).length 
           : 0;
 
         // Count active products
@@ -428,9 +429,9 @@ export default function HotelDashboard() {
                     {recentOrders.map((order) => {
                       const total = parseFloat(order.total_amount || order.amount || 0);
                       return (
-                        <tr key={order.id} className="hover:bg-green-50">
+                        <tr key={order.order_id} className="hover:bg-green-50">
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-800">
-                            #{order.id || order.order_id}
+                            #{order.order_id}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             {formatDate(order.order_date || order.created_at)}
@@ -471,10 +472,10 @@ export default function HotelDashboard() {
                   .filter(o => ['confirmed', 'preparing', 'dispatched'].includes(o.status))
                   .slice(0, 2)
                   .map(order => (
-                    <li key={order.id} className="flex items-center p-3 bg-green-50 rounded-lg">
+                    <li key={order.order_id} className="flex items-center p-3 bg-green-50 rounded-lg">
                       <span className="text-2xl mr-3">📦</span>
                       <div className="flex-1">
-                        <p className="font-medium text-green-800">Order #{order.id}</p>
+                        <p className="font-medium text-green-800">Order #{order.order_id}</p>
                         <p className="text-sm text-green-600">
                           {formatDate(order.delivery_date || order.order_date)}
                         </p>

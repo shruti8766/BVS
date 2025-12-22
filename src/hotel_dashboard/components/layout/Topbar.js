@@ -176,7 +176,7 @@ export default function Topbar({ onMenuClick }) {
   const navigate = useNavigate();
   const { logout, user } = useAuth();  // Assume user object has hotel details
 
-  const BASE_URL = 'http://localhost:5000';
+  const BASE_URL = 'https://api-aso3bjldka-uc.a.run.app';
 
   // ---- SEARCH ROUTES -------------------------------------------------
   const searchMap = {
@@ -295,30 +295,17 @@ export default function Topbar({ onMenuClick }) {
         }
 
         const productsData = await productsRes.json();
-        if (isMounted) setProducts(productsData);
+        // Extract products array from response or use as-is if already array
+        const productsArray = Array.isArray(productsData) ? productsData : (productsData.products || []);
+        if (isMounted) setProducts(productsArray);
 
-        // Calculate total
+        // Calculate total locally (avoid unreliable /calculate endpoint)
         if (items.length > 0) {
-          const calcRes = await fetch(`${BASE_URL}/api/hotel/cart/calculate`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ items }),
-          });
-
-          if (calcRes.ok) {
-            const calcData = await calcRes.json();
-            if (isMounted) setCartTotal(calcData);
-          } else {
-            // Fallback local calc
-            const fallbackTotal = items.reduce((sum, item) => {
-              const product = productsData.find(p => p.id === item.product_id);
-              return sum + ((product?.price_per_unit || 0) * item.quantity);
-            }, 0);
-            if (isMounted) setCartTotal({ total_amount: fallbackTotal, item_count: items.length });
-          }
+          const fallbackTotal = items.reduce((sum, item) => {
+            const product = productsArray.find(p => p.id === item.product_id);
+            return sum + ((product?.price_per_unit || 0) * item.quantity);
+          }, 0);
+          if (isMounted) setCartTotal({ total_amount: fallbackTotal, item_count: items.length });
         } else {
           if (isMounted) setCartTotal({ total_amount: 0, item_count: 0 });
         }

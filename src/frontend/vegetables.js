@@ -3,10 +3,15 @@ import { Link } from 'react-router-dom';
 import ChatBot from '../chatbot/ChatBot'; // Import your chatbot component
 const Vegetables = () => {
   const [showChatbot, setShowChatbot] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const chatbotRef = useRef(null);
 
   const toggleChatbot = () => {
     setShowChatbot(!showChatbot);
+  };
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
   };
 
   // Handle click outside to close chatbot
@@ -34,39 +39,35 @@ const Vegetables = () => {
       <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script>
       <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
       <style>{`
-        // .hero-bg {
-        //   background-image: url('https://imgs.search.brave.com/c2eDpVhTrqhjHE4pzWQKgZIyeixxgzlByXaFRDhs22s/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvMTY1/Nzg3NTQ2Ny9waG90/by9mcmVzaC1ncmVl/bi1vcmdhbmljLXZl/Z2V0YWJsZXMtYW5k/LWZydWl0cy1vbi1n/cmVlbi1iYWNrZ3Jv/dW5kLWhlYWx0aHkt/Zm9vZC1kaWV0LWFu/ZC1kZXRveC5qcGc_/cz02MTJ4NjEyJnc9/MCZrPTIwJmM9YkZi/cjZaVjhWNkYzM0hs/dkdHV2FEWXRDYzEx/YWZBbXFUby02eEZp/ZkNidz0');
-        //   background-size: cover;
-        //   background-position: center;
-        //   background-repeat: no-repeat;
-        //   position: relative;
-        // }
-        
-        // .hero-bg::before {
-        //   content: '';
-        //   position: absolute;
-        //   top: 0;
-        //   left: 0;
-        //   right: 0;
-        //   bottom: 0;
-        //   background: rgba(34, 139, 34, 0.7);
-        //   z-index: 0;
-        // }
-        
-        // .hero-content {
-        //   position: relative;
-        //   z-index: 1;
-        // }
-
         .hero-section {
           background-image: url('/vegetables1.jpg');
           background-size: cover;
           background-position: center;
           background-repeat: no-repeat;
           position: relative;
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
+          display: block;
+        }
+
+        /* Mobile: Add responsive padding like Home page */
+        @media (max-width: 640px) {
+          .hero-section {
+            padding-top: 5rem;
+            padding-bottom: 2rem;
+          }
+        }
+
+        @media (min-width: 641px) and (max-width: 768px) {
+          .hero-section {
+            padding-top: 8rem;
+            padding-bottom: 3rem;
+          }
+        }
+
+        @media (min-width: 769px) {
+          .hero-section {
+            padding-top: 8rem;
+            padding-bottom: 4rem;
+          }
         }
 
         /* Green overlay ONLY on the background image */
@@ -128,7 +129,7 @@ const Vegetables = () => {
           right: 20px;
           z-index: 1000;
           width: 350px;
-          height: 600px;
+          height: 500px;
           background: white;
           border-radius: 12px;
           box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
@@ -260,13 +261,21 @@ const Vegetables = () => {
       `}</style>
       <div className="bg-white">
         <header className="header-section">
-        <nav aria-label="Global" className="flex items-center justify-between p-6 lg:px-8">
+        <nav aria-label="Global" className="flex items-center justify-between p-4 sm:p-6 lg:px-8">
           <div className="flex lg:flex-1">
             <a href="index.html" className="-m-1.5 p-1.5">
               <span className="sr-only">Bhairavnath Vegetables Supplier (BVS)</span>
-              <img src="/logo1.png" alt="Fresh Foods Logo" className="h-24 w-auto" />
+              <img src="/logo1.png" alt="Fresh Foods Logo" className="h-16 sm:h-20 md:h-24 w-auto" />
             </a>
           </div>
+            <div className="flex lg:hidden">
+              <button type="button" onClick={toggleMobileMenu} className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-white hover:bg-white/10 transition-colors">
+                <span className="sr-only">Open main menu</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="size-6">
+                  <path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            </div>
             <div className="hidden lg:flex lg:gap-x-12">
               <Link to="/" className="text-sm/6 font-semibold text-white hover:text-green-200 transition-colors">Home</Link>
               <Link to="/vegetables" className="text-sm/6 font-semibold text-white border-b-2 border-white">Vegetables</Link>
@@ -276,9 +285,23 @@ const Vegetables = () => {
               <Link to="/about" className="text-sm/6 font-semibold text-white hover:text-green-200 transition-colors">About Us</Link>
             </div>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-            <a href="/login" className="text-sm/6 font-semibold text-white">Log in <span aria-hidden="true">&rarr;</span></a>
+            <a href="/login" className="text-sm/6 font-semibold text-white hover:text-green-200 transition-colors">Log in <span aria-hidden="true">&rarr;</span></a>
           </div>
         </nav>
+        {/* Mobile menu dropdown */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden bg-green-800 border-t border-white/10">
+            <div className="px-6 py-4 space-y-2">
+              <Link to="/" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">Home</Link>
+              <Link to="/vegetables" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">Vegetables</Link>
+              <Link to="/fruits" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">Fruits</Link>
+              <Link to="/more" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">More</Link>
+              <Link to="/features" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">Features</Link>
+              <Link to="/about" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">About Us</Link>
+              <Link to="/login" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-green-200 border-t border-white/10 mt-2 pt-4">Log in</Link>
+            </div>
+          </div>
+        )}
       </header>
       
       {/* Decorative line separator */}
@@ -286,18 +309,18 @@ const Vegetables = () => {
 
       {/* FIXED: Hero section with proper overlay containment */}
       <div className="hero-section">
-        <div className="hero-content mx-auto max-w-7xl px-6 lg:px-8 w-full pt-24">
+        <div className="hero-content mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full pt-20 sm:pt-24">
           <div className="mx-auto max-w-2xl lg:mx-0">
-            <h2 className="text-5xl font-semibold tracking-tight text-white sm:text-7xl">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold tracking-tight text-white">
               Vegetables for every need
             </h2>
-            <p className="mt-8 text-lg font-medium text-pretty text-green-100 sm:text-xl/8">
+            <p className="mt-6 sm:mt-8 text-base sm:text-lg md:text-xl font-medium text-pretty text-green-100">
               All types of fresh vegetables, daily supply for hotels, canteens, caterers, and stores in Pune — serving since 2004.
             </p>
           </div>
-          <div className="mx-auto mt-10 max-w-2xl lg:mx-0 lg:max-w-none">
+          <div className="mx-auto mt-8 sm:mt-10 max-w-2xl lg:mx-0 lg:max-w-none">
             {/* Primary actions/links */}
-            <div className="grid grid-cols-1 gap-x-8 gap-y-6 text-base/7 font-semibold text-white sm:grid-cols-2 md:flex lg:gap-x-10">
+            <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:gap-y-6 text-base/7 font-semibold text-white sm:grid-cols-2 md:flex lg:gap-x-10">
               <a href="/login" className="rounded-md bg-green-600 px-3.5 py-2.5 text-white shadow-xs hover:bg-green-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">
                 Get price list <span aria-hidden="true">→</span>
               </a>
@@ -312,22 +335,22 @@ const Vegetables = () => {
               </a>
             </div>
             {/* Highlights */}
-            <dl className="mt-16 grid grid-cols-1 gap-8 sm:mt-20 sm:grid-cols-2 lg:grid-cols-4">
+            <dl className="mt-12 sm:mt-16 md:mt-20 grid grid-cols-2 gap-6 sm:gap-8 lg:grid-cols-4">
               <div className="flex flex-col-reverse gap-1">
-                <dt className="text-base/7 text-green-100">Since</dt>
-                <dd className="text-4xl font-semibold tracking-tight text-white">2004</dd>
+                <dt className="text-xs sm:text-sm md:text-base text-green-100">Since</dt>
+                <dd className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-white">2004</dd>
               </div>
               <div className="flex flex-col-reverse gap-1">
-                <dt className="text-base/7 text-green-100">Order types</dt>
-                <dd className="text-4xl font-semibold tracking-tight text-white">Bulk & daily</dd>
+                <dt className="text-xs sm:text-sm md:text-base text-green-100">Order types</dt>
+                <dd className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight text-white">Bulk & daily</dd>
               </div>
               <div className="flex flex-col-reverse gap-1">
-                <dt className="text-base/7 text-green-100">Service area</dt>
-                <dd className="text-4xl font-semibold tracking-tight text-white">Pune</dd>
+                <dt className="text-xs sm:text-sm md:text-base text-green-100">Service area</dt>
+                <dd className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-white">Pune</dd>
               </div>
               <div className="flex flex-col-reverse gap-1">
-                <dt className="text-base/7 text-green-100">Assurance</dt>
-                <dd className="text-4xl font-semibold tracking-tight text-white">Reliable supply</dd>
+                <dt className="text-xs sm:text-sm md:text-base text-green-100">Assurance</dt>
+                <dd className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight text-white">Reliable supply</dd>
               </div>
             </dl>
           </div>
@@ -335,14 +358,14 @@ const Vegetables = () => {
       </div>
 
 
-        <div className="bg-gradient-to-br from-green-50 via-white to-emerald-50 py-16">
+        <div className="bg-gradient-to-br from-green-50 via-white to-emerald-50 py-12 sm:py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {/* Section Header */}
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold tracking-tight text-green-800 sm:text-5xl mb-4">
+            <div className="text-center mb-12 sm:mb-16">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-green-800 mb-3 sm:mb-4 px-4">
                 🥬 Our Vegetable Categories
               </h2>
-              <p className="text-lg text-green-600 max-w-3xl mx-auto">
+              <p className="text-base sm:text-lg text-green-600 max-w-3xl mx-auto px-4">
                 Explore our wide range of fresh vegetables, carefully categorized for easy selection. 
                 From farm to your kitchen — quality guaranteed since 2004.
               </p>

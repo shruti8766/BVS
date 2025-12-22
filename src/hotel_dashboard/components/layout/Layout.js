@@ -40,15 +40,15 @@ export default function Layout({ children }) {
 
         <div className={`flex-1 flex flex-col transition-all duration-300 ${collapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
           <Topbar onMenuClick={toggleSidebar} onCartClick={openSlideOver} />
-          <main id="main-content" className="flex-1 overflow-auto">
+          <main id="main-content" className="flex-1 overflow-auto p-4 sm:p-6">
             {children}
           </main>
-          <footer className="bg-white border-t border-gray-200 py-4 px-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-gray-500">
+          <footer className="bg-white border-t border-gray-200 py-3 sm:py-4 px-4 sm:px-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-center sm:text-left">
+              <p className="text-xs sm:text-sm text-gray-500">
                 © 2024 Bhairavnath Vegetables Supplier. All rights reserved.
               </p>
-              <span className="text-sm text-gray-500 mt-2 sm:mt-0">Version 1.0.0</span>
+              <span className="text-xs sm:text-sm text-gray-500 mt-2 sm:mt-0">Version 1.0.0</span>
             </div>
           </footer>
         </div>

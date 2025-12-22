@@ -44,7 +44,7 @@
 //     setLoginError('');
 
 //     try {
-//       const res = await fetch('http://127.0.0.1:5000/api/auth/login', {
+//       const res = await fetch('https://api-aso3bjldka-uc.a.run.app/api/auth/login', {
 //         method: 'POST',
 //         headers: { 'Content-Type': 'application/json' },
 //         body: JSON.stringify(loginForm),
@@ -513,6 +513,11 @@ const Settings = () => {
   // ──────────────────────────────────────────────────────
   const [profile, setProfile] = useState({});
   const [systemSettings, setSystemSettings] = useState({});
+  const [notificationPreferences, setNotificationPreferences] = useState({
+    email_new_orders: false,
+    sms_low_stock: false,
+    daily_reports: false
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('profile');  // Tabs: profile, password, website, system, notifications
@@ -540,7 +545,7 @@ const Settings = () => {
     setLoginError('');
 
     try {
-      const res = await fetch('http://127.0.0.1:5000/api/auth/login', {
+      const res = await fetch('https://api-aso3bjldka-uc.a.run.app/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(loginForm),
@@ -566,12 +571,14 @@ const Settings = () => {
     try {
       setLoading(true);
       setError(null);
-      const [profileData, settingsData] = await Promise.all([
+      const [profileData, settingsData, notificationData] = await Promise.all([
         profileApi.getProfile(),
         profileApi.getSystemSettings(),
+        profileApi.getNotificationPreferences(),
       ]);
       setProfile(profileData);
       setSystemSettings(settingsData);
+      setNotificationPreferences(notificationData);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -612,6 +619,19 @@ const Settings = () => {
       await profileApi.updateSystemSettings(settingsData);
       await fetchSettings();
       setError('Settings updated successfully');
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+
+  const updateNotificationPreferences = async () => {
+    try {
+      const response = await profileApi.updateNotificationPreferences(notificationPreferences);
+      // Update state with server response to ensure consistency
+      if (response.preferences) {
+        setNotificationPreferences(response.preferences);
+      }
+      setError('Notification preferences saved successfully');
     } catch (e) {
       setError(e.message);
     }
@@ -838,24 +858,39 @@ const Settings = () => {
               <h3 className="text-xl font-bold text-green-800 mb-4">Notification Preferences</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="rounded border-green-300 text-green-600 focus:ring-green-500" />
+                  <label className="flex items-center cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={notificationPreferences.email_new_orders}
+                      onChange={e => setNotificationPreferences({...notificationPreferences, email_new_orders: e.target.checked})}
+                      className="rounded border-green-300 text-green-600 focus:ring-green-500" 
+                    />
                     <span className="ml-2 text-sm text-gray-700">Email notifications for new orders</span>
                   </label>
                 </div>
                 <div>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="rounded border-green-300 text-green-600 focus:ring-green-500" />
+                  <label className="flex items-center cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={notificationPreferences.sms_low_stock}
+                      onChange={e => setNotificationPreferences({...notificationPreferences, sms_low_stock: e.target.checked})}
+                      className="rounded border-green-300 text-green-600 focus:ring-green-500" 
+                    />
                     <span className="ml-2 text-sm text-gray-700">SMS alerts for low stock</span>
                   </label>
                 </div>
                 <div>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="rounded border-green-300 text-green-600 focus:ring-green-500" />
+                  <label className="flex items-center cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={notificationPreferences.daily_reports}
+                      onChange={e => setNotificationPreferences({...notificationPreferences, daily_reports: e.target.checked})}
+                      className="rounded border-green-300 text-green-600 focus:ring-green-500" 
+                    />
                     <span className="ml-2 text-sm text-gray-700">Daily revenue reports</span>
                   </label>
                 </div>
-                <QuickAction onClick={() => setError('Preferences saved')} className="!w-full !text-sm">
+                <QuickAction onClick={updateNotificationPreferences} className="!w-full !text-sm">
                   Save Preferences
                 </QuickAction>
               </div>

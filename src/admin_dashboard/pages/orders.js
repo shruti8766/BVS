@@ -52,7 +52,7 @@
 //     setLoginError('');
 
 //     try {
-//       const res = await fetch('http://localhost:5000/api/auth/login', {
+//       const res = await fetch('https://api-aso3bjldka-uc.a.run.app/api/auth/login', {
 //         method: 'POST',
 //         headers: { 'Content-Type': 'application/json' },
 //         body: JSON.stringify(loginForm),
@@ -474,7 +474,7 @@
 //           <span className="text-blue-600 text-lg mr-3">📊</span>
 //           <div>
 //             <p className="text-blue-800 font-medium">Connected to live backend</p>
-//             <p className="text-blue-700 text-sm">Orders loaded: {orders.length} | http://127.0.0.1:5000</p>
+//             <p className="text-blue-700 text-sm">Orders loaded: {orders.length} | https://api-aso3bjldka-uc.a.run.app</p>
 //           </div>
 //         </div>
 //       </div>
@@ -524,22 +524,22 @@ const Icons = {
 // 2. Reusable UI Components (Modern, Animated) - Adapted from Dashboard
 // ──────────────────────────────────────────────────────
 const Card = ({ children, className = '', hover = false }) => (
-  <div className={`bg-white rounded-2xl shadow-lg border-2 border-green-100 overflow-hidden transition-all duration-300 ${hover ? 'hover:shadow-xl hover:border-green-300 hover:-translate-y-1' : ''} ${className}`}>
+  <div className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg border-2 border-green-100 dark:border-green-900 overflow-hidden transition-all duration-300 ${hover ? 'hover:shadow-xl hover:border-green-300 dark:hover:border-green-700 hover:-translate-y-1' : ''} ${className}`}>
     {children}
   </div>
 );
 
 const GlassCard = ({ children, className = '' }) => (
-  <div className={`bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border-2 border-green-100 overflow-hidden ${className}`}>
+  <div className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border-2 border-green-100 dark:border-green-900 overflow-hidden ${className}`}>
     {children}
   </div>
 );
 
 const Stat = ({ label, value, color = 'text-green-700', Icon, trend }) => (
-  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6">
+  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 lg:p-6 transition-colors duration-200">
     <div className="flex items-center justify-between">
-      <h3 className="text-sm font-medium text-gray-500">{label}</h3>
-      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${color === 'text-green-700' ? 'bg-green-100' : color === 'text-emerald-700' ? 'bg-emerald-100' : color === 'text-teal-700' ? 'bg-teal-100' : color === 'text-orange-600' ? 'bg-orange-100' : color === 'text-red-600' ? 'bg-red-100' : 'bg-green-100'}`}>
+      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{label}</h3>
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${color === 'text-green-700' ? 'bg-green-100 dark:bg-green-900' : color === 'text-emerald-700' ? 'bg-emerald-100 dark:bg-emerald-900' : color === 'text-teal-700' ? 'bg-teal-100 dark:bg-teal-900' : color === 'text-orange-600' ? 'bg-orange-100 dark:bg-orange-900' : color === 'text-red-600' ? 'bg-red-100 dark:bg-red-900' : 'bg-green-100 dark:bg-green-900'}`}>
         {Icon && <Icon />}
       </div>
     </div>
@@ -548,7 +548,7 @@ const Stat = ({ label, value, color = 'text-green-700', Icon, trend }) => (
       {trend !== undefined && (
         <div className="flex items-center mt-1">
           <Icons.TrendUp />
-          <span className="text-xs font-semibold text-green-600 ml-1">+{trend}%</span>
+          <span className="text-xs font-semibold text-green-600 dark:text-green-400 ml-1">+{trend}%</span>
         </div>
       )}
     </div>
@@ -556,13 +556,13 @@ const Stat = ({ label, value, color = 'text-green-700', Icon, trend }) => (
 );
 
 const MiniTable = ({ title, headers, rows, linkTo, emptyMsg = 'No data', onRowClick, filter }) => (
-  <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-    <div className="px-4 py-3 bg-green-50 border-b border-green-100 flex justify-between items-center">
-      <h3 className="text-base font-bold text-green-800">{title}</h3>
+  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-200">
+    <div className="px-4 py-3 bg-green-50 dark:bg-green-900 border-b border-green-100 dark:border-green-800 flex justify-between items-center">
+      <h3 className="text-base font-bold text-green-800 dark:text-green-300">{title}</h3>
       <div className="flex items-center gap-4">
         {filter}
         {linkTo && (
-          <Link to={linkTo} className="text-sm font-medium text-green-600 hover:text-green-700 flex items-center gap-1 transition-colors">
+          <Link to={linkTo} className="text-sm font-medium text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 flex items-center gap-1 transition-colors">
             View all
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -574,31 +574,31 @@ const MiniTable = ({ title, headers, rows, linkTo, emptyMsg = 'No data', onRowCl
     <div className="overflow-x-auto">
       <table className="min-w-full text-sm">
         <thead>
-          <tr className="bg-green-50/50">
+          <tr className="bg-green-50/50 dark:bg-gray-700">
             {headers.map((h, i) => (
-              <th key={i} className="px-4 py-3 text-left text-xs font-bold text-green-700 uppercase">
+              <th key={i} className="px-4 py-3 text-left text-xs font-bold text-green-700 dark:text-green-300 uppercase">
                 {h}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-green-50">
+        <tbody className="divide-y divide-green-50 dark:divide-gray-700">
           {rows.length === 0 ? (
             <tr>
               <td colSpan={headers.length} className="px-4 py-8 text-center">
                 <div className="flex flex-col items-center gap-2">
-                  <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center">
                     <Icons.Cart />
                   </div>
-                  <p className="text-sm font-medium text-gray-700">{emptyMsg}</p>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{emptyMsg}</p>
                 </div>
               </td>
             </tr>
           ) : (
             rows.map((r, i) => (
-              <tr key={i} className={`hover:bg-green-50/30 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`} onClick={() => onRowClick && onRowClick(r)}>
+              <tr key={i} className={`hover:bg-green-50/30 dark:hover:bg-gray-700 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`} onClick={() => onRowClick && onRowClick(r)}>
                 {r.map((cell, j) => (
-                  <td key={j} className="px-4 py-3 text-sm text-gray-700">
+                  <td key={j} className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                     {cell}
                   </td>
                 ))}
@@ -683,7 +683,7 @@ const Orders = () => {
     setLoginError('');
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
+      const res = await fetch('https://api-aso3bjldka-uc.a.run.app/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(loginForm),
@@ -710,11 +710,15 @@ const Orders = () => {
       setLoading(true);
       setError(null);
       const data = await ordersApi.getAll();
+      console.log('📦 Orders data received:', data);
+      console.log('📦 Is array?', Array.isArray(data));
+      console.log('📦 Data length:', data?.length);
       setOrders(Array.isArray(data) ? data : []);
       
       // NEW: Fetch pending pricing orders
       await fetchPendingPricingOrders();
     } catch (e) {
+      console.error('❌ Error fetching orders:', e);
       setError(e.message);
       setOrders([]);
     } finally {
@@ -726,7 +730,7 @@ const Orders = () => {
   const fetchPendingPricingOrders = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const res = await fetch('http://localhost:5000/api/admin/orders/pending-pricing', {
+      const res = await fetch('https://api-aso3bjldka-uc.a.run.app/api/admin/orders/pending-pricing', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -758,7 +762,7 @@ const Orders = () => {
         price_per_unit: parseFloat(pricingData[item.product_id] || item.current_price),
       }));
 
-      const res = await fetch(`http://localhost:5000/api/admin/orders/${orderId}/finalize-prices`, {
+      const res = await fetch(`https://api-aso3bjldka-uc.a.run.app/api/admin/orders/${orderId}/finalize-prices`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -817,17 +821,17 @@ const Orders = () => {
   if (!token) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-green-950 flex items-center justify-center p-6 transition-colors duration-200">
           <Card className="p-8 max-w-md w-full">
-            <h2 className="text-2xl font-bold text-green-800 mb-6">Admin Login</h2>
-            {loginError && <p className="text-red-600 text-sm mb-4">{loginError}</p>}
+            <h2 className="text-2xl font-bold text-green-800 dark:text-green-300 mb-6">Admin Login</h2>
+            {loginError && <p className="text-red-600 dark:text-red-400 text-sm mb-4">{loginError}</p>}
             <form onSubmit={handleLogin} className="space-y-4">
               <input
                 type="text"
                 placeholder="Username"
                 value={loginForm.username}
                 onChange={e => setLoginForm({ ...loginForm, username: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition-all"
                 required
               />
               <input
@@ -835,7 +839,7 @@ const Orders = () => {
                 placeholder="Password"
                 value={loginForm.password}
                 onChange={e => setLoginForm({ ...loginForm, password: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition-all"
                 required
               />
               <button
@@ -855,14 +859,14 @@ const Orders = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-green-950 flex items-center justify-center p-6 transition-colors duration-200">
           <div className="text-center">
             <img
-              src="/broc.jpg" // Replace with the actual path to your broccoli image (e.g., public/images/broccoli-loading.png)
+              src="/broc.jpg"
               alt="Loading"
               className="h-32 w-32 mx-auto mb-4 animate-[run_1s_ease-in-out_infinite]"
             />
-            <p className="text-gray-600 font-medium text-lg">Broccoli is crunching your orders...</p>
+            <p className="text-gray-600 dark:text-gray-300 font-medium text-lg">Broccoli is crunching your orders...</p>
           </div>
         </div>
       </Layout>
@@ -871,19 +875,19 @@ const Orders = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-green-950 transition-colors duration-200">
         <div className="p-8 w-full">
           {/* ---------- Header ---------- */}
           <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-green-800 mb-1">
+              <h1 className="text-2xl font-bold text-green-800 dark:text-green-300 mb-1">
                 Orders Management
               </h1>
-              <p className="text-gray-600 text-sm">View and manage all hotel vegetable orders</p>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">View and manage all hotel vegetable orders</p>
             </div>
             <button
               onClick={fetchOrders}
-              className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-300 flex items-center gap-2 font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+              className="px-6 py-3 bg-green-600 dark:bg-green-700 text-white rounded-xl hover:bg-green-700 dark:hover:bg-green-600 transition-all duration-300 flex items-center gap-2 font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5"
             >
               <Icons.Refresh />
               Refresh Data
@@ -892,13 +896,13 @@ const Orders = () => {
 
           {/* ---------- Error ---------- */}
           {error && (
-            <Card className="mb-6 bg-red-50 border-red-200 p-4">
+            <Card className="mb-6 bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800 p-4">
               <div className="flex items-center gap-3">
-                <span className="text-red-600 text-lg">Warning</span>
+                <span className="text-red-600 dark:text-red-400 text-lg">Warning</span>
                 <div>
-                  <p className="text-red-800 font-medium">Failed to load data</p>
-                  <p className="text-red-700 text-sm">{error}</p>
-                  <button onClick={fetchOrders} className="mt-2 px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700">
+                  <p className="text-red-800 dark:text-red-300 font-medium">Failed to load data</p>
+                  <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
+                  <button onClick={fetchOrders} className="mt-2 px-3 py-1 bg-red-600 dark:bg-red-700 text-white rounded text-sm hover:bg-red-700 dark:hover:bg-red-600">
                     Retry
                   </button>
                 </div>
@@ -980,13 +984,13 @@ const Orders = () => {
           {/* ---------- Enhanced Details Modal ---------- */}
           {selected && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-              <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-green-100">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-green-100 dark:border-green-900 transition-colors duration-200">
                 <div className="p-6">
                   <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-2xl font-bold text-green-800">
+                    <h3 className="text-2xl font-bold text-green-800 dark:text-green-300">
                       Order Details - #{safe(selected.id)}
                     </h3>
-                    <button onClick={() => setSelected(null)} className="p-2 hover:bg-green-50 rounded-xl transition-colors">
+                    <button onClick={() => setSelected(null)} className="p-2 hover:bg-green-50 dark:hover:bg-gray-700 rounded-xl transition-colors">
                       <Icons.Close />
                     </button>
                   </div>
@@ -996,11 +1000,11 @@ const Orders = () => {
                     <Card className="p-6">
                       <div className="flex justify-between items-start">
                         <div>
-                          <h4 className="text-xl font-bold text-green-800">{safe(selected.hotel_name)}</h4>
-                          <p className="text-gray-600">Order #{safe(selected.id)}</p>
+                          <h4 className="text-xl font-bold text-green-800 dark:text-green-300">{safe(selected.hotel_name)}</h4>
+                          <p className="text-gray-600 dark:text-gray-400">Order #{safe(selected.id)}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-3xl font-bold text-emerald-700">₹{safeNum(selected.total_amount).toFixed(2)}</p>
+                          <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-300">₹{safeNum(selected.total_amount).toFixed(2)}</p>
                           <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium border ${getStatusInfo(selected.status).c}`}>
                             {getStatusInfo(selected.status).label}
                           </span>
@@ -1012,72 +1016,72 @@ const Orders = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-4">
                         <div>
-                          <p className="text-sm font-medium text-gray-600">Order Date</p>
-                          <p className="text-lg font-semibold text-gray-900">{formatDate(selected.order_date || selected.created_at)}</p>
+                          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Order Date</p>
+                          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{formatDate(selected.order_date || selected.created_at)}</p>
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-600">Delivery Date</p>
-                          <p className="text-lg font-semibold text-gray-900">{formatDate(selected.delivery_date)}</p>
+                          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Delivery Date</p>
+                          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{formatDate(selected.delivery_date)}</p>
                         </div>
                       </div>
                       <div className="space-y-4">
                         <div>
-                          <p className="text-sm font-medium text-gray-600">Contact Info</p>
-                          <p className="text-lg font-semibold text-gray-900">{safe(selected.email)}</p>
-                          <p className="text-gray-600">{safe(selected.phone)}</p>
+                          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Contact Info</p>
+                          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{safe(selected.email)}</p>
+                          <p className="text-gray-600 dark:text-gray-400">{safe(selected.phone)}</p>
                         </div>
                       </div>
                     </div>
 
                     {/* ---------- Special Instructions ---------- */}
                     {selected.special_instructions && (
-                      <Card className="bg-amber-50 border-amber-200">
-                        <p className="text-sm font-medium text-gray-600 mb-2">Special Instructions</p>
-                        <p className="text-amber-800">{selected.special_instructions}</p>
+                      <Card className="bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
+                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Special Instructions</p>
+                        <p className="text-amber-800 dark:text-amber-300">{selected.special_instructions}</p>
                       </Card>
                     )}
 
                     {/* ---------- Enhanced Items Table ---------- */}
                     <Card>
-                      <p className="text-sm font-medium text-gray-600 mb-3 px-6 pt-6">Order Items</p>
-                      <div className="border-t border-green-100">
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3 px-6 pt-6">Order Items</p>
+                      <div className="border-t border-green-100 dark:border-green-900">
                         <table className="min-w-full">
-                          <thead className="bg-green-50/50">
+                          <thead className="bg-green-50/50 dark:bg-gray-700">
                             <tr>
-                              <th className="px-6 py-4 text-left text-xs font-bold text-green-700 uppercase tracking-wider">Product</th>
-                              <th className="px-6 py-4 text-left text-xs font-bold text-green-700 uppercase tracking-wider">Quantity</th>
-                              <th className="px-6 py-4 text-left text-xs font-bold text-green-700 uppercase tracking-wider">Unit</th>
-                              <th className="px-6 py-4 text-left text-xs font-bold text-green-700 uppercase tracking-wider">Price/Unit</th>
-                              <th className="px-6 py-4 text-left text-xs font-bold text-green-700 uppercase tracking-wider">Total</th>
+                              <th className="px-6 py-4 text-left text-xs font-bold text-green-700 dark:text-green-300 uppercase tracking-wider">Product</th>
+                              <th className="px-6 py-4 text-left text-xs font-bold text-green-700 dark:text-green-300 uppercase tracking-wider">Quantity</th>
+                              <th className="px-6 py-4 text-left text-xs font-bold text-green-700 dark:text-green-300 uppercase tracking-wider">Unit</th>
+                              <th className="px-6 py-4 text-left text-xs font-bold text-green-700 dark:text-green-300 uppercase tracking-wider">Price/Unit</th>
+                              <th className="px-6 py-4 text-left text-xs font-bold text-green-700 dark:text-green-300 uppercase tracking-wider">Total</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-green-50 bg-white">
+                          <tbody className="divide-y divide-green-50 dark:divide-gray-700 bg-white dark:bg-gray-800">
                             {selected.items?.length ? selected.items.map((item, index) => {
                               const itemTotal = safeNum(item.quantity) * safeNum(item.price_at_order || item.price_per_unit);
                               return (
-                                <tr key={index} className="hover:bg-green-50/30 transition-colors">
-                                  <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                <tr key={index} className="hover:bg-green-50/30 dark:hover:bg-gray-700 transition-colors">
+                                  <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {safe(item.product_name, `Product ${item.product_id}`)}
                                   </td>
-                                  <td className="px-6 py-4 text-sm text-gray-900">
+                                  <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
                                     {safe(item.quantity, 0)}
                                   </td>
-                                  <td className="px-6 py-4 text-sm text-gray-600">
+                                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
                                     {safe(item.unit_type, 'kg')}
                                   </td>
-                                  <td className="px-6 py-4 text-sm text-gray-900">
+                                  <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
                                     ₹{safeNum(item.price_at_order || item.price_per_unit).toFixed(2)}
                                   </td>
-                                  <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                                  <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
                                     ₹{itemTotal.toFixed(2)}
                                   </td>
                                 </tr>
                               );
                             }) : (
                               <tr>
-                                <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                                <td colSpan={5} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                                   <div className="flex flex-col items-center gap-2">
-                                    <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center">
+                                    <div className="w-16 h-16 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center">
                                       <Icons.Cart />
                                     </div>
                                     <p className="font-medium">No items found</p>
@@ -1086,12 +1090,12 @@ const Orders = () => {
                               </tr>
                             )}
                           </tbody>
-                          <tfoot className="bg-green-50/50">
+                          <tfoot className="bg-green-50/50 dark:bg-gray-700">
                             <tr>
-                              <td colSpan={4} className="px-6 py-4 text-right text-sm font-medium text-green-700">
+                              <td colSpan={4} className="px-6 py-4 text-right text-sm font-medium text-green-700 dark:text-green-300">
                                 Grand Total:
                               </td>
-                              <td className="px-6 py-4 text-sm font-bold text-emerald-700">
+                              <td className="px-6 py-4 text-sm font-bold text-emerald-700 dark:text-emerald-300">
                                 ₹{safeNum(selected.total_amount).toFixed(2)}
                               </td>
                             </tr>

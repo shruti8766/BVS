@@ -33,7 +33,7 @@ export default function HotelSettings() {
     address: '',
   };
 
-  const BASE_URL = 'http://localhost:5000';
+  const BASE_URL = 'https://api-aso3bjldka-uc.a.run.app';
 
   // Custom confirm function to avoid restricted globals
   const showConfirm = (message) => {
@@ -57,8 +57,8 @@ export default function HotelSettings() {
         setError('');
         const token = localStorage.getItem('hotelToken');
         
-        // Fetch profile from dashboard
-        const profileRes = await fetch(`${BASE_URL}/api/hotel/dashboard`, {
+        // Fetch profile from correct endpoint
+        const profileRes = await fetch(`${BASE_URL}/api/hotel/profile`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -77,10 +77,10 @@ export default function HotelSettings() {
 
         const profileData = await profileRes.json();
         setProfile({
-          hotel_name: profileData.hotel_info?.name || user?.hotel_name || '',
-          email: profileData.hotel_info?.email || user?.email || '',
-          phone: profileData.hotel_info?.phone || user?.phone || '',
-          address: profileData.hotel_info?.address || user?.address || '',
+          hotel_name: profileData.hotel_name || user?.hotel_name || '',
+          email: profileData.email || user?.email || '',
+          phone: profileData.phone || user?.phone || '',
+          address: profileData.address || user?.address || '',
         });
 
         // Fetch real bills for summary
@@ -102,7 +102,9 @@ export default function HotelSettings() {
         }
 
         const billsData = await billsRes.json();
-        setBills(Array.isArray(billsData) ? billsData : []);
+        // Extract bills array from response {bills: [...], success: true}
+        const billsArray = billsData.bills || (Array.isArray(billsData) ? billsData : []);
+        setBills(billsArray);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -282,16 +284,7 @@ export default function HotelSettings() {
                     </button>
                   ))}
                 </nav>
-                {/* Quick Actions */}
-                <div className="mt-6 pt-6 border-t border-green-100">
-                  <h3 className="text-sm font-semibold text-green-800 mb-3">Quick Actions</h3>
-                  <button
-                    onClick={handleReset}
-                    className="w-full flex items-center px-4 py-2 text-sm text-gray-600 hover:text-red-600"
-                  >
-                    🔄 Reset Profile
-                  </button>
-                </div>
+
               </div>
             </div>
 

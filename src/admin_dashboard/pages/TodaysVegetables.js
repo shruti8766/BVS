@@ -41,7 +41,7 @@ const TodaysVegetables = () => {
   const [data, setData] = useState(null);
   const [selectedHistoryDate, setSelectedHistoryDate] = useState('');
 
-  const BASE_URL = 'http://localhost:5000';
+  const BASE_URL = 'https://api-aso3bjldka-uc.a.run.app';
 
   // Fetch today's vegetables
   const fetchTodaysVegetables = async () => {
@@ -81,6 +81,8 @@ const TodaysVegetables = () => {
       const token = localStorage.getItem('adminToken');
       
       const url = `${BASE_URL}/api/admin/orders/vegetables-history?date=${date}`;
+      console.log('[TODAYS_VEG_HISTORY] Fetching vegetables for date:', date);
+      console.log('[TODAYS_VEG_HISTORY] URL:', url);
       
       const res = await fetch(url, {
         method: 'GET',
@@ -91,12 +93,16 @@ const TodaysVegetables = () => {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to fetch vegetables history');
+        const errorBody = await res.text();
+        console.error('Vegetables history API error:', res.status, errorBody);
+        throw new Error(`API Error ${res.status}: ${errorBody}`);
       }
 
       const result = await res.json();
+      console.log('[TODAYS_VEG_HISTORY] Received data:', result);
       setData(result);
     } catch (e) {
+      console.error('Vegetables history fetch error:', e);
       setError(e.message);
     } finally {
       setLoading(false);
@@ -132,10 +138,10 @@ const TodaysVegetables = () => {
   if (loading || data === null) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 flex items-center justify-center p-6">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading today's vegetables...</p>
+            <p className="text-gray-600 dark:text-gray-300">Loading today's vegetables...</p>
           </div>
         </div>
       </Layout>
@@ -145,14 +151,14 @@ const TodaysVegetables = () => {
   if (error) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-6">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 p-6">
           <div className="max-w-4xl mx-auto">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-              <h3 className="text-red-800 font-semibold mb-2">Error</h3>
-              <p className="text-red-600">{error}</p>
+            <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg p-6">
+              <h3 className="text-red-800 dark:text-red-200 font-semibold mb-2">Error</h3>
+              <p className="text-red-600 dark:text-red-300">{error}</p>
               <button
                 onClick={fetchTodaysVegetables}
-                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
               >
                 Retry
               </button>
@@ -166,12 +172,12 @@ const TodaysVegetables = () => {
   return (
     <Layout>
       <style>{printStyles}</style>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 p-6">
         <div className="max-w-7xl mx-auto">
           {/* Header with Date */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-2">
-              <h1 className="text-3xl font-bold text-green-800">Today's Vegetables</h1>
+              <h1 className="text-3xl font-bold text-green-800 dark:text-green-300">Today's Vegetables</h1>
               <div className="flex gap-3">
                 <button
                   onClick={() => window.print()}
@@ -190,7 +196,7 @@ const TodaysVegetables = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-4 text-gray-600">
+            <div className="flex items-center gap-4 text-gray-600 dark:text-gray-300">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">📅</span>
                 <span className="font-medium">{data?.date}</span>
@@ -200,7 +206,7 @@ const TodaysVegetables = () => {
                 <span className="font-medium">{data?.day}</span>
               </div>
             </div>
-            <p className="text-gray-600 text-sm mt-2">
+            <p className="text-gray-600 dark:text-gray-300 text-sm mt-2">
               {selectedHistoryDate 
                 ? '📜 Historical view of vegetables for selected date'
                 : (
@@ -212,7 +218,7 @@ const TodaysVegetables = () => {
                 )}
             </p>
             {data?.target_date && (
-              <p className="text-green-600 text-xs mt-1 font-medium">
+              <p className="text-green-600 dark:text-green-300 text-xs mt-1 font-medium">
                 📅 Order Date: {data.target_date} → Delivery Date: {data?.date || data?.selected_date}
                 {selectedHistoryDate && <span className="ml-2 text-blue-600">(History View)</span>}
               </p>
@@ -221,7 +227,7 @@ const TodaysVegetables = () => {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 no-print">
-            <div className="bg-white rounded-xl shadow-sm border border-green-100 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-green-100 dark:border-green-800 p-6">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                   <span className="text-2xl">🥬</span>
@@ -233,7 +239,7 @@ const TodaysVegetables = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-green-100 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-green-100 dark:border-green-800 p-6">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                   <span className="text-2xl">📦</span>
@@ -246,7 +252,7 @@ const TodaysVegetables = () => {
             </div>
 
             {Object.entries(data?.category_totals || {}).slice(0, 2).map(([category, totals]) => (
-              <div key={category} className="bg-white rounded-xl shadow-sm border border-green-100 p-6">
+              <div key={category} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-green-100 dark:border-green-800 p-6">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
                     <span className="text-2xl">
@@ -264,13 +270,13 @@ const TodaysVegetables = () => {
 
           {/* Date Picker */}
           <div className="mb-6 flex items-center gap-2 flex-wrap no-print">
-            <span className="text-sm font-medium text-gray-700">Select Date:</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Select Date:</span>
             <input
               type="date"
               value={selectedHistoryDate}
               onChange={handleHistoryDateChange}
               max={new Date().toISOString().split('T')[0]}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               placeholder="Leave empty for today"
             />
             {selectedHistoryDate && (
@@ -279,13 +285,13 @@ const TodaysVegetables = () => {
                   setSelectedHistoryDate('');
                   fetchTodaysVegetables();
                 }}
-                className="px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                className="px-3 py-2 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-800"
               >
                 Clear (Show Today)
               </button>
             )}
             {!selectedHistoryDate && (
-              <span className="text-sm text-green-600 font-medium italic">📦 Showing today's delivery (from yesterday's orders)</span>
+              <span className="text-sm text-green-600 dark:text-green-300 font-medium italic">📦 Showing today's delivery (from yesterday's orders)</span>
             )}
           </div>
 
@@ -341,20 +347,20 @@ const TodaysVegetables = () => {
 
           {/* Category Summary */}
           {data?.category_totals && Object.keys(data.category_totals).length > 0 && (
-            <div className="mt-8 bg-white rounded-xl shadow-sm border border-green-100 p-6 no-print">
+            <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-green-100 dark:border-green-800 p-6 no-print">
               <h3 className="text-lg font-semibold text-green-800 mb-4">Category Summary</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {Object.entries(data.category_totals).map(([category, totals]) => (
-                  <div key={category} className="border border-green-100 rounded-lg p-4">
+                  <div key={category} className="border border-green-100 dark:border-green-800 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-gray-800">{category}</span>
+                      <span className="font-medium text-gray-800 dark:text-gray-200">{category}</span>
                       <span className="text-2xl">
                         {category === 'Vegetables' ? '' : category === 'Fruits' ? '' : ''}
                       </span>
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
                       <p>{totals.count} different items</p>
-                      <p className="font-semibold text-green-700">
+                      <p className="font-semibold text-green-700 dark:text-green-300">
                         Total: {totals.total_quantity.toFixed(2)} units
                       </p>
                     </div>

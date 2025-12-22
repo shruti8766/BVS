@@ -18,6 +18,8 @@ import {
   ClockIcon,
 } from '@heroicons/react/24/outline';
 
+const CogIcon = Cog6ToothIcon;
+
 const navItems = [
   { href: '/hotel/dashboard', icon: HomeIcon, label: 'Dashboard' },
   { href: '/hotel/orders', icon: DocumentTextIcon, label: 'Orders' },
@@ -25,9 +27,8 @@ const navItems = [
   { href: '/hotel/bills', icon: ChartBarIcon, label: 'Bills' },
   { href: '/hotel/products', icon: TagIcon, label: 'Products' },
   { href: '/hotel/cart', icon: ShoppingCartIcon, label: 'Cart' },
-  { href: '/hotel/profile', icon: ProfileIcon, label: 'Profile' },
-  { href: '/hotel/settings', icon: Cog6ToothIcon, label: 'Settings' },
   { href: '/hotel/support', icon: LifebuoyIcon, label: 'Support' },
+  { href: '/hotel/settings', icon: CogIcon, label: 'Settings' },
 ];
 
 export default function Sidebar({ open, onClose, collapsed, setCollapsed }) {

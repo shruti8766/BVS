@@ -4,10 +4,15 @@ import ChatBot from '../chatbot/ChatBot'; // Import your chatbot component
 
 const More = () => {
     const [showChatbot, setShowChatbot] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const chatbotRef = useRef(null);
 
     const toggleChatbot = () => {
       setShowChatbot(!showChatbot);
+    };
+
+    const toggleMobileMenu = () => {
+      setMobileMenuOpen(!mobileMenuOpen);
     };
 
     // Handle click outside to close chatbot
@@ -212,6 +217,31 @@ const More = () => {
           opacity: 0.8;
           box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
         }
+
+        /* Mobile: Add responsive padding like Home page */
+        @media (max-width: 640px) {
+          .relative.min-h-screen {
+            padding-top: 5rem !important;
+            padding-bottom: 2rem !important;
+            min-height: auto !important;
+          }
+        }
+
+        @media (min-width: 641px) and (max-width: 768px) {
+          .relative.min-h-screen {
+            padding-top: 8rem !important;
+            padding-bottom: 3rem !important;
+            min-height: auto !important;
+          }
+        }
+
+        @media (min-width: 769px) {
+          .relative.min-h-screen {
+            padding-top: 8rem !important;
+            padding-bottom: 4rem !important;
+            min-height: auto !important;
+          }
+        }
       `}</style>
       {/* Header & Hero Section - Combined */}
         <div className="relative min-h-screen">
@@ -226,15 +256,15 @@ const More = () => {
         <div className="absolute inset-0 bg-green-900/70"></div>
         
         <header className="absolute inset-x-0 top-0 z-50">
-            <nav aria-label="Global" className="flex items-center justify-between p-6 lg:px-8">
+            <nav aria-label="Global" className="flex items-center justify-between p-4 sm:p-6 lg:px-8">
             <div className="flex lg:flex-1">
                 <a href="/" className="-m-1.5 p-1.5">
                 <span className="sr-only">Bhairavnath Vegetables Supplier (BVS)</span>
-                <img src="/logo1.png" alt="Fresh Foods Logo" className="h-24 w-auto" />
+                <img src="/logo1.png" alt="Fresh Foods Logo" className="h-16 sm:h-20 md:h-24 w-auto" />
                 </a>
             </div>
             <div className="flex lg:hidden">
-                <button type="button" className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-white">
+                <button type="button" onClick={toggleMobileMenu} className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-white hover:bg-white/10 transition-colors">
                 <span className="sr-only">Open main menu</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="size-6">
                     <path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -250,28 +280,42 @@ const More = () => {
               <Link to="/about" className="text-sm/6 font-semibold text-white hover:text-green-200 transition-colors">About Us</Link>
             </div>
             <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-                <a href="/login" className="text-sm/6 font-semibold text-white">Log in <span aria-hidden="true">&rarr;</span></a>  {/* Fixed: href="/login" (no .html), or use <Link to="/login"> */}
+                <a href="/login" className="text-sm/6 font-semibold text-white hover:text-green-200 transition-colors">Log in <span aria-hidden="true">&rarr;</span></a>
             </div>
             </nav>
+            {/* Mobile menu dropdown */}
+            {mobileMenuOpen && (
+              <div className="lg:hidden bg-green-800 border-t border-white/10">
+                <div className="px-6 py-4 space-y-2">
+                  <Link to="/" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">Home</Link>
+                  <Link to="/vegetables" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">Vegetables</Link>
+                  <Link to="/fruits" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">Fruits</Link>
+                  <Link to="/more" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">More</Link>
+                  <Link to="/features" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">Features</Link>
+                  <Link to="/about" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">About Us</Link>
+                  <Link to="/login" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-green-200 border-t border-white/10 mt-2 pt-4">Log in</Link>
+                </div>
+              </div>
+            )}
         </header>
         
         {/* Decorative line separator */}
         <div className="decorative-line"></div>
 
         {/* Hero Content */}
-        <div className="relative z-10 flex items-center min-h-screen">
-            <div className="mx-auto max-w-7xl px-6 lg:px-8 w-full">
+        <div className="relative z-10 py-20 sm:py-32 md:py-12 lg:py-16">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
             <div className="mx-auto max-w-2xl lg:mx-0">
-                <h2 className="text-4xl font-bold tracking-tight text-white sm:text-6xl">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white">
                 Premium Pulses & Pantry Essentials
                 </h2>
-                <p className="mt-6 text-xl leading-8 text-green-100">
+                <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl leading-7 sm:leading-8 text-green-100">
                 Quality pulses, traditional banana leaves, dry fruits, and kitchen staples — daily supply for hotels, restaurants, and caterers across Pune since 2004.
                 </p>
             </div>
 
-            <div className="mx-auto mt-10 max-w-2xl lg:mx-0 lg:max-w-none">
-                <div className="grid grid-cols-1 gap-x-8 gap-y-6 text-base font-semibold text-white sm:grid-cols-2 md:flex lg:gap-x-10">
+            <div className="mx-auto mt-8 sm:mt-10 max-w-2xl lg:mx-0 lg:max-w-none">
+                <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:gap-y-6 text-base font-semibold text-white sm:grid-cols-2 md:flex lg:gap-x-10">
                 <a href="#price-list" className="rounded-md bg-green-600 px-3.5 py-2.5 text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">
                     Get price list <span aria-hidden="true" className="text-green-200">&rarr;</span>
                 </a>
@@ -286,22 +330,22 @@ const More = () => {
                 </a>
                 </div>
 
-                <dl className="mt-16 grid grid-cols-1 gap-8 sm:mt-20 sm:grid-cols-2 lg:grid-cols-4">
+                <dl className="mt-12 sm:mt-16 md:mt-20 grid grid-cols-2 gap-6 sm:gap-8 lg:grid-cols-4">
                 <div className="flex flex-col-reverse gap-1">
-                    <dt className="text-sm font-medium leading-6 text-green-100">Since</dt>
-                    <dd className="text-2xl font-bold tracking-tight text-white">2004</dd>
+                    <dt className="text-xs sm:text-sm font-medium leading-6 text-green-100">Since</dt>
+                    <dd className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white">2004</dd>
                 </div>
                 <div className="flex flex-col-reverse gap-1">
-                    <dt className="text-sm font-medium leading-6 text-green-100">Range</dt>
-                    <dd className="text-2xl font-bold tracking-tight text-white">Staples & pantry</dd>
+                    <dt className="text-xs sm:text-sm font-medium leading-6 text-green-100">Range</dt>
+                    <dd className="text-base sm:text-xl md:text-2xl font-bold tracking-tight text-white">Staples & pantry</dd>
                 </div>
                 <div className="flex flex-col-reverse gap-1">
-                    <dt className="text-sm font-medium leading-6 text-green-100">Service area</dt>
-                    <dd className="text-2xl font-bold tracking-tight text-white">Pune</dd>
+                    <dt className="text-xs sm:text-sm font-medium leading-6 text-green-100">Service area</dt>
+                    <dd className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white">Pune</dd>
                 </div>
                 <div className="flex flex-col-reverse gap-1">
-                    <dt className="text-sm font-medium leading-6 text-green-100">Assurance</dt>
-                    <dd className="text-2xl font-bold tracking-tight text-white">Reliable supply</dd>
+                    <dt className="text-xs sm:text-sm font-medium leading-6 text-green-100">Assurance</dt>
+                    <dd className="text-base sm:text-xl md:text-2xl font-bold tracking-tight text-white">Reliable supply</dd>
                 </div>
                 </dl>
             </div>
@@ -310,19 +354,19 @@ const More = () => {
         </div>
 
         {/* Products Section */}
-        <div className="bg-gradient-to-br from-green-50 via-white to-emerald-50 py-16">
+        <div className="bg-gradient-to-br from-green-50 via-white to-emerald-50 py-12 sm:py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {/* Section Header */}
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold tracking-tight text-green-800 sm:text-5xl mb-4">
+            <div className="text-center mb-12 sm:mb-16">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-green-800 mb-3 sm:mb-4 px-4">
                 Our Product Range
               </h2>
-              <p className="text-lg text-green-600 max-w-3xl mx-auto">
+              <p className="text-base sm:text-lg text-green-600 max-w-3xl mx-auto px-4">
                 From protein-rich pulses to traditional serving essentials — everything your kitchen needs for authentic, quality food service.
               </p>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-6 grid grid-cols-1 gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
               <div className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-green-100 hover:border-green-300 transform hover:-translate-y-2">
                 <div className="relative overflow-hidden">
                   <img

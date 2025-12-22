@@ -45,7 +45,7 @@
 //     setLoginError('');
 
 //     try {
-//       const res = await fetch('http://127.0.0.1:5000/api/auth/login', {
+//       const res = await fetch('https://api-aso3bjldka-uc.a.run.app/api/auth/login', {
 //         method: 'POST',
 //         headers: { 'Content-Type': 'application/json' },
 //         body: JSON.stringify(loginForm),
@@ -93,7 +93,7 @@
 
 //   const updateUser = async (id, userData) => {
 //     try {
-//       const res = await fetch(`http://127.0.0.1:5000/api/admin/users/${id}`, {
+//       const res = await fetch(`https://api-aso3bjldka-uc.a.run.app/api/admin/users/${id}`, {
 //         method: 'PUT',
 //         headers: {
 //           'Content-Type': 'application/json',
@@ -469,7 +469,7 @@
 //           <span className="text-blue-600 text-lg mr-3">API</span>
 //           <div>
 //             <p className="text-blue-800 font-medium">Connected to live backend</p>
-//             <p className="text-blue-700 text-sm">Users loaded: {users.length} | http://127.0.0.1:5000</p>
+//             <p className="text-blue-700 text-sm">Users loaded: {users.length} | https://api-aso3bjldka-uc.a.run.app</p>
 //           </div>
 //         </div>
 //       </div>
@@ -480,6 +480,7 @@
 // export default Users;
 // src/admin_dashboard/pages/users.js
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import { usersApi } from '../utils/api';
 
@@ -563,7 +564,7 @@ const MiniTable = ({ headers, rows, emptyMsg = 'No data', onEdit, onDelete, onVi
                         Delete
                       </button>
                       <button
-                        onClick={() => onView(user)}
+                        onClick={() => onView(user.id)}
                         className="text-green-600 hover:text-green-900 text-xs font-medium underline transition-colors"
                       >
                         View
@@ -594,6 +595,8 @@ const QuickAction = ({ onClick, children, disabled = false, className = '' }) =>
 // 3. Main Users Component
 // ──────────────────────────────────────────────────────
 const Users = () => {
+  const navigate = useNavigate();
+  
   // ──────────────────────────────────────────────────────
   // 1. Auth state (shared)
   // ──────────────────────────────────────────────────────
@@ -632,7 +635,7 @@ const Users = () => {
     setLoginError('');
 
     try {
-      const res = await fetch('http://127.0.0.1:5000/api/auth/login', {
+      const res = await fetch('https://api-aso3bjldka-uc.a.run.app/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(loginForm),
@@ -680,7 +683,7 @@ const Users = () => {
 
   const updateUser = async (id, userData) => {
     try {
-      const res = await fetch(`http://127.0.0.1:5000/api/admin/users/${id}`, {
+      const res = await fetch(`https://api-aso3bjldka-uc.a.run.app/api/admin/users/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -909,7 +912,7 @@ const Users = () => {
                               Delete
                             </button>
                             <button
-                              onClick={() => setSelected(user)}
+                              onClick={() => navigate(`/admin/hotels/${user.id}`)}
                               className="text-blue-600 hover:text-blue-900 text-xs font-medium transition-colors"
                             >
                               View

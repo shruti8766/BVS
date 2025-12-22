@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../layout/Layout';
 import { useAuth } from '../hooks/useAuth';  // Assume this exposes setUser if needed
+import { fetchHotelProfile, fetchProducts, fetchHotelOrders, fetchHotelBills, fetchHotelOrderById } from '../../utils/api';
 
 export default function HotelOrders() {
   const { user, logout, setUser } = useAuth();  // ADD: Destructure setUser (if available; else use local state below)
@@ -18,36 +19,16 @@ export default function HotelOrders() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
 
-  const BASE_URL = 'http://localhost:5000';
-
   // Fetch orders, bills, products, AND profile
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setError('');
-        const token = localStorage.getItem('hotelToken');
 
-        // NEW: Fetch profile FIRST (ensures full details for invoice)
-        const profileRes = await fetch(`${BASE_URL}/api/hotel/profile`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!profileRes.ok) {
-          if (profileRes.status === 401) {
-            logout();
-            navigate('/login');
-            return;
-          }
-          throw new Error('Failed to fetch profile');
-        }
-
-        const profileData = await profileRes.json();
-        console.log('Fetched profile:', profileData);  // Debug: Check if full details load
+        // Fetch profile FIRST (ensures full details for invoice)
+        const profileData = await fetchHotelProfile();
+        console.log('Fetched profile:', profileData);
 
         // Merge with existing user (via setUser if available, else local)
         if (setUser) {
@@ -57,65 +38,45 @@ export default function HotelOrders() {
         }
 
         // Fetch products
-        const productsRes = await fetch(`${BASE_URL}/api/products`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (productsRes.ok) {
-          const productsData = await productsRes.json();
-          setProducts(Array.isArray(productsData) ? productsData : []);
+        try {
+          const productsData = await fetchProducts();
+          const productsArray = productsData.products || productsData;
+          setProducts(Array.isArray(productsArray) ? productsArray : []);
+        } catch (err) {
+          console.warn('Failed to fetch products:', err);
+          setProducts([]);
         }
 
         // Fetch orders for the logged-in hotel only
-        const ordersRes = await fetch(`${BASE_URL}/api/hotel/orders`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!ordersRes.ok) {
-          if (ordersRes.status === 401) {
-            logout();
-            navigate('/login');
-            return;
-          }
-          throw new Error('Failed to fetch orders');
+        try {
+          const ordersData = await fetchHotelOrders();
+          console.log('Fetched orders for hotel:', user?.hotel_name, ordersData);
+          const ordersArray = ordersData.orders || ordersData;
+          setOrders(Array.isArray(ordersArray) ? ordersArray : []);
+        } catch (ordersErr) {
+          console.error('Failed to fetch orders:', ordersErr);
+          setOrders([]);
+          // Don't throw, continue to fetch bills
         }
-
-        const ordersData = await ordersRes.json();
-        console.log('Fetched orders for hotel:', user?.hotel_name, ordersData); // Debug log
-        setOrders(Array.isArray(ordersData) ? ordersData : []);
 
         // Fetch bills for the logged-in hotel only
-        const billsRes = await fetch(`${BASE_URL}/api/hotel/bills`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!billsRes.ok) {
-          if (billsRes.status === 401) {
-            logout();
-            navigate('/login');
-            return;
-          }
-          throw new Error('Failed to fetch bills');
+        try {
+          const billsData = await fetchHotelBills();
+          console.log('Fetched bills for hotel:', user?.hotel_name, billsData);
+          const billsArray = billsData.bills || billsData;
+          setBills(Array.isArray(billsArray) ? billsArray : []);
+        } catch (billsErr) {
+          console.error('Failed to fetch bills:', billsErr);
+          setBills([]);
+          // Don't throw, continue
         }
-
-        const billsData = await billsRes.json();
-        console.log('Fetched bills for hotel:', user?.hotel_name, billsData); // Debug log
-        setBills(Array.isArray(billsData) ? billsData : []);
       } catch (err) {
-        console.error('Fetch error:', err); // Debug log
+        console.error('Fetch error:', err);
         setError(err.message);
+        if (err.message.includes('401') || err.message.includes('Unauthorized')) {
+          logout();
+          navigate('/login');
+        }
         setOrders([]);
         setBills([]);
         setProducts([]);
@@ -127,7 +88,7 @@ export default function HotelOrders() {
     if (user) { // Only fetch if user is logged in
       fetchData();
     }
-  }, [user, logout, navigate, setUser]);  // ADD: setUser to deps if used
+  }, [user, logout, navigate, setUser]);
 
   // Get price for product
   const getPriceForProduct = (productId) => {
@@ -169,7 +130,7 @@ export default function HotelOrders() {
 
     try {
       const token = localStorage.getItem('hotelToken');
-      const res = await fetch(`${BASE_URL}/api/hotel/orders/${orderId}`, {
+      const res = await fetch(`https://api-aso3bjldka-uc.a.run.app/api/hotel/orders/${orderId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -192,35 +153,17 @@ export default function HotelOrders() {
   // Open order details modal
   const openOrderDetails = async (order) => {
     try {
-      const token = localStorage.getItem('hotelToken');
-      const detailsRes = await fetch(`${BASE_URL}/api/hotel/orders/${order.id}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (detailsRes.ok) {
-        const fullOrder = await detailsRes.json();
-        // Enrich items with prices if missing
-        const enrichedItems = fullOrder.items?.map(item => ({
-          ...item,
-          price_per_unit: parseFloat(item.price_per_unit || getPriceForProduct(item.product_id) || 0)
-        })) || [];
-        setSelectedOrder({ ...fullOrder, items: enrichedItems });
-        setIsOpen(true);
-      } else {
-        // Fallback
-        const enrichedItems = order.items?.map(item => ({
-          ...item,
-          price_per_unit: parseFloat(item.price_per_unit || getPriceForProduct(item.product_id) || 0)
-        })) || [];
-        setSelectedOrder({ ...order, items: enrichedItems });
-        setIsOpen(true);
-      }
+      const fullOrder = await fetchHotelOrderById(order.id);
+      // Enrich items with prices if missing
+      const enrichedItems = fullOrder.items?.map(item => ({
+        ...item,
+        price_per_unit: parseFloat(item.price_per_unit || getPriceForProduct(item.product_id) || 0)
+      })) || [];
+      setSelectedOrder({ ...fullOrder, items: enrichedItems });
+      setIsOpen(true);
     } catch (err) {
-      console.error('Details fetch error:', err); // Debug log
+      console.error('Details fetch error:', err);
+      // Fallback to the order passed in
       const enrichedItems = order.items?.map(item => ({
         ...item,
         price_per_unit: parseFloat(item.price_per_unit || getPriceForProduct(item.product_id) || 0)
@@ -231,7 +174,7 @@ export default function HotelOrders() {
   };
 
   // UPDATED: viewBill – Use merged/fresh profile
-  const viewBill = async (bill) => {  // ADD: async for potential re-fetch
+  const viewBill = async (bill) => {
     // Use user (now merged) or fallback to local profile
     let hotel = user || {};
     if (!hotel.hotel_name && hotelProfile) {
@@ -241,15 +184,9 @@ export default function HotelOrders() {
     // FINAL FALLBACK: If still missing, fetch fresh (rare, but bulletproof)
     if (!hotel.hotel_name) {
       try {
-        const token = localStorage.getItem('hotelToken');
-        const profileRes = await fetch(`${BASE_URL}/api/hotel/profile`, {
-          headers: { 'Authorization': `Bearer ${token}` },
-        });
-        if (profileRes.ok) {
-          const freshProfile = await profileRes.json();
-          hotel = { ...hotel, ...freshProfile };
-          console.log('Fetched fresh profile for invoice:', freshProfile);  // Debug
-        }
+        const freshProfile = await fetchHotelProfile();
+        hotel = { ...hotel, ...freshProfile };
+        console.log('Fetched fresh profile for invoice:', freshProfile);
       } catch (err) {
         console.error('Profile fetch in viewBill failed:', err);
       }
@@ -581,7 +518,7 @@ export default function HotelOrders() {
               <table className="min-w-full divide-y divide-green-200">
                 <thead className="bg-green-50">
                   <tr>
-                    {['ID', 'Date', 'Total', 'Status', 'Items', 'Delivery Date', 'Bill', 'Actions'].map((h) => (
+                    {['ID', 'Date', 'Total', 'Status', 'Delivery Date', 'Bill', 'Actions'].map((h) => (
                       <th key={h} className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
                         {h}
                       </th>
@@ -608,7 +545,6 @@ export default function HotelOrders() {
                   ) : (
                     filtered.map((o) => {
                       const total = parseFloat(o.total_amount || 0);
-                      const itemCount = o.items ? o.items.length : 0;
                       const bill = getBillForOrder(o.id);
                       const statusColor = o.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                                           (o.status === 'delivered' || o.status === 'dispatched') ? 'bg-green-100 text-green-800' :
@@ -642,9 +578,6 @@ export default function HotelOrders() {
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                            {itemCount} items
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             {formatDate(o.delivery_date)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -672,12 +605,6 @@ export default function HotelOrders() {
                                   View Bill
                                 </button>
                               )}
-                              <button
-                                onClick={() => deleteOrder(o.id)}
-                                className="text-red-600 hover:text-red-800 underline text-sm"
-                              >
-                                Delete
-                              </button>
                             </div>
                           </td>
                         </tr>

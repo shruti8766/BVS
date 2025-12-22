@@ -140,7 +140,7 @@ function ChatBot() {
             }
             
             messageDiv.innerHTML = `
-                <div class="w-8 h-8 bg-green-700 rounded-full flex items-center justify-center text-white text-sm flex-shrink-0">🥕</div>
+                <div class="w-8 h-8 flex items-center justify-center flex-shrink-0"><img src="/chatboticon.png" alt="BVS" class="w-8 h-8" /></div>
                 <div class="bg-green-100 border border-green-400 rounded-2xl rounded-tl-sm p-4 max-w-[80%] message-content markdown">
                     ${messageContent}
                     ${menuHTML}
@@ -192,7 +192,10 @@ function ChatBot() {
         
         showTyping();
         
-        fetch('http://localhost:5000/chat', {
+        // Use deployed API URL (change to 'https://api-aso3bjldka-uc.a.run.app' for local testing)
+        const API_URL = 'https://api-aso3bjldka-uc.a.run.app';
+        
+        fetch(`${API_URL}/chat`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -242,7 +245,7 @@ function ChatBot() {
         if (lowerMessage.includes('price') || lowerMessage.includes('cost')) {
             return "While our system is updating, please call " + CONTACT_PHONE + " for current vegetable prices and quotes.";
         } else if (lowerMessage.includes('delivery')) {
-            return "We offer same-day delivery in Pune. Call " + CONTACT_PHONE + " to schedule your vegetable delivery.";
+            return "We offer regular delivery in Pune. Call " + CONTACT_PHONE + " to schedule your vegetable delivery.";
         } else if (lowerMessage.includes('order')) {
             return "To place an order, please call " + CONTACT_PHONE + " or visit our office at " + OFFICE_ADDRESS;
         } else if (lowerMessage.includes('location') || lowerMessage.includes('address')) {
@@ -822,8 +825,8 @@ function ChatBot() {
                 <div className="bg-gradient-to-r from-green-700 to-green-800 text-white p-4 rounded-t-2xl flex-shrink-0">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-xl">
-                        🥕
+                    <div className="w-10 h-10 flex items-center justify-center">
+                        <img src="/chatboticon.png" alt="BVS" className="w-10 h-10" />
                     </div>
                     <div>
                         <h1 className="text-lg font-bold">BVS Assistant</h1>
@@ -833,32 +836,11 @@ function ChatBot() {
                     </div>
                     </div>
                     {/* Speech Controls */}
-                    <div className="speech-interface flex items-center space-x-3">
-                    <div className="flex items-center space-x-2">
-                        {/* <div class="status-dot status-ended" id="statusDot"></div>
-                <span class="text-green-100 text-sm" id="statusText">Ready</span> */}
-                    </div>
-                    <div className="visualizer hidden" id="visualizer">
-                        <div className="bar" />
-                        <div className="bar" />
-                        <div className="bar" />
-                        <div className="bar" />
-                        <div className="bar" />
-                    </div>
-                    </div>
-                    {/* Mute/Unmute Button */}
-                    <button
-                    id="muteBtn"
-                    className="mute-btn text-white p-1 rounded-full bg-green-600 hover:bg-green-700 transition-colors"
-                    >
-                    🔊
-                    </button>
+                    
                 </div>
                 {/* Connection Status */}
                 <div className="mt-2 flex justify-between items-center">
-                    <div className="text-green-200 text-xs">
-                    Speak about vegetable supplies, pricing, and orders
-                    </div>
+                    
                 </div>
                 </div>
                 {/* Chat Messages */}
@@ -868,8 +850,8 @@ function ChatBot() {
                     className="message-bubble flex items-start space-x-3"
                     id="welcomeMessage"
                 >
-                    <div className="w-8 h-8 bg-green-700 rounded-full flex items-center justify-center text-white text-sm">
-                    🥕
+                    <div className="w-8 h-8 flex items-center justify-center">
+                    <img src="/chatboticon.png" alt="BVS" className="w-8 h-8" />
                     </div>
                     <div className="bg-green-100 border border-green-400 rounded-2xl rounded-tl-sm p-4 max-w-xs">
                     <p className="text-gray-800 text-sm mb-3">
@@ -925,8 +907,8 @@ function ChatBot() {
                 >
                 <div className="p-4">
                     <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-green-700 rounded-full flex items-center justify-center text-white text-sm flex-shrink-0">
-                        🥕
+                    <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+                        <img src="/chatboticon.png" alt="BVS" className="w-8 h-8" />
                     </div>
                     <div className="bg-green-100 border border-green-400 rounded-2xl rounded-tl-sm p-4">
                         <div className="typing-indicator flex space-x-1">
@@ -940,21 +922,7 @@ function ChatBot() {
                 </div>
                 {/* Input Area */}
                 <div className="p-4 bg-white bg-opacity-95 rounded-b-2xl border-t border-green-100 flex-shrink-0">
-                {/* Mode Toggle */}
-                <div className="mode-toggle flex mb-3 bg-gray-100 rounded-lg overflow-hidden">
-                    <button
-                    id="textModeBtn"
-                    className="flex-1 py-2 px-4 bg-green-700 text-white font-medium active"
-                    >
-                    Text
-                    </button>
-                    <button
-                    id="voiceModeBtn"
-                    className="flex-1 py-2 px-4 bg-gray-300 text-gray-700 font-medium"
-                    >
-                    Voice
-                    </button>
-                </div>
+                
                 {/* Text Input Form (Default) */}
                 <form id="chatForm" className="flex space-x-2" data-mode="text"> {/* Reduced space-x-3 to 2 */}
                 <input
@@ -971,19 +939,6 @@ function ChatBot() {
                     <span>Send</span>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                    </svg>
-                </button>
-                <button
-                    type="button"
-                    id="micButtonInput"
-                    className="mic-button bg-green-600 hover:bg-green-700 text-white px-3 py-3 rounded-full font-medium transition-colors duration-200 flex items-center justify-center flex-shrink-0" 
-                    title="Voice input (Ctrl+M)"
-                >
-                    {/* Emoji with SVG fallback */}
-                    <span aria-hidden="true">🎤</span>
-                    {/* Fallback SVG if emoji doesn't render */}
-                    <svg className="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
                     </svg>
                 </button>
                 </form>
@@ -1009,9 +964,10 @@ function ChatBot() {
                 </div>
             </div>
             </div>
+
         </>
+
     );
 }
 
 export default ChatBot;
-        

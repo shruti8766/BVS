@@ -1,5 +1,8 @@
 // Hotel Dashboard API Configuration
-const BASE_URL = 'http://localhost:5000';
+// PRODUCTION: Deployed Firebase Cloud Functions
+const BASE_URL = 'https://api-aso3bjldka-uc.a.run.app';
+// DEVELOPMENT: Uncomment the line below for local testing
+// const BASE_URL = 'https://api-aso3bjldka-uc.a.run.app';
 
 // Helper function to get authorization header
 const getAuthHeader = () => {
@@ -26,7 +29,11 @@ export const fetchHotelOrders = async () => {
     method: 'GET',
     headers: getAuthHeader(),
   });
-  if (!response.ok) throw new Error('Failed to fetch orders');
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    console.error('Orders API error:', response.status, errorData);
+    throw new Error(errorData.error || `Failed to fetch orders (${response.status})`);
+  }
   return response.json();
 };
 
@@ -36,7 +43,9 @@ export const fetchHotelOrderById = async (orderId) => {
     headers: getAuthHeader(),
   });
   if (!response.ok) throw new Error('Failed to fetch order');
-  return response.json();
+  const data = await response.json();
+  // Backend returns { order: {...}, success: true }, so extract the order
+  return data.order || data;
 };
 
 export const placeOrder = async (payload) => {
@@ -55,7 +64,11 @@ export const fetchHotelBills = async () => {
     method: 'GET',
     headers: getAuthHeader(),
   });
-  if (!response.ok) throw new Error('Failed to fetch bills');
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    console.error('Bills API error:', response.status, errorData);
+    throw new Error(errorData.error || `Failed to fetch bills (${response.status})`);
+  }
   return response.json();
 };
 
@@ -65,7 +78,11 @@ export const fetchCart = async () => {
     method: 'GET',
     headers: getAuthHeader(),
   });
-  if (!response.ok) throw new Error('Failed to fetch cart');
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    console.error('Cart API error:', response.status, errorData);
+    throw new Error(errorData.error || `Failed to fetch cart (${response.status})`);
+  }
   return response.json();
 };
 
@@ -133,7 +150,11 @@ export const fetchHotelProfile = async () => {
     method: 'GET',
     headers: getAuthHeader(),
   });
-  if (!response.ok) throw new Error('Failed to fetch profile');
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    console.error('Profile API error:', response.status, errorData);
+    throw new Error(errorData.error || `Failed to fetch profile (${response.status})`);
+  }
   return response.json();
 };
 

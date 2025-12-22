@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Layout from '../layout/Layout'; // Assuming you have a Layout component
 import { useAuth } from '../hooks/useAuth'; // For user context
+import { fetchProducts, fetchCart, addToCart as addToCartAPI } from '../../utils/api';
 
 export default function Products() {
   const { user, logout } = useAuth(); // Get user for hotel_name, etc.
@@ -16,62 +17,39 @@ export default function Products() {
   const [cartCount, setCartCount] = useState(0); // Cart badge
   const [showToast, setShowToast] = useState(''); // Toast notification
 
-  const BASE_URL = 'http://localhost:5000';
-
   // Fetch products (GET /api/products)
   useEffect(() => {
-    const fetchProducts = async () => {
+    const loadProducts = async () => {
       try {
         setLoading(true);
         setError('');
-        const token = localStorage.getItem('hotelToken');
-        const res = await fetch(`${BASE_URL}/api/products`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!res.ok) {
-          if (res.status === 401) {
-            logout(); // Invalidate session
-            navigate('/login');
-            return;
-          }
-          throw new Error('Failed to fetch products');
-        }
-
-        const data = await res.json();
-        setProducts(data);
-        setFilteredProducts(data); // Initial filter
+        const data = await fetchProducts();
+        
+        // Handle both response formats: {products: [...]} or direct array
+        const productsArray = data.products || data;
+        setProducts(productsArray);
+        setFilteredProducts(productsArray); // Initial filter
       } catch (err) {
         setError(err.message);
+        if (err.message.includes('401') || err.message.includes('Unauthorized')) {
+          logout();
+          navigate('/login');
+        }
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProducts();
+    loadProducts();
   }, [navigate, logout]);
 
   // Load initial cart count from API
   useEffect(() => {
     const updateCartCount = async () => {
       try {
-        const token = localStorage.getItem('hotelToken');
-        const res = await fetch(`${BASE_URL}/api/hotel/cart`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          const count = data.items.reduce((sum, item) => sum + item.quantity, 0);
-          setCartCount(count);
-        }
+        const data = await fetchCart();
+        const count = data.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+        setCartCount(count);
       } catch (err) {
         console.error('Failed to load cart count:', err);
       }
@@ -100,25 +78,8 @@ export default function Products() {
   // Add to cart with quantity
   const addToCart = async (productId, quantity = 1) => {
     try {
-      const token = localStorage.getItem('hotelToken');
-      const res = await fetch(`${BASE_URL}/api/hotel/cart`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ product_id: productId, quantity }),
-      });
-
-      if (!res.ok) {
-        if (res.status === 401) {
-          logout();
-          navigate('/login');
-          return;
-        }
-        throw new Error('Failed to add to cart');
-      }
-
+      await addToCartAPI(productId, quantity);
+      
       setShowToast(`${quantity > 1 ? `${quantity}x ` : ''}Added to cart!`);
       setTimeout(() => setShowToast(''), 2000);
       
@@ -126,6 +87,10 @@ export default function Products() {
       setCartCount(prev => prev + quantity);
     } catch (err) {
       console.error('Add to cart error:', err);
+      if (err.message.includes('401') || err.message.includes('Unauthorized')) {
+        logout();
+        navigate('/login');
+      }
       // Optionally show error toast
     }
   };
@@ -217,7 +182,7 @@ export default function Products() {
                 <h2 className="text-2xl font-bold text-green-800 mb-4 flex items-center">
                   <span className="mr-2">🥬</span> Fresh Vegetables
                 </h2>
-                <div className="grid grid-cols-7 gap-6 mb-12">
+                <div className="grid grid-cols-6 gap-6 mb-12">
                   {vegetableProducts.map((product) => (
                     <ProductCard key={product.id} product={product} addToCart={addToCart} />
                   ))}
@@ -234,7 +199,7 @@ export default function Products() {
                 <h2 className="text-2xl font-bold text-green-800 mb-4 flex items-center">
                   <span className="mr-2">🌱</span> More Essentials
                 </h2>
-                <div className="grid grid-cols-7 gap-6 mb-12">
+                <div className="grid grid-cols-6 gap-6 mb-12">
                   {otherProducts.map((product) => (
                     <ProductCard key={product.id} product={product} addToCart={addToCart} />
                   ))}
@@ -264,7 +229,7 @@ export default function Products() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         @keyframes fade-in {
           from { opacity: 0; transform: translateY(-10px); }
           to { opacity: 1; transform: translateY(0); }
@@ -275,6 +240,15 @@ export default function Products() {
         .low-stock {
           background-color: #fef3c7 !important;
           color: #92400e !important;
+        }
+        /* Hide number input spinners */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type="number"] {
+          -moz-appearance: textfield;
         }
       `}</style>
     </Layout>
@@ -288,6 +262,21 @@ function ProductCard({ product, addToCart }) {
   const handleAddToCart = () => {
     addToCart(product.id, quantity);
     setQuantity(1); // Reset quantity selector
+  };
+
+  const handleQuantityChange = (e) => {
+    const value = parseInt(e.target.value);
+    if (!isNaN(value) && value > 0) {
+      setQuantity(value);
+    }
+  };
+
+  const incrementQuantity = () => {
+    setQuantity(quantity + 1);
+  };
+
+  const decrementQuantity = () => {
+    setQuantity(Math.max(1, quantity - 1));
   };
 
   return (
@@ -311,18 +300,25 @@ function ProductCard({ product, addToCart }) {
           {product.name}
         </h3>
         
-        {/* Quantity Selector */}
+        {/* Quantity Selector with Decimal Support */}
         <div className="flex items-center justify-center gap-1 mb-2">
           <div className="flex items-center border border-green-200 rounded px-1 py-0.5">
             <button
-              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              onClick={decrementQuantity}
               className="w-6 h-6 text-green-600 hover:text-green-800 font-bold text-sm flex items-center justify-center"
             >
               -
             </button>
-            <span className="w-5 text-center text-sm font-medium mx-1">{quantity}</span>
+            <input
+              type="number"
+              value={quantity}
+              onChange={handleQuantityChange}
+              min="1"
+              className="w-12 text-center text-sm font-medium mx-1 border-0 focus:outline-none focus:ring-0"
+              style={{ MozAppearance: 'textfield' }}
+            />
             <button
-              onClick={() => setQuantity(quantity + 1)}
+              onClick={incrementQuantity}
               className="w-6 h-6 text-green-600 hover:text-green-800 font-bold text-sm flex items-center justify-center"
             >
               +

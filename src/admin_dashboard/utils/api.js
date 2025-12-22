@@ -1,6 +1,6 @@
 // // src/admin_dashboard/utils/api.js
 
-// const BASE = 'http://127.0.0.1:5000';  // ADD THIS
+// const BASE = 'https://api-aso3bjldka-uc.a.run.app';  // ADD THIS
 
 // const apiCall = async (endpoint, { method = 'GET', body } = {}) => {
 //   const token = localStorage.getItem('adminToken');
@@ -37,7 +37,11 @@
 
 // src/admin_dashboard/utils/api.js
 
-const BASE = 'http://127.0.0.1:5000';
+// API Configuration - Switch between development and production
+// PRODUCTION: Deployed Firebase Cloud Functions
+const BASE = 'https://api-aso3bjldka-uc.a.run.app';
+// DEVELOPMENT: Uncomment the line below for local testing
+// const BASE = 'https://api-aso3bjldka-uc.a.run.app';
 
 const apiCall = async (endpoint, { method = 'GET', body } = {}) => {
   const token = localStorage.getItem('adminToken');
@@ -69,14 +73,22 @@ const apiCall = async (endpoint, { method = 'GET', body } = {}) => {
 };
 
 export const ordersApi = {
-  getAll: () => apiCall('/api/admin/orders'),
+  getAll: async () => {
+    const response = await apiCall('/api/admin/orders');
+    // Backend returns {orders: [...], success: true}, extract the orders array
+    return response.orders || response || [];
+  },
   updateStatus: (id, status) =>
     apiCall(`/api/admin/orders/${id}/status`, { method: 'PUT', body: { status } }),
 };
 
 // src/admin_dashboard/utils/api.js (add to existing productsApi)
 export const productsApi = {
-  getAll: () => apiCall('/api/products'),
+  getAll: async () => {
+    const response = await apiCall('/api/products');
+    // Backend returns {products: [...], success: true}, extract the products array
+    return response.products || response || [];
+  },
   create: (productData) =>
     apiCall('/api/admin/products', { method: 'POST', body: productData }),
   update: (id, productData) =>
@@ -101,7 +113,11 @@ export const suppliersApi = {
 
 // NEW: Bills API (CRUD)
 export const billsApi = {
-  getAll: () => apiCall('/api/admin/bills'),  // All bills
+  getAll: async () => {
+    const response = await apiCall('/api/admin/bills');
+    // Backend returns {bills: [...], total: N}, extract the bills array
+    return response.bills || response || [];
+  },
   create: (billData) =>
     apiCall('/api/admin/bills', { method: 'POST', body: billData }),
   update: (id, billData) =>
@@ -127,7 +143,11 @@ export const analyticsApi = {
 
 // In utils/api.js, add:
 export const usersApi = {
-  getAll: () => apiCall('/api/admin/users'),
+  getAll: async () => {
+    const response = await apiCall('/api/admin/users');
+    // Backend returns {users: [...], success: true}, extract the users array
+    return response.users || response || [];
+  },
   create: (userData) => apiCall('/api/admin/users', { method: 'POST', body: userData }),
   update: (id, userData) => apiCall(`/api/admin/users/${id}`, { method: 'PUT', body: userData }),
   delete: (id) => apiCall(`/api/admin/users/${id}`, { method: 'DELETE' }),
@@ -143,6 +163,10 @@ export const profileApi = {
   getSystemSettings: () => apiCall('/api/admin/settings'),
   updateSystemSettings: (settingsData) =>
     apiCall('/api/admin/settings', { method: 'PUT', body: settingsData }),
+  // Notification preferences
+  getNotificationPreferences: () => apiCall('/api/admin/notifications/preferences'),
+  updateNotificationPreferences: (preferencesData) =>
+    apiCall('/api/admin/notifications/preferences', { method: 'PUT', body: preferencesData }),
 };
 
 

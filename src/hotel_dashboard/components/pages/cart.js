@@ -17,68 +17,36 @@ export default function Cart() {
   const [productsError, setProductsError] = useState(''); // Separate error for products
   // NEW: States for confirmation modal and prompts
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
   const [specialInstructions, setSpecialInstructions] = useState('');
 
-  const BASE_URL = 'http://localhost:5000';
-  const MIN_ORDER_VALUE = 200; // Minimum order value in INR
+  const BASE_URL = 'https://api-aso3bjldka-uc.a.run.app';
 
   
 
-  // Debounced calculateTotal to avoid too many API calls
-  const debouncedCalculateTotal = useCallback(
-    debounce(async () => {
-      if (cart.length === 0) {
-        setCartTotal({ total_amount: 0, item_count: 0 });
-        return;
-      }
+  // Calculate cart total locally without API call
+  const calculateCartTotal = useCallback(() => {
+    if (cart.length === 0) {
+      setCartTotal({ total_amount: 0, item_count: 0 });
+      return;
+    }
 
-      try {
-        setFetchingTotal(true);
-        setError('');
-        const token = localStorage.getItem('hotelToken');
-        const res = await fetch(`${BASE_URL}/api/hotel/cart/calculate`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ items: cart }),
-        });
+    // Local calculation using product prices
+    const total = cart.reduce((sum, item) => {
+      const product = products.find(p => p.id === item.product_id);
+      return sum + ((product?.price_per_unit || 0) * item.quantity);
+    }, 0);
 
-        console.log('Cart calculate response status:', res.status); // DEBUG
+    setCartTotal({ 
+      total_amount: total, 
+      item_count: cart.length 
+    });
+  }, [cart, products]);
 
-        if (!res.ok) {
-          if (res.status === 401) {
-            logout();
-            navigate('/login');
-            return;
-          }
-          throw new Error(`Failed to calculate total: ${res.status}`);
-        }
-
-        const data = await res.json();
-        console.log('Cart total data:', data); // DEBUG
-        setCartTotal(data);
-      } catch (err) {
-        console.error('Cart total error:', err); // DEBUG
-        setError(err.message);
-        // Fallback: Calculate locally if API fails
-        const fallbackTotal = cart.reduce((sum, item) => {
-          const product = products.find(p => p.id === item.product_id);
-          return sum + ((product?.price_per_unit || 0) * item.quantity);
-        }, 0);
-        setCartTotal({ total_amount: fallbackTotal, item_count: cart.length });
-      } finally {
-        setFetchingTotal(false);
-      }
-    }, 500), // 500ms debounce
-    [cart, products, logout, navigate] // Dependencies
-  );
-
-  // Auto-calculate total whenever cart changes
+  // Auto-calculate total whenever cart or products change
   useEffect(() => {
-    debouncedCalculateTotal();
-  }, [debouncedCalculateTotal]);
+    calculateCartTotal();
+  }, [calculateCartTotal]);
 
   // Load cart from API and fetch products
   useEffect(() => {
@@ -107,6 +75,9 @@ export default function Cart() {
 
         const data = await res.json();
         console.log('Loaded cart from API:', data.items); // DEBUG
+        if (data.items && data.items.length > 0) {
+          console.log('First cart item product_id:', data.items[0].product_id, 'type:', typeof data.items[0].product_id);
+        }
         setCart(data.items || []);
       } catch (err) {
         console.error('Error loading cart:', err);
@@ -141,7 +112,10 @@ export default function Cart() {
 
         const data = await res.json();
         console.log('Products data:', data); // DEBUG
-        setProducts(data);
+        // Extract products array from response or use as-is if already array
+        const productsArray = Array.isArray(data) ? data : (data.products || []);
+        console.log('Extracted products array:', productsArray.length, 'First product:', productsArray[0]); // DEBUG
+        setProducts(productsArray);
       } catch (err) {
         console.error('Products fetch error:', err); // DEBUG
         setProductsError(err.message);
@@ -157,7 +131,14 @@ export default function Cart() {
 
   // Get cart items with product details (show even if product not found)
   const cartItems = cart.map(item => {
-    const product = products.find(p => p.id === item.product_id);
+    // Convert both to strings for comparison since IDs might be strings or numbers
+    const productIdStr = String(item.product_id);
+    const product = products.find(p => String(p.id) === productIdStr);
+    
+    if (!product) {
+      console.warn(`Product not found for product_id: ${item.product_id}, looking in:`, products.map(p => p.id).slice(0, 10));
+    }
+    
     return { ...item, product: product || { name: 'Unknown Product', price_per_unit: 0, unit_type: 'unit' } }; // Fallback
   });
 
@@ -246,8 +227,8 @@ export default function Cart() {
   };
 
   // Manual recalculate (for button, but auto is primary)
-  const calculateTotal = async () => {
-    debouncedCalculateTotal.flush(); // Flush debounce immediately for manual trigger
+  const calculateTotal = () => {
+    calculateCartTotal(); // Call directly since no debounce needed
   };
 
   // Add to cart from recommended (same as products page)
@@ -303,22 +284,33 @@ export default function Cart() {
       setError('');
       const token = localStorage.getItem('hotelToken');
 
+      const orderPayload = {
+        delivery_date: deliveryDateStr,
+        special_instructions: specialInstructions,
+        items: cart,
+      };
+      
+      console.log('[ORDER_DEBUG] Token present:', !!token);
+      console.log('[ORDER_DEBUG] Token length:', token?.length);
+      console.log('[ORDER_DEBUG] Cart items:', cart);
+      console.log('[ORDER_DEBUG] Order payload:', JSON.stringify(orderPayload));
+
       const res = await fetch(`${BASE_URL}/api/hotel/orders`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          delivery_date: deliveryDateStr,
-          special_instructions: specialInstructions,
-          items: cart,
-        }),
+        body: JSON.stringify(orderPayload),
       });
 
       console.log('Order placement response status:', res.status); // DEBUG
+      console.log('[ORDER_DEBUG] Response headers:', Object.fromEntries(res.headers.entries()));
 
       if (!res.ok) {
+        const errorText = await res.text();
+        console.log('[ORDER_DEBUG] Error response text:', errorText);
+        
         if (res.status === 401) {
           logout();
           navigate('/login');
@@ -360,17 +352,11 @@ export default function Cart() {
       return;
     }
 
-    // Check minimum order value
-    if (cartTotal.total_amount < MIN_ORDER_VALUE) {
-      setError(`Please add more vegetables to meet the minimum order value of ₹${MIN_ORDER_VALUE}. We recommend bulk orders for hotels to ensure fresh and cost-effective delivery.`);
-      return;
-    }
-
     // Check availability (closed on Saturday, unavailable for Friday orders)
     const today = new Date();
     const day = today.getDay(); // 0=Sun, 1=Mon, ..., 5=Fri, 6=Sat
     if (day === 5) {
-      setError('We are closed on Saturday. Orders cannot be placed on Friday as they cannot be fulfilled. Please place your order from Saturday to Thursday.');
+      setShowAvailabilityModal(true);
       return;
     }
 
@@ -470,7 +456,7 @@ export default function Cart() {
                 </div>
                 <div className="divide-y divide-green-100">
                   {cartItems.map((item) => (
-                    <div key={item.product_id} className="p-6 flex items-center justify-between">
+                    <div key={item.id || item.cart_id} className="p-6 flex items-center justify-between">
                       <div className="flex items-center space-x-4 flex-1">
                         {item.product.image_url ? (
                           <img
@@ -622,6 +608,36 @@ export default function Cart() {
                     className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {placingOrder ? 'Placing...' : 'Confirm & Place Order'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Availability Modal */}
+          {showAvailabilityModal && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-xl border-l-4 border-red-500">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-red-600 flex items-center">
+                    <span className="text-2xl mr-2">⚠️</span> Store Closed
+                  </h2>
+                  <button
+                    onClick={() => setShowAvailabilityModal(false)}
+                    className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <p className="text-gray-700 mb-6 text-center font-medium">
+                  We are closed on Saturday. Orders cannot be placed on Friday as they cannot be fulfilled. Please place your order from Saturday to Thursday.
+                </p>
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => setShowAvailabilityModal(false)}
+                    className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-semibold"
+                  >
+                    OK
                   </button>
                 </div>
               </div>

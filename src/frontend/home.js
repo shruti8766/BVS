@@ -4,6 +4,7 @@ import ChatBot from '../chatbot/ChatBot'; // Import your chatbot component
 
 const Home = () => {
   const [showChatbot, setShowChatbot] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [years, setYears] = useState(0);
   const [clients, setClients] = useState(0);
   const [products, setProducts] = useState(0);
@@ -12,6 +13,10 @@ const Home = () => {
 
   const toggleChatbot = () => {
     setShowChatbot(!showChatbot);
+  };
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
   };
 
   // Handle click outside to close chatbot
@@ -309,16 +314,16 @@ const Home = () => {
       `}</style>
       <div className="hero-bg">
         <header className="absolute inset-x-0 top-0 z-50">
-          <nav aria-label="Global" className="flex items-center justify-between p-6 lg:px-8">
+          <nav aria-label="Global" className="flex items-center justify-between p-4 sm:p-6 lg:px-8">
             <div className="flex lg:flex-1">
               <a href="#" className="-m-1.5 p-1.5">
                 <span className="sr-only">Fresh Foods</span>
-                {/* <img src="logo1.png" alt="Fresh Foods Logo" className="h-24 w-auto" /> */}
-                <img src="/logo1.png" alt="Fresh Foods Logo" className="h-24 w-auto" />
+                {/* <img src="logo1.png" alt="Fresh Foods Logo" className="h-16 sm:h-20 md:h-24 w-auto" /> */}
+                <img src="/logo1.png" alt="Fresh Foods Logo" className="h-16 sm:h-20 md:h-24 w-auto" />
               </a>
             </div>
             <div className="flex lg:hidden">
-              <button type="button" command="show-modal" commandfor="mobile-menu" className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-white">
+              <button type="button" onClick={toggleMobileMenu} className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-white hover:bg-white/10 transition-colors">
                 <span className="sr-only">Open main menu</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" data-slot="icon" aria-hidden="true" className="size-6">
                   <path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -334,9 +339,23 @@ const Home = () => {
               <Link to="/about" className="text-sm/6 font-semibold text-white hover:text-green-200 transition-colors">About Us</Link>
             </div>
             <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-              <a href="/login" className="text-sm/6 font-semibold text-white">Log in <span aria-hidden="true">&rarr;</span></a>  {/* Fixed: href="/login" (no .html), or use <Link to="/login"> */}
+              <a href="/login" className="text-sm/6 font-semibold text-white hover:text-green-200 transition-colors">Log in <span aria-hidden="true">&rarr;</span></a>
             </div>
           </nav>
+          {/* Mobile menu dropdown */}
+          {mobileMenuOpen && (
+            <div className="lg:hidden bg-green-800 border-t border-white/10">
+              <div className="px-6 py-4 space-y-2">
+                <Link to="/" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">Home</Link>
+                <Link to="/vegetables" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">Vegetables</Link>
+                <Link to="/fruits" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">Fruits</Link>
+                <Link to="/more" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">More</Link>
+                <Link to="/features" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">Features</Link>
+                <Link to="/about" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-white hover:text-green-200">About Us</Link>
+                <Link to="/login" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-green-200 border-t border-white/10 mt-2 pt-4">Log in</Link>
+              </div>
+            </div>
+          )}
           <el-dialog>
             <dialog id="mobile-menu" className="backdrop:bg-transparent lg:hidden">
               <div tabIndex="0" className="fixed inset-0 focus:outline-none">
@@ -376,22 +395,22 @@ const Home = () => {
         {/* Decorative line separator */}
         <div className="decorative-line"></div>
 
-        <div className="relative isolate px-6 pt-14 lg:px-8 hero-content">
+        <div className="relative isolate px-4 sm:px-6 pt-14 lg:px-8 hero-content">
             <div aria-hidden="true" className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">
                 <div style={{clipPath: "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"}} className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#22c55e] to-[#15803d] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"></div>
             </div>
-            <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
+            <div className="mx-auto max-w-2xl py-20 sm:py-32 md:py-48 lg:py-56">
                 <div className="hidden sm:mb-8 sm:flex sm:justify-center">
                 <div className="relative rounded-full px-3 py-1 text-sm/6 text-white ring-1 ring-white/20 hover:ring-white/30">
                     New seasonal products available. <a href="/login" className="font-semibold text-green-200"><span aria-hidden="true" className="absolute inset-0"></span>Shop now <span aria-hidden="true">&rarr;</span></a>
                 </div>
                 </div>
                 <div className="text-center">
-                <h1 className="text-5xl font-semibold tracking-tight text-balance text-white sm:text-7xl">Farm se Foodservice, Seedha.</h1>
-                <p className="mt-8 text-lg font-medium text-pretty text-green-100 sm:text-xl/8">Premium quality vegetables, fruits, and pantry essentials delivered daily to hotels, restaurants, and caterers across Pune since 2004.</p>
-                <div className="mt-10 flex items-center justify-center gap-x-6">
-                    <a href="/login" className="rounded-md bg-green-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-lg hover:bg-green-500 hover:shadow-xl transition-all transform hover:-translate-y-0.5">Shop Now</a>
-                    <a href="/about" className="text-sm/6 font-semibold text-white hover:text-green-200 transition-colors">Learn more <span aria-hidden="true">→</span></a>
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold tracking-tight text-balance text-white">Farm se Foodservice, Seedha.</h1>
+                <p className="mt-6 sm:mt-8 text-base sm:text-lg md:text-xl font-medium text-pretty text-green-100 px-4 sm:px-0">Daily delivery of fresh produce, pulses, and kitchen essentials to Pune's hospitality industry. 21 years of reliable service.</p>
+                <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-x-6 px-4">
+                    <a href="/login" className="w-full sm:w-auto rounded-md bg-green-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:bg-green-500 hover:shadow-xl transition-all transform hover:-translate-y-0.5">Shop Now</a>
+                    <a href="/about" className="w-full sm:w-auto text-sm/6 font-semibold text-white hover:text-green-200 transition-colors">Learn more <span aria-hidden="true">→</span></a>
                 </div>
                 </div>
             </div>
@@ -402,13 +421,13 @@ const Home = () => {
         </div>
 
         {/* Why Choose Us Section */}
-        <section className="bg-white py-16">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-4">Why Choose Bhairavnath?</h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">We're committed to excellence in every aspect of our service</p>
+        <section className="bg-white py-12 sm:py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12 sm:mb-16">
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 mb-3 sm:mb-4 px-4">Why Choose Bhairavnath?</h2>
+              <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">We're committed to excellence in every aspect of our service</p>
             </div>
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:gap-y-16">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-y-16">
               {/* 24/7 Support */}
               <div className="text-center">
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
@@ -479,31 +498,31 @@ const Home = () => {
         </section>
 
         {/* Stats Section */}
-        <div id="stats-section" className="stats-bg py-16 sm:py-20">
+        <div id="stats-section" className="stats-bg py-12 sm:py-16 md:py-20">
           <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-6 sm:gap-8 md:grid-cols-4">
               <div className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-white mb-2">{years}+</div>
-                <div className="text-green-100 text-sm md:text-base">Years of Excellence</div>
+                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-2">{years}+</div>
+                <div className="text-green-100 text-xs sm:text-sm md:text-base">Years of Excellence</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-white mb-2">{clients}+</div>
-                <div className="text-green-100 text-sm md:text-base">Satisfied Clients</div>
+                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-2">{clients}+</div>
+                <div className="text-green-100 text-xs sm:text-sm md:text-base">Satisfied Clients</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-white mb-2">{products}+</div>
-                <div className="text-green-100 text-sm md:text-base">Product Varieties</div>
+                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-2">{products}+</div>
+                <div className="text-green-100 text-xs sm:text-sm md:text-base">Product Varieties</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-white mb-2">7 Days</div>
-                <div className="text-green-100 text-sm md:text-base">Weekly Delivery</div>
+                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-2">6 Days</div>
+                <div className="text-green-100 text-xs sm:text-sm md:text-base">Weekly Delivery (Closed on Saturday)</div>
               </div>
             </div>
           </div>
         </div>
 
 
-        <div className="relative isolate overflow-hidden bg-green-900 px-6 py-24 sm:py-32 lg:overflow-visible lg:px-0">
+        <div className="relative isolate overflow-hidden bg-green-900 px-4 sm:px-6 py-16 sm:py-24 md:py-32 lg:overflow-visible lg:px-0">
         <div className="absolute inset-0 -z-10 overflow-hidden">
             <svg aria-hidden="true" className="absolute top-0 left-[max(50%,25rem)] h-256 w-512 -translate-x-1/2 mask-[radial-gradient(64rem_64rem_at_top,white,transparent)] stroke-green-800">
             <defs>
@@ -569,13 +588,13 @@ const Home = () => {
 
 
       {/* What We Offer Section */}
-      <section className="bg-gray-50 py-16">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+      <section className="bg-gray-50 py-12 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-4">What We Offer</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">Fresh vegetables, fruits, pulses, and much more. Tailored selections designed to help you nourish and thrive in every aspect of life.</p>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 mb-3 sm:mb-4 px-4">What We Offer</h2>
+            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">Fresh vegetables, fruits, pulses, and much more. Tailored selections designed to help you nourish and thrive in every aspect of life.</p>
           </div>
-          <div className="mt-16 grid grid-cols-1 gap-8 lg:grid-cols-3">
+          <div className="mt-12 sm:mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Fresh Vegetables */}
             <div className="text-center">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
@@ -612,20 +631,20 @@ const Home = () => {
         </div>
       </section>
       {/* Contact Form Section */}
-        <section className="relative isolate overflow-hidden bg-green-900 px-6 py-24 sm:py-32 lg:overflow-visible lg:px-0">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-x-8 gap-y-16 lg:grid-cols-2 lg:items-start lg:gap-y-10">
+        <section className="relative isolate overflow-hidden bg-green-900 px-4 sm:px-6 py-16 sm:py-24 md:py-32 lg:overflow-visible lg:px-0">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-x-8 gap-y-12 sm:gap-y-16 lg:grid-cols-2 lg:items-start lg:gap-y-10">
             {/* Left Side: Google Maps */}
             <div className="lg:sticky lg:top-4 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:overflow-hidden">
             <div className="w-full rounded-xl bg-green-800 shadow-xl ring-1 ring-white/10 overflow-hidden">
                 <iframe 
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7567.863180811065!2d73.86520113991165!3d18.486757655633344!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2c020f86e3cc3%3A0xa796d6342ce667e5!2sMarket%20Yard%2C%20Gultekadi%2C%20Pune%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1761034105604!5m2!1sen!2sin" 
                 width="100%" 
-                height="600" 
+                height="400" 
                 style={{border:0}} 
                 allowFullScreen=""
                 loading="lazy" 
                 referrerPolicy="no-referrer-when-downgrade"
-                className="rounded-xl">
+                className="rounded-xl sm:h-[500px] lg:h-[600px]">
                 </iframe>
             </div>
             <div className="mt-4 text-center">
@@ -635,17 +654,17 @@ const Home = () => {
 
             {/* Right Side: Content and Form */}
             <div className="lg:col-start-2 lg:row-start-1">
-            <div className="lg:pr-4">
+            <div className="lg:pr-4 px-4 sm:px-0">
                 <div className="lg:max-w-lg">
-                <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">Let's bring freshness to your table</h2>
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white">Let's bring freshness to your table</h2>
                 </div>
             </div>
             </div>
 
             {/* Form Section */}
             <div className="lg:col-start-2 lg:row-start-2">
-            <div className="lg:pr-4">
-                <form onSubmit={handleContactSubmit} className="space-y-6">
+            <div className="lg:pr-4 px-4 sm:px-0">
+                <form onSubmit={handleContactSubmit} className="space-y-4 sm:space-y-6">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                     <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-white">First name</label>

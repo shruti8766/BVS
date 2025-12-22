@@ -42,7 +42,7 @@ const TodaysHotelsOrders = () => {
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [selectedHistoryDate, setSelectedHistoryDate] = useState('');
 
-  const BASE_URL = 'http://localhost:5000';
+  const BASE_URL = 'https://api-aso3bjldka-uc.a.run.app';
 
   // Fetch today's hotels orders
   const fetchTodaysHotelsOrders = async () => {
@@ -143,10 +143,10 @@ const TodaysHotelsOrders = () => {
   if (loading || data === null) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 flex items-center justify-center p-6">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading today's hotels orders...</p>
+            <p className="text-gray-600 dark:text-gray-300">Loading today's hotels orders...</p>
           </div>
         </div>
       </Layout>
@@ -156,14 +156,14 @@ const TodaysHotelsOrders = () => {
   if (error) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-6">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 p-6">
           <div className="max-w-4xl mx-auto">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-              <h3 className="text-red-800 font-semibold mb-2">Error</h3>
-              <p className="text-red-600">{error}</p>
+            <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg p-6">
+              <h3 className="text-red-800 dark:text-red-200 font-semibold mb-2">Error</h3>
+              <p className="text-red-600 dark:text-red-300">{error}</p>
               <button
                 onClick={fetchTodaysHotelsOrders}
-                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
               >
                 Retry
               </button>
@@ -177,12 +177,12 @@ const TodaysHotelsOrders = () => {
   return (
     <Layout>
       <style>{printStyles}</style>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 p-6">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8 no-print">
             <div className="flex items-center justify-between mb-2">
-              <h1 className="text-3xl font-bold text-green-800">Today's Hotels Orders</h1>
+              <h1 className="text-3xl font-bold text-green-800 dark:text-green-300">Today's Hotels Orders</h1>
               <div className="flex gap-3">
                 {data?.orders?.length > 0 && (
                   <button
@@ -202,7 +202,7 @@ const TodaysHotelsOrders = () => {
                 </button>
               </div>
             </div>
-            <div className="flex items-center gap-4 text-gray-600">
+            <div className="flex items-center gap-4 text-gray-600 dark:text-gray-300">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">📅</span>
                 <span className="font-medium">{data?.date}</span>
@@ -212,7 +212,7 @@ const TodaysHotelsOrders = () => {
                 <span className="font-medium">{data?.day}</span>
               </div>
             </div>
-            <p className="text-gray-600 text-sm mt-2">
+            <p className="text-gray-600 dark:text-gray-300 text-sm mt-2">
               <strong>📋 Orders for Today's Delivery</strong><br/>
               Showing orders placed <strong>yesterday</strong> (for today's delivery).<br/>
               Orders placed today will appear here tomorrow after 1:00 AM.
@@ -275,7 +275,7 @@ const TodaysHotelsOrders = () => {
             </div>
           ) : (
             <div className="space-y-6" key={`orders-list-${data?.target_date || 'today'}`}>
-              {data?.orders?.map((order) => (
+              {(data?.orders || [])?.map((order) => (
                 <div key={`${order.order_id}-${data?.target_date}`} className="bg-white rounded-xl shadow-sm border border-green-100 overflow-hidden">
                   {/* Order Header */}
                   <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 border-b border-green-100 no-print">
@@ -314,8 +314,8 @@ const TodaysHotelsOrders = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {order.items.map((item, index) => (
-                          <tr key={item.product_id} className="border-b border-gray-100">
+                        {(order.items || []).map((item, index) => (
+                          <tr key={`${order.order_id}-${index}`} className="border-b border-gray-100">
                             <td className="py-3 text-sm">{index + 1}</td>
                             <td className="py-3 text-sm font-medium">{item.product_name}</td>
                             <td className="py-3 text-sm">{parseFloat(item.quantity).toFixed(2)}</td>
@@ -380,7 +380,7 @@ const TodaysHotelsOrders = () => {
               </style>
               {selectedHotel === 'all' ? (
                 // Print all orders
-                data?.orders?.map((order) => (
+                (data?.orders || []).map((order) => (
                   <div key={`print-${order.order_id}-${data?.target_date}`} className="invoice-container">
                     <div className="header">
                       <div className="logo-section">
@@ -444,8 +444,8 @@ const TodaysHotelsOrders = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {order.items.map((item, index) => (
-                            <tr key={item.product_id}>
+                          {(order.items || []).map((item, index) => (
+                            <tr key={`${order.order_id}-${index}`}>
                               <td>{index + 1}</td>
                               <td className="item-name">{item.product_name}</td>
                               <td>{parseFloat(item.quantity).toFixed(2)}</td>
@@ -551,8 +551,8 @@ const TodaysHotelsOrders = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {selectedHotel.items.map((item, index) => (
-                          <tr key={item.product_id}>
+                        {(selectedHotel?.items || []).map((item, index) => (
+                          <tr key={`${selectedHotel.order_id}-${index}`}>
                             <td>{index + 1}</td>
                             <td className="item-name">{item.product_name}</td>
                             <td>{parseFloat(item.quantity).toFixed(2)}</td>

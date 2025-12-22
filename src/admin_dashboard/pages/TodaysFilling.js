@@ -47,7 +47,7 @@ const TodaysFilling = () => {
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [selectedHistoryDate, setSelectedHistoryDate] = useState('');
 
-  const BASE_URL = 'http://localhost:5000';
+  const BASE_URL = 'https://api-aso3bjldka-uc.a.run.app';
 
   // Fetch today's filling orders
   const fetchTodaysFilling = async () => {
@@ -87,6 +87,7 @@ const TodaysFilling = () => {
       const token = localStorage.getItem('adminToken');
       
       const url = `${BASE_URL}/api/admin/orders/filling-history?date=${date}`;
+      console.log('[FILLING_HISTORY] Fetching filling for date:', date);
       
       const res = await fetch(url, {
         method: 'GET',
@@ -97,12 +98,17 @@ const TodaysFilling = () => {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to fetch filling history');
+        console.error('[FILLING_HISTORY] API Error:', res.status, res.statusText);
+        const errText = await res.text();
+        console.error('[FILLING_HISTORY] Error response:', errText);
+        throw new Error(`Failed to fetch filling history: ${res.status}`);
       }
 
       const result = await res.json();
+      console.log('[FILLING_HISTORY] Received data:', result);
       setData(result);
     } catch (e) {
+      console.error('[FILLING_HISTORY] Catch error:', e);
       setError(e.message);
     } finally {
       setLoading(false);
@@ -142,10 +148,10 @@ const TodaysFilling = () => {
   if (loading || data === null) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 flex items-center justify-center p-6">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading today's filling...</p>
+            <p className="text-gray-600 dark:text-gray-300">Loading today's filling...</p>
           </div>
         </div>
       </Layout>
@@ -155,14 +161,14 @@ const TodaysFilling = () => {
   if (error) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-6">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 p-6">
           <div className="max-w-4xl mx-auto">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-              <h3 className="text-red-800 font-semibold mb-2">Error</h3>
-              <p className="text-red-600">{error}</p>
+            <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg p-6">
+              <h3 className="text-red-800 dark:text-red-200 font-semibold mb-2">Error</h3>
+              <p className="text-red-600 dark:text-red-300">{error}</p>
               <button
                 onClick={fetchTodaysFilling}
-                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
               >
                 Retry
               </button>
@@ -176,12 +182,12 @@ const TodaysFilling = () => {
   return (
     <Layout>
       <style>{printStyles}</style>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 p-6">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8 no-print">
             <div className="flex items-center justify-between mb-2">
-              <h1 className="text-3xl font-bold text-green-800">Today's Filling</h1>
+              <h1 className="text-3xl font-bold text-green-800 dark:text-green-300">Today's Filling</h1>
               <div className="flex gap-3">
                 {data?.products?.length > 0 && (
                   <button
@@ -201,7 +207,7 @@ const TodaysFilling = () => {
                 </button>
               </div>
             </div>
-            <div className="flex items-center gap-4 text-gray-600">
+            <div className="flex items-center gap-4 text-gray-600 dark:text-gray-300">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">📅</span>
                 <span className="font-medium">{data?.date}</span>
@@ -211,20 +217,20 @@ const TodaysFilling = () => {
                 <span className="font-medium">{data?.day}</span>
               </div>
             </div>
-            <p className="text-gray-600 text-sm mt-2">
+            <p className="text-gray-600 dark:text-gray-300 text-sm mt-2">
               <strong>📋 Orders for Today's Delivery</strong><br/>
               Showing orders placed <strong>yesterday</strong> (for today's delivery).<br/>
               Orders placed today will appear here tomorrow after 1:00 AM.
             </p>
             {data?.target_date && (
-              <p className="text-green-600 text-xs mt-1 font-medium">
+              <p className="text-green-600 dark:text-green-300 text-xs mt-1 font-medium">
                 📅 Order Date: {data.target_date} → Delivery Date: {data?.date}
               </p>
             )}
 
             {/* Date Picker for History */}
             <div className="mt-4">
-              <label htmlFor="history-date" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="history-date" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 📅 View Filling History
               </label>
               <input
@@ -232,7 +238,7 @@ const TodaysFilling = () => {
                 id="history-date"
                 value={selectedHistoryDate}
                 onChange={handleHistoryDateChange}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               />
               {selectedHistoryDate && (
                 <button
@@ -240,7 +246,7 @@ const TodaysFilling = () => {
                     setSelectedHistoryDate('');
                     fetchTodaysFilling();
                   }}
-                  className="ml-3 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+                  className="ml-3 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-800"
                 >
                   Clear
                 </button>
@@ -251,7 +257,7 @@ const TodaysFilling = () => {
           {/* Stats */}
           <div className="mb-6 no-print">
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white rounded-xl shadow-sm border border-green-100 p-6">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-green-100 dark:border-green-800 p-6">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                     <span className="text-2xl">🏨</span>
@@ -262,7 +268,7 @@ const TodaysFilling = () => {
                   </div>
                 </div>
               </div>
-              <div className="bg-white rounded-xl shadow-sm border border-green-100 p-6">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-green-100 dark:border-green-800 p-6">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                     <span className="text-2xl">🥬</span>
@@ -278,15 +284,15 @@ const TodaysFilling = () => {
 
           {/* Filling Table */}
           {!data?.products || data?.products?.length === 0 ? (
-            <div className="bg-white rounded-xl shadow-sm border border-green-100 p-12 text-center no-print">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-green-100 dark:border-green-800 p-12 text-center no-print">
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-4xl">📦</span>
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">No Orders to Fill</h3>
-              <p className="text-gray-600">No orders for today's filling</p>
+              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">No Orders to Fill</h3>
+              <p className="text-gray-600 dark:text-gray-300">No orders for today's filling</p>
             </div>
           ) : (
-            <div className="bg-white rounded-xl shadow-sm border border-green-100 overflow-hidden" key={`filling-${data?.target_date || 'today'}`}>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-green-100 dark:border-green-800 overflow-hidden" key={`filling-${data?.target_date || 'today'}`}> 
               <div className="overflow-x-auto">
                 <div id="printable-table">
                   {/* Invoice Header */}
@@ -325,19 +331,19 @@ const TodaysFilling = () => {
                   </thead>
                   <tbody>
                     {data?.products?.map((product, index) => (
-                      <tr key={`${product.product_id}-${data?.target_date}-${index}`} className="border-b border-gray-200 hover:bg-green-50">
-                        <td className="px-4 py-3 text-sm text-gray-700">{index + 1}</td>
-                        <td className="px-4 py-3 text-sm font-medium text-gray-900">{product.product_name}</td>
+                      <tr key={`${product.product_id}-${data?.target_date}-${index}`} className="border-b border-gray-200 dark:border-gray-700 hover:bg-green-50 dark:hover:bg-gray-900">
+                        <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">{index + 1}</td>
+                        <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{product.product_name}</td>
                         {data?.hotels?.map((hotel) => {
                           const quantity = product.quantities[hotel.hotel_id];
                           return (
-                            <td key={hotel.hotel_id} className="px-4 py-3 text-center text-sm">
+                            <td key={hotel.hotel_id} className="px-4 py-3 text-center text-sm text-gray-900 dark:text-gray-100">
                               {quantity ? (
-                                <span className="font-bold text-green-700">
+                                <span className="font-bold text-green-700 dark:text-green-300">
                                   {parseFloat(quantity).toFixed(2)}
                                 </span>
                               ) : (
-                                <span className="text-gray-300">-</span>
+                                <span className="text-gray-300 dark:text-gray-600">-</span>
                               )}
                             </td>
                           );

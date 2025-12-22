@@ -25,6 +25,21 @@ code {
     --primary-700: #15803d;
     --primary-800: #166534;
     --primary-900: #14532d;
+    --dark-green-50: #f0fdf4;
+    --dark-green-100: #dcfce7;
+    --dark-green-200: #bbf7d0;
+    --dark-green-300: #86efac;
+    --dark-green-400: #4ade80;
+    --dark-green-500: #22c55e;
+    --dark-green-600: #16a34a;
+    --dark-green-700: #15803d;
+    --dark-green-800: #166534;
+    --dark-green-900: #14532d;
+  }
+
+  /* Dark mode colors */
+  .dark {
+    color-scheme: dark;
   }
 }
 
@@ -34,6 +49,13 @@ code {
   background-size: 200% 100%;
   animation: loading 1.5s infinite;
 }
+
+.dark .skeleton {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
 @keyframes loading {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
@@ -44,6 +66,95 @@ code {
   outline: 2px solid #16a34a;
   outline-offset: 2px;
 }
+
+/* ---- Responsive utilities ---- */
+@layer utilities {
+  /* Mobile-first responsive containers */
+  .container-responsive {
+    width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  @media (min-width: 640px) {
+    .container-responsive {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .container-responsive {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+  
+  /* Responsive text sizes */
+  .text-responsive-sm {
+    font-size: 0.875rem;
+  }
+  
+  @media (min-width: 640px) {
+    .text-responsive-sm {
+      font-size: 1rem;
+    }
+  }
+  
+  .text-responsive-base {
+    font-size: 1rem;
+  }
+  
+  @media (min-width: 640px) {
+    .text-responsive-base {
+      font-size: 1.125rem;
+    }
+  }
+  
+  .text-responsive-lg {
+    font-size: 1.125rem;
+  }
+  
+  @media (min-width: 640px) {
+    .text-responsive-lg {
+      font-size: 1.25rem;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .text-responsive-lg {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+/* ---- Mobile optimizations ---- */
+@media (max-width: 640px) {
+  /* Ensure proper touch targets on mobile */
+  button:not(.chatbot-close):not(.chatbot-toggle), 
+  a:not(.text-sm) {
+    min-height: 44px;
+  }
+  
+  /* Prevent horizontal scrolling */
+  body {
+    overflow-x: hidden;
+  }
+  
+  /* Better mobile form inputs */
+  input, textarea, select {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+/* ---- Tablet optimizations ---- */
+@media (min-width: 641px) and (max-width: 1024px) {
+  /* Optimize for tablet screens */
+  .container {
+    max-width: 100%;
+  }
+}
+
 @keyframes run {
   0%, 100% {
     transform: translateX(0) rotate(0deg);

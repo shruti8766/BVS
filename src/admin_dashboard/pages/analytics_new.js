@@ -8,7 +8,9 @@ const Analytics = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const BASE_URL = 'http://localhost:5000';
+  // API Configuration
+  const BASE_URL = 'https://api-aso3bjldka-uc.a.run.app';
+  // const BASE_URL = 'https://api-aso3bjldka-uc.a.run.app'; // Uncomment for local testing
 
   // Fetch analytics data
   useEffect(() => {

@@ -52,7 +52,7 @@
 //     setLoginError('');
 
 //     try {
-//       const res = await fetch('http://127.0.0.1:5000/api/auth/login', {
+//       const res = await fetch('https://api-aso3bjldka-uc.a.run.app/api/auth/login', {
 //         method: 'POST',
 //         headers: { 'Content-Type': 'application/json' },
 //         body: JSON.stringify(loginForm),
@@ -405,7 +405,7 @@
 //           <span className="text-blue-600 text-lg mr-3">API</span>
 //           <div>
 //             <p className="text-blue-800 font-medium">Connected to live backend</p>
-//             <p className="text-blue-700 text-sm">Inventory items: {products.length} | http://127.0.0.1:5000</p>
+//             <p className="text-blue-700 text-sm">Inventory items: {products.length} | https://api-aso3bjldka-uc.a.run.app</p>
 //           </div>
 //         </div>
 //       </div>
@@ -469,7 +469,7 @@ const Inventory = () => {
     setLoginError('');
 
     try {
-      const res = await fetch('http://127.0.0.1:5000/api/auth/login', {
+      const res = await fetch('https://api-aso3bjldka-uc.a.run.app/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(loginForm),
@@ -500,6 +500,8 @@ const Inventory = () => {
       setLoading(true);
       setError(null);
       const data = await productsApi.getAll();
+      console.log('📦 Fetched products data:', data);
+      console.log('📦 First product:', data[0]);
       setProducts(Array.isArray(data) ? data : []);
     } catch (e) {
       setError(e.message);
@@ -512,7 +514,7 @@ const Inventory = () => {
   const updateProduct = async () => {
     if (!updatingProduct) return;
     try {
-      const res = await fetch(`http://127.0.0.1:5000/api/admin/products/${updatingProduct.id}`, {
+      const res = await fetch(`https://api-aso3bjldka-uc.a.run.app/api/admin/products/${updatingProduct.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ 
@@ -619,27 +621,27 @@ const Inventory = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-8 w-full">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-green-950 p-8 w-full transition-colors duration-200">
         {/* ---------- Header ---------- */}
         <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-green-800 mb-1">Inventory Management</h1>
-            <p className="text-gray-600 text-sm">Monitor and update stock levels for products</p>
+            <h1 className="text-2xl font-bold text-green-800 dark:text-green-300 mb-1">Inventory Management</h1>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">Monitor and update stock levels for products</p>
           </div>
         </div>
 
         {/* ---------- Stats Cards ---------- */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {[
-            { key: 'total', label: 'Total Items', value: safe(stats.total, 0), color: 'text-gray-700' },
-            { key: 'available', label: 'In Stock', value: safe(stats.available, 0), color: 'text-emerald-700', trend: 5 },
-            { key: 'lowStock', label: 'Low Stock', value: safe(stats.lowStock, 0), color: 'text-orange-600' },
-            { key: 'outOfStock', label: 'Out of Stock', value: safe(stats.outOfStock, 0), color: 'text-red-600' },
+            { key: 'total', label: 'Total Items', value: safe(stats.total, 0), color: 'text-gray-700 dark:text-gray-300' },
+            { key: 'available', label: 'In Stock', value: safe(stats.available, 0), color: 'text-emerald-700 dark:text-emerald-300', trend: 5 },
+            { key: 'lowStock', label: 'Low Stock', value: safe(stats.lowStock, 0), color: 'text-orange-600 dark:text-orange-400' },
+            { key: 'outOfStock', label: 'Out of Stock', value: safe(stats.outOfStock, 0), color: 'text-red-600 dark:text-red-400' },
           ].map(({ key, label, value, color, trend }) => (
-            <div key={key} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6">
+            <div key={key} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 lg:p-6 transition-colors duration-200">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium text-gray-500">{label}</h3>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${color === 'text-emerald-700' ? 'bg-emerald-100' : color === 'text-orange-600' ? 'bg-orange-100' : color === 'text-red-600' ? 'bg-red-100' : 'bg-green-100'}`}>
+                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{label}</h3>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${color === 'text-emerald-700 dark:text-emerald-300' ? 'bg-emerald-100 dark:bg-emerald-900/30' : color === 'text-orange-600 dark:text-orange-400' ? 'bg-orange-100 dark:bg-orange-900/30' : color === 'text-red-600 dark:text-red-400' ? 'bg-red-100 dark:bg-red-900/30' : 'bg-green-100 dark:bg-green-900/30'}`}>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={key === 'total' ? 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4' : key === 'available' ? 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' : key === 'lowStock' ? 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' : 'M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z'} />
                   </svg>
@@ -652,7 +654,7 @@ const Inventory = () => {
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                     </svg>
-                    <span className="text-xs font-semibold text-green-600 ml-1">+{trend}%</span>
+                    <span className="text-xs font-semibold text-green-600 dark:text-green-400 ml-1">+{trend}%</span>
                   </div>
                 )}
               </div>
@@ -662,12 +664,12 @@ const Inventory = () => {
 
         {/* ---------- Error ---------- */}
         {error && (
-          <div className="mb-10 bg-red-50 border-2 border-red-200 rounded-2xl p-6 shadow-lg">
+          <div className="mb-10 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-2xl p-6 shadow-lg transition-colors duration-200">
             <div className="flex items-center gap-3">
               <span className="text-red-600 text-lg">⚠️</span>
               <div>
-                <p className="text-red-800 font-bold">Error loading inventory</p>
-                <p className="text-red-700 text-sm mt-1">{error}</p>
+                <p className="text-red-800 dark:text-red-300 font-bold">Error loading inventory</p>
+                <p className="text-red-700 dark:text-red-400 text-sm mt-1">{error}</p>
                 <button onClick={fetchInventory} className="mt-3 px-4 py-2 bg-red-600 text-white rounded-xl text-sm hover:bg-red-700 transition-colors font-semibold">
                   Retry
                 </button>
@@ -677,15 +679,15 @@ const Inventory = () => {
         )}
 
         {/* ---------- Table ---------- */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-10">
-          <div className="px-4 py-3 bg-green-50 border-b border-green-100 flex justify-between items-center">
-            <h3 className="text-base font-bold text-green-800">Inventory Items</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden mb-10 transition-colors duration-200">
+          <div className="px-4 py-3 bg-green-50 dark:bg-gray-700 border-b border-green-100 dark:border-gray-600 flex justify-between items-center">
+            <h3 className="text-base font-bold text-green-800 dark:text-green-300">Inventory Items</h3>
             <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by:</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Filter by:</label>
               <select
                 value={filter}
                 onChange={e => setFilter(e.target.value)}
-                className="border-2 border-green-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all bg-white"
+                className="border-2 border-green-200 dark:border-green-900 dark:bg-gray-800 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all bg-white"
               >
                 <option value="all">All Items</option>
                 <option value="low-stock">Low Stock</option>
@@ -700,38 +702,38 @@ const Inventory = () => {
           <div className="overflow-x-auto">
             <table className="min-w-full">
               <thead>
-                <tr className="bg-green-50/50">
+                <tr className="bg-green-50/50 dark:bg-gray-700">
                   {['Image', 'Name', 'Category', 'Current Stock', 'Unit Type', 'Available', 'Actions'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-bold text-green-700 uppercase">
+                    <th key={h} className="px-4 py-3 text-left text-xs font-bold text-green-700 dark:text-green-300 uppercase">
                       {h}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-green-50">
+              <tbody className="divide-y divide-green-50 dark:divide-gray-700 bg-white dark:bg-gray-800">
                 {filtered.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-4 py-8 text-center">
                       <div className="flex flex-col items-center gap-2">
-                        <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
-                          <svg className="w-6 h-6 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-12 h-12 rounded-full bg-green-50 dark:bg-gray-700 flex items-center justify-center">
+                          <svg className="w-6 h-6 text-green-300 dark:text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                           </svg>
                         </div>
-                        <p className="text-sm font-medium text-gray-700">No inventory items found</p>
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">No inventory items found</p>
                       </div>
                     </td>
                   </tr>
                 ) : (
                   filtered.map(p => (
-                    <tr key={p.id} className="hover:bg-green-50/30 transition-colors">
+                    <tr key={p.id} className="hover:bg-green-50/30 dark:hover:bg-gray-700 transition-colors">
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <img src={p.image_url || 'https://via.placeholder.com/60x60?text=?'} alt={p.name} className="w-10 h-10 object-cover rounded-lg\" />
+                        <img src={p.image_url || 'https://via.placeholder.com/60x60?text=?'} alt={p.name} className="w-10 h-10 object-cover rounded-lg" />
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
                         {safe(p.name)}
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
                         {safe(p.category)}
                       </td>
 
@@ -740,17 +742,17 @@ const Inventory = () => {
                           {safeNum(p.stock_quantity)}
                         </span>
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
                         {safe(p.unit_type)}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                          p.is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          p.is_available ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300'
                         }`}>
                           {p.is_available ? 'Yes' : 'No'}
                         </span>
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm\">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm">
                         <div className="flex space-x-2">
                           <button
                             onClick={() => { 
@@ -758,13 +760,13 @@ const Inventory = () => {
                               setNewStock(safeNum(p.stock_quantity)); 
                               setShowStockUpdate(true); 
                             }}
-                            className="text-green-600 hover:text-green-700 text-xs underline transition-colors"
+                            className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 text-xs underline transition-colors"
                           >
                             Update Product
                           </button>
                           <button
                             onClick={() => setSelected(p)}
-                            className="text-emerald-600 hover:text-emerald-700 text-xs underline transition-colors"
+                            className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 text-xs underline transition-colors"
                           >
                             View
                           </button>

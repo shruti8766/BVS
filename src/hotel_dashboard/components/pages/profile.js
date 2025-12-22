@@ -21,7 +21,7 @@ export default function HotelProfile() {
   });
   const [editing, setEditing] = useState(false);
 
-  const BASE_URL = 'http://localhost:5000';
+  const BASE_URL = 'https://api-aso3bjldka-uc.a.run.app';
 
   // Custom confirm function
   const showConfirm = (message) => {

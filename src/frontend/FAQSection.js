@@ -15,11 +15,11 @@ const FAQSection = () => {
     },
     {
       question: "How do I get today's price list?",
-      answer: "Use the 'Get price list' option on the site or contact BVS for wholesale rates."
+      answer: "We do not have a fixed price list. Prices depend on daily market rates and change regularly. Please call or WhatsApp BVS to get today’s live wholesale prices."
     },
     {
       question: "Do you offer same-day delivery?",
-      answer: "Yes, for Pune routes with orders placed before the daily cut-off time."
+      answer: "No. We do not offer same-day delivery. Please place your order at least one day in advance so we can source fresh produce and schedule dispatch."
     },
     {
       question: "Where are you located?",
@@ -27,7 +27,7 @@ const FAQSection = () => {
     },
     {
       question: "Can I place standing daily orders?",
-      answer: "Yes, we schedule daily or weekly plans for hotels, canteens, and caterers."
+      answer: "Yes, we can schedule standing daily or weekly orders for hotels, canteens, and caterers. Please note that we are closed on Saturdays."
     }
   ];
 

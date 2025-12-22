@@ -33,7 +33,7 @@
 //   const [tempProductId, setTempProductId] = useState('');
 //   const [tempQty, setTempQty] = useState(1);
 //   const [subtotal, setSubtotal] = useState(0);
-//   const BASE_URL = 'http://127.0.0.1:5000';
+//   const BASE_URL = 'https://api-aso3bjldka-uc.a.run.app';
 //   console.log('billsApi:', billsApi);
 //   // ──────────────────────────────────────────────────────
 //   // 3. Helper utilities
@@ -599,6 +599,16 @@
 //     : filter === 'paid'
 //       ? bills.filter(b => b.paid)
 //       : bills.filter(b => !b.paid);
+//   // Apply hotel name search filter
+//   const filtered = (filter === 'all'
+//     ? bills
+//     : filter === 'paid'
+//       ? bills.filter(b => b.paid)
+//       : bills.filter(b => !b.paid)
+//   ).filter(b => 
+//     b.hotel_name?.toLowerCase().includes(searchHotel.toLowerCase()) ||
+//     b.email?.toLowerCase().includes(searchHotel.toLowerCase())
+//   );
 //   // ──────────────────────────────────────────────────────
 //   // 7. Render – login first
 //   // ──────────────────────────────────────────────────────
@@ -653,17 +663,26 @@
 //     <Layout>
 //       <div className="p-6">
 //         {/* ---------- Header + Add Button ---------- */}
-//         <div className="mb-8 flex justify-between items-center">
-//           <div>
+//         <div className="mb-8 flex justify-between items-center gap-4">
+//           <div className="flex-1">
 //             <h1 className="text-3xl font-bold text-gray-900">Billing Management</h1>
 //             <p className="text-gray-600 mt-2">Create, view, and manage invoices for hotels, events, and caterers</p>
 //           </div>
-//           <button
-//             onClick={() => setShowCreate(true)}
-//             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium"
-//           >
-//             + Create Bill
-//           </button>
+//           <div className="flex items-center gap-3">
+//             <input
+//               type="text"
+//               placeholder="Search by hotel name..."
+//               value={searchHotel}
+//               onChange={e => setSearchHotel(e.target.value)}
+//               className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+//             />
+//             <button
+//               onClick={() => setShowCreate(true)}
+//               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium whitespace-nowrap"
+//             >
+//               + Create Bill
+//             </button>
+//           </div>
 //         </div>
 //         {/* ---------- Stats Cards ---------- */}
 //         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
@@ -718,7 +737,7 @@
 //             <table className="min-w-full divide-y divide-gray-200">
 //               <thead className="bg-gray-50">
 //                 <tr>
-//                   {['ID', 'Hotel', 'Order ID', 'Amount', 'Date', 'Paid', 'Payment Method', 'Comments', 'Actions'].map(h => (
+//                   {['ID', 'Hotel', 'Address', 'Order ID', 'Amount', 'Date', 'Paid', 'Payment Method', 'Comments', 'Actions'].map(h => (
 //                     <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
 //                       {h}
 //                     </th>
@@ -728,7 +747,7 @@
 //               <tbody className="bg-white divide-y divide-gray-200">
 //                 {filtered.length === 0 ? (
 //                   <tr>
-//                     <td colSpan={9} className="px-6 py-8 text-center text-gray-500">
+//                     <td colSpan={10} className="px-6 py-8 text-center text-gray-500">
 //                       <div className="flex flex-col items-center">
 //                         <span className="text-4xl mb-2">💰</span>
 //                         <p className="text-lg">No bills found</p>
@@ -745,6 +764,9 @@
 //                         </td>
 //                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
 //                           {safe(b.hotel_name)}
+//                         </td>
+//                         <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
+//                           {safe(b.address, 'N/A')}
 //                         </td>
 //                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
 //                           #{safe(b.order_id)}
@@ -1155,6 +1177,7 @@ const Billing = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
+  const [searchHotel, setSearchHotel] = useState('');
   const [selected, setSelected] = useState(null);
   // NEW: Edit mode state
   const [editMode, setEditMode] = useState(false);
@@ -1168,8 +1191,9 @@ const Billing = () => {
   const [addedItems, setAddedItems] = useState([]);
   const [tempProductId, setTempProductId] = useState('');
   const [tempQty, setTempQty] = useState(1);
+  const [tempPrice, setTempPrice] = useState('');
   const [subtotal, setSubtotal] = useState(0);
-  const BASE_URL = 'http://127.0.0.1:5000';
+  const BASE_URL = 'https://api-aso3bjldka-uc.a.run.app';
   console.log('billsApi:', billsApi);
   // ──────────────────────────────────────────────────────
   // 3. Helper utilities
@@ -1232,7 +1256,16 @@ const Billing = () => {
       setHotels(Array.isArray(hotelsData) ? hotelsData : []);
       if (productsRes.ok) {
         const productsData = await productsRes.json();
-        setProducts(Array.isArray(productsData) ? productsData : []);
+        // Backend returns {products: [...], success: true}, extract the products array
+        const productsList = productsData.products || productsData || [];
+        console.log('Products loaded for billing:', productsList);
+        console.log('First product sample:', productsList[0]);
+        setProducts(Array.isArray(productsList) ? productsList : []);
+      } else {
+        console.error('Failed to load products for billing, status:', productsRes.status);
+        const errorData = await productsRes.json().catch(() => ({}));
+        console.error('Error details:', errorData);
+        setProducts([]);
       }
     } catch (e) {
       setError(e.message);
@@ -1290,17 +1323,30 @@ const Billing = () => {
       alert('Select product and valid quantity');
       return;
     }
+    if (!tempPrice || parseFloat(tempPrice) <= 0) {
+      alert('Please enter a valid price per unit');
+      return;
+    }
     const prod = products.find(p => p.id == tempProductId);
-    if (!prod) return;
+    if (!prod) {
+      alert('Product not found');
+      return;
+    }
+    
+    const price = parseFloat(tempPrice);
+    
     const newItem = {
       id: prod.id,
       name: prod.name,
-      price: parseFloat(prod.price_per_unit || 0),
+      price: price,
       qty: parseFloat(tempQty)
     };
+    
+    console.log('Adding item:', newItem);
     setAddedItems([...addedItems, newItem]);
     setTempProductId('');
     setTempQty(1);
+    setTempPrice('');
   };
   // NEW: Update subtotal
   useEffect(() => {
@@ -1335,10 +1381,13 @@ const Billing = () => {
         delivery_date: billData.bill_date, // Use bill date for past supply
         items: addedItems.map(item => ({
           product_id: item.id,
-          quantity: item.qty
+          quantity: item.qty,
+          price: item.price // Include manual price
         })),
         special_instructions: ''
       };
+      console.log('Creating order with data:', orderData);
+      console.log('Added items:', addedItems);
       const orderRes = await fetch(`${BASE_URL}/api/admin/orders`, {
         method: 'POST',
         headers: {
@@ -1451,17 +1500,39 @@ const Billing = () => {
   // UPDATED: viewBill (unchanged)
   // ──────────────────────────────────────────────────────
   const viewBill = async (bill) => {
+    // UPDATED: Fetch fresh bill data from backend to ensure order_items are included
+    let freshBill = bill;
+    try {
+      const billRes = await fetch(`${BASE_URL}/api/admin/bills?limit=1&offset=0`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (billRes.ok) {
+        const billsData = await billRes.json();
+        const freshBillData = billsData.bills?.find(b => b.id == bill.id);
+        if (freshBillData) {
+          freshBill = freshBillData;
+          console.log('✅ Fetched fresh bill with items from backend');
+        }
+      }
+    } catch (err) {
+      console.warn('Could not fetch fresh bill data, using cached bill');
+    }
+    
     // Find hotel details from list
-    let hotel = hotels.find(h => h.id == bill.hotel_id) || {};
-    if (!hotel.hotel_name && bill.hotel_name) {
-      hotel = { ...hotel, hotel_name: bill.hotel_name };
+    let hotel = hotels.find(h => h.id == freshBill.hotel_id) || {};
+    if (!hotel.hotel_name && freshBill.hotel_name) {
+      hotel = { ...hotel, hotel_name: freshBill.hotel_name };
     }
     // UPDATED: Fetch full profile like in hotel code, but for specific hotel via admin endpoint
     // Assuming backend has /api/admin/hotels/${id} or similar; adjust if needed
     // Here using /api/hotels/${id} to match pattern
     if (!hotel.address || !hotel.email || !hotel.phone || !hotel.hotel_name) {
       try {
-        const profileRes = await fetch(`${BASE_URL}/api/hotels/${bill.hotel_id}`, {
+        const profileRes = await fetch(`${BASE_URL}/api/hotels/${freshBill.hotel_id}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -1484,29 +1555,59 @@ const Billing = () => {
       hotel = { hotel_name: 'Hotel', email: 'N/A', address: 'N/A', phone: 'N/A' };
     }
     // Find order
-    const order = orders.find(o => o.id == bill.order_id) || {};
+    const order = orders.find(o => o.id == freshBill.order_id) || {};
     
-    console.log('📋 Admin View Bill - Order Items:', order.items);
-    console.log('📋 Bill status:', bill.bill_status);
+    console.log('📋 Bill ID:', freshBill.id);
+    console.log('📋 Bill items array:', freshBill.items);
+    console.log('📋 Order items array:', order.items);
     
-    // Use LOCKED prices from price_at_order (finalized prices), not current product prices
-    const enrichedItems = order.items?.map(item => {
-      const lockedPrice = parseFloat(item.price_at_order);
-      const fallbackPrice = parseFloat(item.price_per_unit || getPriceForProduct(item.product_id) || 0);
-      const finalPrice = lockedPrice || fallbackPrice;
-      
-      console.log(`📦 ${item.product_name}: price_at_order=${item.price_at_order}, using ₹${finalPrice}`);
+    // PRIORITY: Use bill.items if available (stored when bill was created)
+    // Fallback to order.items if bill doesn't have items
+    let itemsToDisplay = [];
+    
+    if (freshBill.items && Array.isArray(freshBill.items) && freshBill.items.length > 0) {
+      itemsToDisplay = freshBill.items.filter(item => {
+        const hasProduct = item.product_id || item.product_name;
+        const hasQuantity = item.quantity && parseFloat(item.quantity) > 0;
+        const isValid = hasProduct && hasQuantity;
+        if (!isValid) {
+          console.log('❌ Skipping invalid item from bill:', item);
+        }
+        return isValid;
+      });
+      console.log('✅ Using freshBill.items - found', itemsToDisplay.length, 'items');
+    } else if (order.items && Array.isArray(order.items) && order.items.length > 0) {
+      // Fallback to order items
+      itemsToDisplay = order.items.filter(item => {
+        const hasProduct = item.product_id || item.product_name;
+        const hasQuantity = item.quantity && parseFloat(item.quantity) > 0;
+        const isValid = hasProduct && hasQuantity;
+        if (!isValid) {
+          console.log('❌ Skipping invalid item from order:', item);
+        }
+        return isValid;
+      });
+      console.log('✅ Using order.items - found', itemsToDisplay.length, 'items');
+    } else {
+      console.log('⚠️ No items found in freshBill or order - showing fallback message');
+    }
+    
+    const enrichedItems = itemsToDisplay.map(item => {
+      const lockedPrice = parseFloat(item.price_at_order || item.price_per_unit || 0);
+      const fallbackPrice = parseFloat(getPriceForProduct(item.product_id) || 0);
+      const finalPrice = lockedPrice > 0 ? lockedPrice : fallbackPrice;
       
       return {
         ...item,
         price_per_unit: finalPrice
       };
-    }) || [];
+    });
+    
     // Build items HTML
     let itemsHtml = '';
     let subtotal = 0;
     enrichedItems.forEach((item, idx) => {
-      const itemTotal = item.quantity * item.price_per_unit;
+      const itemTotal = parseFloat(item.quantity) * item.price_per_unit;
       subtotal += itemTotal;
       itemsHtml += `
         <tr>
@@ -1518,26 +1619,29 @@ const Billing = () => {
         </tr>
       `;
     });
+    
+    // If NO items were found, show fallback for old bills
     if (enrichedItems.length === 0) {
+      console.log('⚠️ No items to display - this is likely an old bill without order_items stored');
       itemsHtml = `
         <tr>
           <td>1</td>
-          <td>Order #${bill.order_id} - Vegetables Supply</td>
+          <td class="item-name">Vegetables & Fruits Supply</td>
           <td>1</td>
-          <td>₹${safeNum(bill.total_amount || bill.amount).toFixed(2)}</td>
-          <td>₹${safeNum(bill.total_amount || bill.amount).toFixed(2)}</td>
+          <td>₹${safeNum(freshBill.total_amount || freshBill.amount).toFixed(2)}</td>
+          <td>₹${safeNum(freshBill.total_amount || freshBill.amount).toFixed(2)}</td>
         </tr>
       `;
-      subtotal = safeNum(bill.total_amount || bill.amount);
+      subtotal = safeNum(freshBill.total_amount || freshBill.amount);
     }
     // Use bill's tax_rate or default 5%
-    const taxRate = safeNum(bill.tax_rate, 5) / 100;
-    const discount = safeNum(bill.discount, 0);
+    const taxRate = safeNum(freshBill.tax_rate, 5) / 100;
+    const discount = safeNum(freshBill.discount, 0);
     const discountedSubtotal = subtotal - discount;
     const tax = discountedSubtotal * taxRate;
     const grandTotal = discountedSubtotal + tax;
-    const billDate = new Date(bill.bill_date);
-    const dueDate = bill.due_date ? new Date(bill.due_date) : new Date(billDate.getTime() + 10 * 24 * 60 * 60 * 1000);
+    const billDate = new Date(freshBill.bill_date);
+    const dueDate = freshBill.due_date ? new Date(freshBill.due_date) : new Date(billDate.getTime() + 10 * 24 * 60 * 60 * 1000);
     const html = `
       <!DOCTYPE html>
       <html lang="en">
@@ -1637,11 +1741,11 @@ const Billing = () => {
           <div class="invoice-details">
             <div class="invoice-meta">
               <div>
-                <span><strong>Invoice No:</strong> BILL-${bill.id}</span>
-                <span><strong>Date:</strong> ${formatDate(bill.bill_date)}</span>
+                <span><strong>Invoice No:</strong> BILL-${freshBill.id}</span>
+                <span><strong>Date:</strong> ${formatDate(freshBill.bill_date)}</span>
               </div>
               <div>
-                <span><strong>Due Date:</strong> ${formatDate(bill.due_date || dueDate)}</span>
+                <span><strong>Due Date:</strong> ${formatDate(freshBill.due_date || dueDate)}</span>
               </div>
             </div>
           </div>
@@ -1682,7 +1786,7 @@ const Billing = () => {
               <div>
                 <h4>Payment Terms</h4>
                 <p>Payment is due within 10 days from the invoice date. We accept cash, bank transfer, and UPI payments.</p>
-                ${bill.comments ? `<p><strong>Comments:</strong> ${bill.comments}</p>` : ''}
+                ${freshBill.comments ? `<p><strong>Comments:</strong> ${freshBill.comments}</p>` : ''}
               </div>
               <div>
 
@@ -1734,11 +1838,15 @@ const Billing = () => {
     },
     { total: 0, paid: 0, pending: 0 }
   );
-  const filtered = filter === 'all'
+  const filtered = (filter === 'all'
     ? bills
     : filter === 'paid'
       ? bills.filter(b => b.paid)
-      : bills.filter(b => !b.paid);
+      : bills.filter(b => !b.paid)
+  ).filter(b => 
+    b.hotel_name?.toLowerCase().includes(searchHotel.toLowerCase()) ||
+    b.email?.toLowerCase().includes(searchHotel.toLowerCase())
+  );
   // ──────────────────────────────────────────────────────
   // 7. Render – login first
   // ──────────────────────────────────────────────────────
@@ -1800,15 +1908,30 @@ const Billing = () => {
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-8 w-full">
         {/* ---------- Header + Add Button ---------- */}
         <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
+          <div className="flex-1">
             <h1 className="text-2xl font-bold text-green-800 mb-1">
               Billing Management
             </h1>
             <p className="text-gray-600 text-sm">Create, view, and manage invoices for hotels, events, and caterers</p>
           </div>
-          <QuickAction onClick={() => setShowCreate(true)}>
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <input
+              type="text"
+              placeholder="Search by hotel name..."
+              value={searchHotel}
+              onChange={e => setSearchHotel(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 flex-1 md:flex-none"
+            />
+            {/*<button
+              onClick={() => setShowCreate(true)}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium whitespace-nowrap"
+            >
+              + Create Bill
+            </button>*/}
+          </div>
+          {/* <QuickAction onClick={() => setShowCreate(true)}>
             + Create Bill
-          </QuickAction>
+          </QuickAction> */}
         </div>
         {/* ---------- Stats Cards ---------- */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
@@ -2087,9 +2210,18 @@ const Billing = () => {
                     >
                       <option value="">Select Product</option>
                       {products.map(p => (
-                        <option key={p.id} value={p.id}>{p.name} (₹{p.price_per_unit}/unit)</option>
+                        <option key={p.id} value={p.id}>{p.name}</option>
                       ))}
                     </select>
+                    <input
+                      type="number"
+                      value={tempPrice}
+                      onChange={e => setTempPrice(e.target.value)}
+                      min="0.01"
+                      step="0.01"
+                      placeholder="Price/unit"
+                      className="w-28 px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                    />
                     <input
                       type="number"
                       value={tempQty}
@@ -2099,7 +2231,7 @@ const Billing = () => {
                       placeholder="Qty"
                       className="w-20 px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
                     />
-                    <QuickAction type="button" className="!px-4 !py-3 !text-sm" disabled={!tempProductId || !tempQty || tempQty <= 0}>
+                    <QuickAction type="button" onClick={addTempItem} className="!px-4 !py-3 !text-sm" disabled={!tempProductId || !tempQty || tempQty <= 0 || !tempPrice || parseFloat(tempPrice) <= 0}>
                       Add
                     </QuickAction>
                   </div>

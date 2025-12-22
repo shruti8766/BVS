@@ -2623,6 +2623,181 @@ def before_request():
     if random.random() < 0.01:  # 1% chance per request
         cleanup_expired_sessions()
 
+@app.route('/api/admin/analytics', methods=['GET'])
+@token_required
+@admin_required
+def get_analytics(current_user):
+    """Get comprehensive analytics for admin dashboard"""
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        # 1. REVENUE DATA
+        # Yesterday's revenue
+        cursor.execute("""
+            SELECT COALESCE(SUM(total_amount), 0) as yesterday 
+            FROM orders 
+            WHERE DATE(order_date) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))
+        """)
+        yesterday_rev = cursor.fetchone()['yesterday'] or 0
+        
+        # This month's revenue
+        cursor.execute("""
+            SELECT COALESCE(SUM(total_amount), 0) as month 
+            FROM orders 
+            WHERE MONTH(order_date) = MONTH(NOW()) AND YEAR(order_date) = YEAR(NOW())
+        """)
+        month_rev = cursor.fetchone()['month'] or 0
+        
+        # This year's revenue
+        cursor.execute("""
+            SELECT COALESCE(SUM(total_amount), 0) as year 
+            FROM orders 
+            WHERE YEAR(order_date) = YEAR(NOW())
+        """)
+        year_rev = cursor.fetchone()['year'] or 0
+        
+        # 2. HOTEL STATS
+        cursor.execute("SELECT COUNT(*) as total_hotels FROM users WHERE role = 'hotel'")
+        total_hotels = cursor.fetchone()['total_hotels'] or 0
+        
+        # Hotels with unpaid bills
+        cursor.execute("""
+            SELECT COUNT(DISTINCT u.id) as unpaid_hotels_count
+            FROM users u
+            JOIN orders o ON u.id = o.user_id
+            JOIN bills b ON o.id = b.order_id
+            WHERE u.role = 'hotel' AND b.paid = 0
+        """)
+        unpaid_hotels_count = cursor.fetchone()['unpaid_hotels_count'] or 0
+        
+        # Get unpaid hotels details
+        cursor.execute("""
+            SELECT 
+                u.id,
+                u.hotel_name,
+                u.email,
+                u.phone,
+                COUNT(DISTINCT b.id) as unpaid_bills_count,
+                COALESCE(SUM(b.total_amount), 0) as unpaid_total
+            FROM users u
+            JOIN orders o ON u.id = o.user_id
+            JOIN bills b ON o.id = b.order_id
+            WHERE u.role = 'hotel' AND b.paid = 0
+            GROUP BY u.id, u.hotel_name, u.email, u.phone
+            ORDER BY unpaid_total DESC
+        """)
+        unpaid_hotels = cursor.fetchall()
+        
+        # 3. REVENUE BY HOTEL (Top 10)
+        cursor.execute("""
+            SELECT 
+                u.hotel_name,
+                COUNT(DISTINCT o.id) as total_orders,
+                COALESCE(SUM(o.total_amount), 0) as total_revenue,
+                COALESCE(SUM(CASE WHEN b.paid = 1 THEN b.total_amount ELSE 0 END), 0) as paid_amount,
+                COALESCE(SUM(CASE WHEN b.paid = 0 THEN b.total_amount ELSE 0 END), 0) as unpaid_amount
+            FROM users u
+            LEFT JOIN orders o ON u.id = o.user_id
+            LEFT JOIN bills b ON o.id = b.order_id
+            WHERE u.role = 'hotel'
+            GROUP BY u.id, u.hotel_name
+            ORDER BY total_revenue DESC
+            LIMIT 10
+        """)
+        revenue_by_hotel = cursor.fetchall()
+        
+        # 4. TRENDS - Daily revenue (last 30 days)
+        cursor.execute("""
+            SELECT 
+                DATE(order_date) as date,
+                COALESCE(SUM(total_amount), 0) as revenue
+            FROM orders 
+            WHERE order_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            GROUP BY DATE(order_date)
+            ORDER BY date ASC
+        """)
+        daily_trends = cursor.fetchall()
+        
+        # Format daily trends with proper date
+        daily_data = []
+        for row in daily_trends:
+            daily_data.append({
+                'date': row['date'].strftime('%Y-%m-%d') if row['date'] else '',
+                'revenue': float(row['revenue'] or 0)
+            })
+        
+        # 5. TRENDS - Monthly revenue (last 12 months)
+        cursor.execute("""
+            SELECT 
+                DATE_TRUNC(DATE(order_date), MONTH) as month_start,
+                MONTH(order_date) as month,
+                YEAR(order_date) as year,
+                COALESCE(SUM(total_amount), 0) as revenue
+            FROM orders 
+            WHERE order_date >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+            GROUP BY MONTH(order_date), YEAR(order_date)
+            ORDER BY year ASC, month ASC
+        """)
+        monthly_trends_raw = cursor.fetchall()
+        
+        # Format monthly trends
+        monthly_data = []
+        month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        for row in monthly_trends_raw:
+            month_idx = (row.get('month') or 1) - 1
+            month_name = month_names[month_idx] if 0 <= month_idx < 12 else 'N/A'
+            monthly_data.append({
+                'month': month_name,
+                'revenue': float(row.get('revenue') or 0)
+            })
+        
+        # 6. TOP PRODUCTS
+        cursor.execute("""
+            SELECT 
+                p.id,
+                p.name as product_name,
+                p.category,
+                COALESCE(SUM(oi.quantity), 0) as total_quantity,
+                COALESCE(SUM(oi.quantity * oi.price_per_unit), 0) as total_revenue
+            FROM products p
+            LEFT JOIN order_items oi ON p.id = oi.product_id
+            GROUP BY p.id, p.name, p.category
+            ORDER BY total_revenue DESC
+            LIMIT 10
+        """)
+        top_products = cursor.fetchall()
+        
+        # Build response
+        response = {
+            'revenue': {
+                'yesterday': float(yesterday_rev or 0),
+                'month': float(month_rev or 0),
+                'year': float(year_rev or 0)
+            },
+            'hotels': {
+                'total_hotels': total_hotels,
+                'unpaid_hotels_count': unpaid_hotels_count,
+                'unpaid_hotels': unpaid_hotels,
+                'revenue_by_hotel': revenue_by_hotel
+            },
+            'trends': {
+                'daily': daily_data,
+                'monthly': monthly_data
+            },
+            'top_products': top_products
+        }
+        
+        return jsonify(response)
+        
+    except Exception as e:
+        print(f"Analytics error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
 @app.route('/api/admin/dashboard')
 @token_required
 @admin_required

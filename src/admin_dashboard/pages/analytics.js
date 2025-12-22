@@ -56,7 +56,7 @@
 //     setLoginError('');
 
 //     try {
-//       const res = await fetch('http://127.0.0.1:5000/api/auth/login', {
+//       const res = await fetch('https://api-aso3bjldka-uc.a.run.app/api/auth/login', {
 //         method: 'POST',
 //         headers: { 'Content-Type': 'application/json' },
 //         body: JSON.stringify(loginForm),
@@ -322,7 +322,7 @@
 //           <span className="text-blue-600 text-lg mr-3">API</span>
 //           <div>
 //             <p className="text-blue-800 font-medium">Connected to live backend</p>
-//             <p className="text-blue-700 text-sm">Analytics loaded | http://127.0.0.1:5000</p>
+//             <p className="text-blue-700 text-sm">Analytics loaded | https://api-aso3bjldka-uc.a.run.app</p>
 //           </div>
 //         </div>
 //       </div>
@@ -411,7 +411,7 @@ const Analytics = () => {
     setLoggingIn(true);
     setLoginError('');
     try {
-      const res = await fetch('http://127.0.0.1:5000/api/auth/login', {
+      const res = await fetch('https://api-aso3bjldka-uc.a.run.app/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(loginForm),

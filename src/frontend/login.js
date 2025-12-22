@@ -5,11 +5,17 @@ import ChatBot from '../chatbot/ChatBot'; // Import your chatbot component
 
 const Login = () => {
   const [showChatbot, setShowChatbot] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuBtnRef = useRef(null);
   const mobileMenuRef = useRef(null);
   const chatbotRef = useRef(null);
-   const toggleChatbot = () => {
+  
+  const toggleChatbot = () => {
     setShowChatbot(!showChatbot);
+  };
+  
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
   };
 
   // ──────────────────────────────────────────────────────
@@ -29,7 +35,7 @@ const Login = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
+      const res = await fetch('https://api-aso3bjldka-uc.a.run.app/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
@@ -248,15 +254,15 @@ const Login = () => {
 
       {/* ── Header / Nav (unchanged) ── */}
       <header className="absolute inset-x-0 top-0 z-50">
-          <nav aria-label="Global" className="flex items-center justify-between p-6 lg:px-8">
+          <nav aria-label="Global" className="flex items-center justify-between p-4 sm:p-6 lg:px-8">
               <div className="flex lg:flex-1">
                   <a href="index.html" className="-m-1.5 p-1.5">
                       <span className="sr-only">Bhairavnath Vegetables Supplier (BVS)</span>
-                      <img src="/logo1.png" alt="Fresh Foods Logo" className="h-24 w-auto" />
+                      <img src="/logo1.png" alt="Fresh Foods Logo" className="h-16 sm:h-20 md:h-24 w-auto" />
                   </a>
               </div>
               <div className="flex lg:hidden">
-                  <button type="button" ref={mobileMenuBtnRef} className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700">
+                  <button type="button" onClick={toggleMobileMenu} className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700 hover:bg-gray-100 transition-colors">
                       <span className="sr-only">Open main menu</span>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
                           <path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -264,12 +270,12 @@ const Login = () => {
                   </button>
               </div>
               <div className="hidden lg:flex lg:gap-x-12">
-                <Link to="/" className="text-sm font-semibold text-gray-700 hover:text-green-600">Home</Link>  {/* Import Link & use to="/" */}
-                <Link to="/vegetables" className="text-sm font-semibold text-gray-700 hover:text-green-600">Vegetables</Link>
-                <Link to="/fruits" className="text-sm font-semibold text-gray-700 hover:text-green-600">Fruits</Link>
-                <Link to="/more" className="text-sm font-semibold text-gray-700 hover:text-green-600">More</Link>
-                <Link to="/features" className="text-sm font-semibold text-gray-700 hover:text-green-600">Features</Link>
-                <Link to="/about" className="text-sm font-semibold text-gray-700 hover:text-green-600">About Us</Link>
+                <Link to="/" className="text-sm font-semibold text-gray-700 hover:text-green-600 transition-colors">Home</Link>
+                <Link to="/vegetables" className="text-sm font-semibold text-gray-700 hover:text-green-600 transition-colors">Vegetables</Link>
+                <Link to="/fruits" className="text-sm font-semibold text-gray-700 hover:text-green-600 transition-colors">Fruits</Link>
+                <Link to="/more" className="text-sm font-semibold text-gray-700 hover:text-green-600 transition-colors">More</Link>
+                <Link to="/features" className="text-sm font-semibold text-gray-700 hover:text-green-600 transition-colors">Features</Link>
+                <Link to="/about" className="text-sm font-semibold text-gray-700 hover:text-green-600 transition-colors">About Us</Link>
               </div>
               <div className="hidden lg:flex lg:flex-1 lg:justify-end">
                   <a href="login.html" className="text-sm font-semibold text-green-600"> <span aria-hidden="true"></span></a>
@@ -277,15 +283,18 @@ const Login = () => {
           </nav>
           
           {/* Mobile menu */}
-          <div ref={mobileMenuRef} className="hidden lg:hidden bg-white shadow-lg">
+          {mobileMenuOpen && (
+            <div className="lg:hidden bg-white shadow-lg border-t border-gray-200">
               <div className="px-6 py-4 space-y-2">
-                <Link to="/" className="block py-2 text-base font-semibold text-gray-700 hover:text-green-600">Home</Link>
-                <Link to="/vegetables" className="block py-2 text-base font-semibold text-gray-700 hover:text-green-600">Vegetables</Link>
-                <Link to="/fruits" className="block py-2 text-base font-semibold text-gray-700 hover:text-green-600">Fruits</Link>
-                <Link to="/more" className="block py-2 text-base font-semibold text-gray-700 hover:text-green-600">More</Link>
-                <Link to="/about" className="block py-2 text-base font-semibold text-gray-700 hover:text-green-600">About Us</Link>
+                <Link to="/" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-gray-700 hover:text-green-600">Home</Link>
+                <Link to="/vegetables" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-gray-700 hover:text-green-600">Vegetables</Link>
+                <Link to="/fruits" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-gray-700 hover:text-green-600">Fruits</Link>
+                <Link to="/more" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-gray-700 hover:text-green-600">More</Link>
+                <Link to="/features" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-gray-700 hover:text-green-600">Features</Link>
+                <Link to="/about" onClick={toggleMobileMenu} className="block py-2 text-base font-semibold text-gray-700 hover:text-green-600">About Us</Link>
               </div>
-          </div>
+            </div>
+          )}
       </header>
 
       {/* Decorative line separator */}
@@ -293,23 +302,23 @@ const Login = () => {
 
       {/* ── MAIN LOGIN SECTION ── */}
       <div className="flex flex-col min-h-screen">
-        <div className="pt-32" />
-        <div className="flex-grow flex items-center justify-center p-4">
+        <div className="pt-24 sm:pt-28 md:pt-32" />
+        <div className="flex-grow flex items-center justify-center p-4 sm:p-6">
           <div className="w-full max-w-md">
-            <div className="text-center mb-8">
-              {/* <p className="text-3xl font-bold text-green-800 mb-2">
+            <div className="text-center mb-6 sm:mb-8 px-4">
+              {/* <p className="text-2xl sm:text-3xl font-bold text-green-800 mb-2">
                 Bhairavnath Vegetable Suppliers
               </p> */}
-              <p className="text-green-700 text-lg">BVS Partner Login – your supply, simplified.</p>
+              <p className="text-green-700 text-base sm:text-lg">BVS Partner Login – your supply, simplified.</p>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-2xl p-8">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8">
+              <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 sm:mb-6 text-center">
                 Welcome Back
               </h2>
 
               {/* ── REAL FORM (React controlled) ── */}
-              <form onSubmit={handleLogin} className="space-y-6">
+              <form onSubmit={handleLogin} className="space-y-4 sm:space-y-6">
                 {/* Username / Email */}
                 <div>
                   <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">

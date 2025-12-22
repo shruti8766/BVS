@@ -35,7 +35,7 @@
 //     setLoggingIn(true);
 //     setLoginError('');
 //     try {
-//       const res = await fetch('http://127.0.0.1:5000/api/auth/login', { // Use 127.0.0.1
+//       const res = await fetch('https://api-aso3bjldka-uc.a.run.app/api/auth/login', { // Use 127.0.0.1
 //         method: 'POST',
 //         headers: { 'Content-Type': 'application/json' },
 //         body: JSON.stringify(loginForm),
@@ -283,7 +283,7 @@
 //           <span className="text-blue-600 text-lg mr-3">API</span>
 //           <div>
 //             <p className="text-blue-800 font-medium">Connected to live backend</p>
-//             <p className="text-blue-700 text-sm">Hotels loaded: {hotels.length} | http://127.0.0.1:5000</p>
+//             <p className="text-blue-700 text-sm">Hotels loaded: {hotels.length} | https://api-aso3bjldka-uc.a.run.app</p>
 //           </div>
 //         </div>
 //       </div>
@@ -319,13 +319,13 @@ const Icons = {
 // 2. Reusable UI Components (Modern, Animated) - Adapted from Dashboard
 // ──────────────────────────────────────────────────────
 const Card = ({ children, className = '', hover = false }) => (
-  <div className={`bg-white rounded-2xl shadow-lg border-2 border-green-100 overflow-hidden transition-all duration-300 ${hover ? 'hover:shadow-xl hover:border-green-300 hover:-translate-y-1' : ''} ${className}`}>
+  <div className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg border-2 border-green-100 dark:border-green-900 overflow-hidden transition-all duration-300 ${hover ? 'hover:shadow-xl hover:border-green-300 dark:hover:border-green-700 hover:-translate-y-1' : ''} ${className}`}>
     {children}
   </div>
 );
 
 const GlassCard = ({ children, className = '' }) => (
-  <div className={`bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border-2 border-green-100 overflow-hidden ${className}`}>
+  <div className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border-2 border-green-100 dark:border-green-900 overflow-hidden ${className}`}>
     {children}
   </div>
 );
@@ -355,10 +355,10 @@ const Stat = ({ label, value, color = 'text-green-700', Icon, trend }) => (
 
 const MiniTable = ({ title, headers, rows, linkTo, emptyMsg = 'No data', onRowClick }) => (
   <Card>
-    <div className="px-6 py-5 bg-green-50 border-b border-gray-200 flex justify-between items-center">
-      <h3 className="text-xl font-bold text-green-800">{title}</h3>
+    <div className="px-6 py-5 bg-green-50 dark:bg-green-900 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+      <h3 className="text-xl font-bold text-green-800 dark:text-green-300">{title}</h3>
       {linkTo && (
-        <a href={linkTo} className="text-sm font-medium text-green-600 hover:text-green-700 flex items-center gap-1 transition-colors">
+        <a href={linkTo} className="text-sm font-medium text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 flex items-center gap-1 transition-colors">
           View all
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -369,31 +369,31 @@ const MiniTable = ({ title, headers, rows, linkTo, emptyMsg = 'No data', onRowCl
     <div className="overflow-x-auto">
       <table className="min-w-full">
         <thead>
-          <tr className="bg-white">
+          <tr className="bg-white dark:bg-gray-800">
             {headers.map((h, i) => (
-              <th key={i} className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b">
+              <th key={i} className="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b dark:border-gray-700">
                 {h}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-200">
+        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
           {rows.length === 0 ? (
             <tr>
               <td colSpan={headers.length} className="px-4 py-12 text-center">
                 <div className="flex flex-col items-center gap-2">
-                  <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center">
                     <Icons.Building />
                   </div>
-                  <p className="text-gray-500 font-medium">{emptyMsg}</p>
+                  <p className="text-gray-500 dark:text-gray-400 font-medium">{emptyMsg}</p>
                 </div>
               </td>
             </tr>
           ) : (
             rows.map((r, i) => (
-              <tr key={i} className={`hover:bg-gray-50 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`} onClick={() => onRowClick && onRowClick(r)}>
+              <tr key={i} className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`} onClick={() => onRowClick && onRowClick(r)}>
                 {r.map((cell, j) => (
-                  <td key={j} className="px-4 py-3 text-sm text-gray-700">
+                  <td key={j} className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                     {cell}
                   </td>
                 ))}
@@ -441,7 +441,7 @@ const Hotels = () => {
     setLoggingIn(true);
     setLoginError('');
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
+      const res = await fetch('https://api-aso3bjldka-uc.a.run.app/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(loginForm),
@@ -494,17 +494,17 @@ const Hotels = () => {
   if (!token) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-green-950 flex items-center justify-center p-6 transition-colors duration-200">
           <Card className="p-8 max-w-md w-full">
-            <h2 className="text-2xl font-bold text-green-800 mb-6">Admin Login</h2>
-            {loginError && <p className="text-red-600 text-sm mb-4">{loginError}</p>}
+            <h2 className="text-2xl font-bold text-green-800 dark:text-green-300 mb-6">Admin Login</h2>
+            {loginError && <p className="text-red-600 dark:text-red-400 text-sm mb-4">{loginError}</p>}
             <form onSubmit={handleLogin} className="space-y-4">
               <input
                 type="text"
                 placeholder="Username"
                 value={loginForm.username}
                 onChange={e => setLoginForm({ ...loginForm, username: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition-all"
                 required
               />
               <input
@@ -512,7 +512,7 @@ const Hotels = () => {
                 placeholder="Password"
                 value={loginForm.password}
                 onChange={e => setLoginForm({ ...loginForm, password: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition-all"
                 required
               />
               <button
@@ -534,14 +534,14 @@ const Hotels = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-green-950 flex items-center justify-center p-6 transition-colors duration-200">
           <div className="text-center">
             <img
-              src="/broc.jpg" // Replace with the actual path to your broccoli image (e.g., public/images/broccoli-loading.png)
+              src="/broc.jpg"
               alt="Loading"
               className="h-32 w-32 mx-auto mb-4 animate-[run_1s_ease-in-out_infinite]"
             />
-            <p className="text-gray-600 font-medium text-lg">Broccoli is crunching your hotels...</p>
+            <p className="text-gray-600 dark:text-gray-300 font-medium text-lg">Broccoli is crunching your hotels...</p>
           </div>
         </div>
       </Layout>
@@ -549,19 +549,19 @@ const Hotels = () => {
   }
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-green-950 transition-colors duration-200">
         <div className="p-8 w-full">
           {/* ---------- Header ---------- */}
           <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-green-800 mb-1">
+              <h1 className="text-2xl font-bold text-green-800 dark:text-green-300 mb-1">
                 Hotels Management
               </h1>
-              <p className="text-gray-600 text-sm">View and manage all registered hotels</p>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">View and manage all registered hotels</p>
             </div>
             <button
               onClick={fetchHotels}
-              className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-300 flex items-center gap-2 font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+              className="px-6 py-3 bg-green-600 dark:bg-green-700 text-white rounded-xl hover:bg-green-700 dark:hover:bg-green-600 transition-all duration-300 flex items-center gap-2 font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5"
             >
               <Icons.Refresh />
               Refresh Data
@@ -570,13 +570,13 @@ const Hotels = () => {
 
           {/* ---------- Error ---------- */}
           {error && (
-            <Card className="mb-6 bg-red-50 border-red-200 p-4">
+            <Card className="mb-6 bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800 p-4">
               <div className="flex items-center gap-3">
-                <span className="text-red-600 text-lg">Warning</span>
+                <span className="text-red-600 dark:text-red-400 text-lg">Warning</span>
                 <div>
-                  <p className="text-red-800 font-medium">Failed to load data</p>
-                  <p className="text-red-700 text-sm">{error}</p>
-                  <button onClick={fetchHotels} className="mt-2 px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700">
+                  <p className="text-red-800 dark:text-red-300 font-medium">Failed to load data</p>
+                  <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
+                  <button onClick={fetchHotels} className="mt-2 px-3 py-1 bg-red-600 dark:bg-red-700 text-white rounded text-sm hover:bg-red-700 dark:hover:bg-red-600">
                     Retry
                   </button>
                 </div>

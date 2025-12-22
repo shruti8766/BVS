@@ -1,271 +1,3 @@
-// // src/admin_dashboard/pages/profile.js
-// import { useState, useEffect } from 'react';
-// import { useAuth } from '../hooks/useAuth';
-// import { useNavigate } from 'react-router-dom';
-// import axios from 'axios';
-// import { CameraIcon, KeyIcon } from '@heroicons/react/24/outline';
-// import Layout from '../components/layout/Layout';
-
-// const API_URL = 'http://localhost:5000/api/admin';
-
-// export default function Profile() {
-//   const { user, token } = useAuth();
-//   const navigate = useNavigate();
-
-//   const [profile, setProfile] = useState({
-//     username: '',
-//     email: '',
-//     phone: '',
-//     hotel_name: 'BVS Admin',
-//   });
-//   const [isEditing, setIsEditing] = useState(false);
-//   const [loading, setLoading] = useState(true);
-//   const [saving, setSaving] = useState(false);
-//   const [showPasswordModal, setShowPasswordModal] = useState(false);
-//   const [passwordData, setPasswordData] = useState({
-//     current: '',
-//     new: '',
-//     confirm: '',
-//   });
-
-//   // Fetch profile on mount
-//   useEffect(() => {
-//     const fetchProfile = async () => {
-//       try {
-//         const res = await axios.get(`${API_URL}/profile`, {
-//           headers: { Authorization: `Bearer ${token}` },
-//         });
-//         setProfile(res.data);
-//       } catch (err) {
-//         console.error('Failed to load profile:', err);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-//     fetchProfile();
-//   }, [token]);
-
-//   const handleSave = async () => {
-//     setSaving(true);
-//     try {
-//       await axios.put(
-//         `${API_URL}/profile`,
-//         {
-//           email: profile.email,
-//           phone: profile.phone,
-//         },
-//         { headers: { Authorization: `Bearer ${token}` } }
-//       );
-//       setIsEditing(false);
-//     } catch (err) {
-//       alert('Failed to save profile');
-//     } finally {
-//       setSaving(false);
-//     }
-//   };
-
-//   const handlePasswordChange = async () => {
-//     if (passwordData.new !== passwordData.confirm) {
-//       alert('New passwords do not match');
-//       return;
-//     }
-//     try {
-//       await axios.post(
-//         `${API_URL}/password/change`,
-//         {
-//           current_password: passwordData.current,
-//           new_password: passwordData.new,
-//         },
-//         { headers: { Authorization: `Bearer ${token}` } }
-//       );
-//       alert('Password changed successfully');
-//       setShowPasswordModal(false);
-//       setPasswordData({ current: '', new: '', confirm: '' });
-//     } catch (err) {
-//       alert(err.response?.data?.message || 'Failed to change password');
-//     }
-//   };
-
-//   if (loading) {
-//     return (
-//       <Layout>
-//       <div className="flex items-center justify-center h-64">
-//         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-//       </div>
-//       </Layout>
-//     );
-//   }
-
-//   return (
-//     <Layout>
-//     <div className="p-6 max-w-4xl mx-auto">
-//       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-//         {/* Header */}
-//         <div className="bg-primary-50 px-6 py-4 border-b border-gray-200">
-//           <h1 className="text-2xl font-bold text-gray-800">My Profile</h1>
-//           <p className="text-sm text-gray-600 mt-1">Manage your account information</p>
-//         </div>
-
-//         <div className="p-6">
-//           {/* Avatar + Basic Info */}
-//           <div className="flex items-center space-x-6 mb-8">
-//             <div className="relative">
-//               <div className="w-24 h-24 bg-primary-100 rounded-full flex items-center justify-center">
-//                 <span className="text-3xl font-bold text-primary-700">
-//                   {profile.username?.[0]?.toUpperCase() || 'A'}
-//                 </span>
-//               </div>
-//               <button className="absolute bottom-0 right-0 p-2 bg-primary-600 rounded-full text-white hover:bg-primary-700">
-//                 <CameraIcon className="w-4 h-4" />
-//               </button>
-//             </div>
-
-//             <div>
-//               <h2 className="text-xl font-semibold text-gray-800">{profile.username}</h2>
-//               <p className="text-gray-600">{profile.email}</p>
-//               <p className="text-sm text-gray-500">{profile.hotel_name}</p>
-//             </div>
-
-//             <div className="ml-auto">
-//               {!isEditing ? (
-//                 <button
-//                   onClick={() => setIsEditing(true)}
-//                   className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
-//                 >
-//                   Edit Profile
-//                 </button>
-//               ) : (
-//                 <div className="flex space-x-2">
-//                   <button
-//                     onClick={handleSave}
-//                     disabled={saving}
-//                     className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
-//                   >
-//                     {saving ? 'Saving...' : 'Save'}
-//                   </button>
-//                   <button
-//                     onClick={() => setIsEditing(false)}
-//                     className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-//                   >
-//                     Cancel
-//                   </button>
-//                 </div>
-//               )}
-//             </div>
-//           </div>
-
-//           {/* Profile Form */}
-//           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-//             <div>
-//               <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
-//               <input
-//                 type="text"
-//                 value={profile.username || ''}
-//                 disabled
-//                 className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
-//               />
-//             </div>
-
-//             <div>
-//               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-//               <input
-//                 type="email"
-//                 value={profile.email || ''}
-//                 onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-//                 disabled={!isEditing}
-//                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
-//               />
-//             </div>
-
-//             <div>
-//               <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-//               <input
-//                 type="text"
-//                 value={profile.phone || ''}
-//                 onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-//                 disabled={!isEditing}
-//                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
-//               />
-//             </div>
-
-//             <div>
-//               <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-//               <input
-//                 type="text"
-//                 value="Administrator"
-//                 disabled
-//                 className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
-//               />
-//             </div>
-//           </div>
-
-//           {/* Change Password Button */}
-//           <div className="mt-8 pt-6 border-t border-gray-200">
-//             <button
-//               onClick={() => setShowPasswordModal(true)}
-//               className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg"
-//             >
-//               <KeyIcon className="w-5 h-5" />
-//               <span>Change Password</span>
-//             </button>
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* Password Change Modal */}
-//       {showPasswordModal && (
-//         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-//           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-//             <h3 className="text-lg font-semibold text-gray-800 mb-4">Change Password</h3>
-
-//             <div className="space-y-4">
-//               <input
-//                 type="password"
-//                 placeholder="Current Password"
-//                 value={passwordData.current}
-//                 onChange={(e) => setPasswordData({ ...passwordData, current: e.target.value })}
-//                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-//               />
-//               <input
-//                 type="password"
-//                 placeholder="New Password"
-//                 value={passwordData.new}
-//                 onChange={(e) => setPasswordData({ ...passwordData, new: e.target.value })}
-//                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-//               />
-//               <input
-//                 type="password"
-//                 placeholder="Confirm New Password"
-//                 value={passwordData.confirm}
-//                 onChange={(e) => setPasswordData({ ...passwordData, confirm: e.target.value })}
-//                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-//               />
-//             </div>
-
-//             <div className="flex justify-end space-x-3 mt-6">
-//               <button
-//                 onClick={() => {
-//                   setShowPasswordModal(false);
-//                   setPasswordData({ current: '', new: '', confirm: '' });
-//                 }}
-//                 className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
-//               >
-//                 Cancel
-//               </button>
-//               <button
-//                 onClick={handlePasswordChange}
-//                 className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
-//               >
-//                 Update Password
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//     </Layout>
-//   );
-// }
 // src/admin_dashboard/pages/profile.js
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
@@ -293,7 +25,7 @@ const QuickAction = ({ onClick, children, disabled = false, className = '' }) =>
   </button>
 );
 
-const API_URL = 'http://localhost:5000/api/admin';
+const API_URL = 'https://api-aso3bjldka-uc.a.run.app/api/admin';
 
 export default function Profile() {
   const { user, token } = useAuth();
@@ -427,6 +159,7 @@ export default function Profile() {
       
       // Build update object with only non-empty fields
       const updateData = {};
+      if (profile.username) updateData.username = profile.username;
       if (profile.email) updateData.email = profile.email;
       if (profile.phone) updateData.phone = profile.phone;
       if (profile.hotel_name) updateData.hotel_name = profile.hotel_name;
@@ -478,7 +211,7 @@ export default function Profile() {
     try {
       const adminToken = localStorage.getItem('adminToken');
       const response = await axios.post(
-        `http://localhost:5000/api/auth/password/change`,
+        `https://api-aso3bjldka-uc.a.run.app/api/auth/password/change`,
         {
           current_password: passwordData.current,
           new_password: passwordData.new,
@@ -595,7 +328,8 @@ export default function Profile() {
               <input
                 type="text"
                 value={profile.username || ''}
-                disabled
+                disabled={!isEditing}
+                onChange={(e) => setProfile({ ...profile, username: e.target.value })}
                 className="w-full px-4 py-3 border-2 border-green-200 rounded-xl bg-green-50 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
               />
             </div>

@@ -21,7 +21,7 @@ export default function SupportHotel() {
   const [replyId, setReplyId] = useState(null); // For inline replies
   const [replyMessage, setReplyMessage] = useState('');
 
-  const BASE_URL = 'http://localhost:5000';
+  const BASE_URL = 'https://api-aso3bjldka-uc.a.run.app';
 
   // Categories for dropdown
   const categories = [

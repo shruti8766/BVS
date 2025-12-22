@@ -45,7 +45,7 @@
 //     setLoginError('');
 
 //     try {
-//       const res = await fetch('http://127.0.0.1:5000/api/auth/login', {
+//       const res = await fetch('https://api-aso3bjldka-uc.a.run.app/api/auth/login', {
 //         method: 'POST',
 //         headers: { 'Content-Type': 'application/json' },
 //         body: JSON.stringify(loginForm),
@@ -434,7 +434,7 @@
 //           <span className="text-blue-600 text-lg mr-3">API</span>
 //           <div>
 //             <p className="text-blue-800 font-medium">Connected to live backend</p>
-//             <p className="text-blue-700 text-sm">Suppliers loaded: {suppliers.length} | http://127.0.0.1:5000</p>
+//             <p className="text-blue-700 text-sm">Suppliers loaded: {suppliers.length} | https://api-aso3bjldka-uc.a.run.app</p>
 //           </div>
 //         </div>
 //       </div>
@@ -597,7 +597,7 @@ const Suppliers = () => {
     setLoginError('');
 
     try {
-      const res = await fetch('http://127.0.0.1:5000/api/auth/login', {
+      const res = await fetch('https://api-aso3bjldka-uc.a.run.app/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(loginForm),
@@ -635,22 +635,32 @@ const Suppliers = () => {
 
   const createSupplier = async (supplierData) => {
     try {
-      await suppliersApi.create(supplierData);
+      console.log('Creating supplier:', supplierData);
+      const result = await suppliersApi.create(supplierData);
+      console.log('Create result:', result);
+      alert('Supplier created successfully!');
       await fetchSuppliers();
       setShowCreate(false);
     } catch (e) {
+      console.error('Create error:', e);
       setError(e.message);
+      alert(`Error creating supplier: ${e.message}`);
     }
   };
 
   const updateSupplier = async (id, supplierData) => {
     try {
-      await suppliersApi.update(id, supplierData);
+      console.log('Updating supplier:', id, supplierData);
+      const result = await suppliersApi.update(id, supplierData);
+      console.log('Update result:', result);
+      alert('Supplier updated successfully!');
       await fetchSuppliers();
       setShowEdit(false);
       setEditingSupplier(null);
     } catch (e) {
+      console.error('Update error:', e);
       setError(e.message);
+      alert(`Error updating supplier: ${e.message}`);
     }
   };
 

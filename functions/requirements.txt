@@ -1,0 +1,22 @@
+# Firebase Cloud Functions
+firebase-functions
+firebase-admin
+
+# Flask and web framework
+flask==3.0.0
+flask-cors
+
+# Authentication & Security
+pyjwt
+bcrypt
+
+# API clients & External services
+requests
+twilio
+
+# Translation & Language (optional, lazy loaded)
+deep-translator>=1.11.4
+langdetect>=1.0.9
+
+# Utilities
+python-dotenv

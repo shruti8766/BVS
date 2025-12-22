@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix Product Names Encoding</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 35px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+        .info {
+            background: #e7f3ff;
+            border: 2px solid #2196F3;
+            color: #0c5460;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        .info ul {
+            margin: 10px 0 0 0;
+            padding-left: 20px;
+        }
+        .info li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .result strong {
+            font-size: 16px;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .result p {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Fix Product Names Encoding</h1>
+        <p class="subtitle">Convert corrupted characters to proper Hindi/Marathi text</p>
+        
+        <div class="info">
+            <strong>ℹ️ What does this tool do?</strong>
+            <p>This will fix all "????" characters in product names by updating them with proper Hindi/Marathi translations.</p>
+            <p><strong>Example transformations:</strong></p>
+            <ul>
+                <li>Brinjal (???????????????) → <strong>Brinjal (बैंगन)</strong></li>
+                <li>Cucumber (???????????????) → <strong>Cucumber (काकडी)</strong></li>
+                <li>Tomato (??????????????????) → <strong>Tomato (टोमॅटो)</strong></li>
+                <li>Spinach (????????????) → <strong>Spinach (पालक)</strong></li>
+                <li>Carrot (????????????) → <strong>Carrot (गाजर)</strong></li>
+            </ul>
+            <p style="margin-top: 15px;"><strong>⚠️ Note:</strong> You must be logged in as admin to use this tool.</p>
+        </div>
+
+        <button id="fixBtn" onclick="fixEncoding()">
+            <span id="btnText">Fix All Product Names Now</span>
+        </button>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        async function fixEncoding() {
+            const btn = document.getElementById('fixBtn');
+            const btnText = document.getElementById('btnText');
+            const result = document.getElementById('result');
+            
+            // Get token from localStorage
+            const token = localStorage.getItem('token') || localStorage.getItem('adminToken');
+            
+            if (!token) {
+                result.className = 'result error';
+                result.style.display = 'block';
+                result.innerHTML = '<strong>❌ Authentication Error</strong><p>You need to be logged in as admin. Please login first and try again.</p>';
+                return;
+            }
+            
+            btn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span>Fixing encoding...';
+            result.style.display = 'none';
+            
+            try {
+                const response = await fetch('https://api-aso3bjldka-uc.a.run.app/api/admin/fix-encoding', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    result.className = 'result success';
+                    let html = `
+                        <strong>✅ Success!</strong>
+                        <p><strong>Message:</strong> ${data.message}</p>
+                        <p><strong>Products Updated:</strong> ${data.updated}</p>
+                    `;
+                    
+                    if (data.not_found && data.not_found.length > 0) {
+                        html += `
+                            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #28a745;">
+                                <strong>⚠️ Products Not Found in Dictionary (${data.not_found.length}):</strong>
+                                <p style="font-size: 12px; color: #856404; background: #fff3cd; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                                    ${data.not_found.join(', ')}
+                                </p>
+                                <p style="font-size: 13px; margin-top: 10px;">
+                                    These products still have corrupted names. Please share this list with the developer to add them.
+                                </p>
+                            </div>
+                        `;
+                    }
+                    
+                    html += `
+                        <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #28a745;">
+                            <strong>📋 Next Step:</strong> Please refresh your products/inventory pages to see the updated names with proper Hindi/Marathi text.
+                        </p>
+                    `;
+                    
+                    result.innerHTML = html;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `<strong>❌ Error</strong><p>${data.error || data.message || 'Failed to fix encoding. Please try again.'}</p>`;
+                }
+                
+                result.style.display = 'block';
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `<strong>❌ Network Error</strong><p>${error.message}</p><p>Please check your connection and try again.</p>`;
+                result.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btnText.innerHTML = 'Fix All Product Names Now';
+            }
+        }
+        
+        // Auto-run if URL has ?autofix=true
+        if (window.location.search.includes('autofix=true')) {
+            window.addEventListener('load', () => {
+                setTimeout(fixEncoding, 500);
+            });
+        }
+    </script>
+</body>
+</html>

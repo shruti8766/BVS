@@ -16,7 +16,7 @@ export default function HotelBills() {
   const [error, setError] = useState('');
   const [filter, setFilter] = useState('all');
 
-  const BASE_URL = 'http://localhost:5000';
+  const BASE_URL = 'https://api-aso3bjldka-uc.a.run.app';
 
   // Fetch bills, orders, products, AND profile
   useEffect(() => {
@@ -65,7 +65,9 @@ export default function HotelBills() {
 
         if (productsRes.ok) {
           const productsData = await productsRes.json();
-          setProducts(Array.isArray(productsData) ? productsData : []);
+          // Extract products array from response {products: [...], success: true}
+          const productsArray = productsData.products || (Array.isArray(productsData) ? productsData : []);
+          setProducts(productsArray);
         }
 
         // Fetch bills
@@ -88,7 +90,9 @@ export default function HotelBills() {
 
         const billsData = await billsRes.json();
         console.log('Fetched bills for hotel:', user?.hotel_name, billsData); // Debug log
-        setBills(Array.isArray(billsData) ? billsData : []);
+        // Extract bills array from response {bills: [...], success: true}
+        const billsArray = billsData.bills || (Array.isArray(billsData) ? billsData : []);
+        setBills(billsArray);
 
         // Fetch orders (for linking/context)
         const ordersRes = await fetch(`${BASE_URL}/api/hotel/orders`, {
@@ -110,7 +114,9 @@ export default function HotelBills() {
 
         const ordersData = await ordersRes.json();
         console.log('Fetched orders for hotel:', user?.hotel_name, ordersData); // Debug log
-        setOrders(Array.isArray(ordersData) ? ordersData : []);
+        // Extract orders array from response {orders: [...], success: true}
+        const ordersArray = ordersData.orders || (Array.isArray(ordersData) ? ordersData : []);
+        setOrders(ordersArray);
       } catch (err) {
         console.error('Fetch error:', err); // Debug log
         setError(err.message);
@@ -156,7 +162,7 @@ export default function HotelBills() {
       : bills.filter(b => !b.paid);
 
   // Find order for bill (unchanged)
-  const getOrderForBill = (orderId) => orders.find(o => o.id === orderId) || {};
+  const getOrderForBill = (orderId) => orders.find(o => o.order_id === orderId) || {};
 
   // UPDATED: viewBill – Use merged/fresh profile
   const viewBill = async (bill) => {  // ADD: async for potential re-fetch
@@ -188,11 +194,15 @@ export default function HotelBills() {
     const billDate = new Date(bill.bill_date);
     const dueDate = new Date(billDate.getTime() + 10 * 24 * 60 * 60 * 1000);
 
+    console.log('📋 View Bill - Bill Items:', bill.items);
     console.log('📋 View Bill - Order Items:', order.items);
     console.log('📋 Bill status:', bill.bill_status, 'Pricing status:', bill.pricing_status);
 
+    // Use bill.items (from backend) first, fallback to order.items
+    const billItems = bill.items && bill.items.length > 0 ? bill.items : (order.items || []);
+    
     // Use LOCKED prices from price_at_order (finalized prices), not current product prices
-    const enrichedItems = order.items?.map(item => {
+    const enrichedItems = billItems?.map(item => {
       const lockedPrice = parseFloat(item.price_at_order);
       const fallbackPrice = parseFloat(item.price_per_unit || getPriceForProduct(item.product_id) || 0);
       const finalPrice = lockedPrice || fallbackPrice;
@@ -526,9 +536,9 @@ export default function HotelBills() {
                       const isDraft = b.bill_status === 'draft' || b.is_draft;
                       
                       return (
-                        <tr key={b.id} className="hover:bg-green-50">
+                        <tr key={b.bill_id} className="hover:bg-green-50">
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-800">
-                            #{b.id}
+                            #{b.bill_id}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-green-700">
                             #{b.order_id}

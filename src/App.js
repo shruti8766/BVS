@@ -100,6 +100,9 @@ import {
   Outlet,
 } from 'react-router-dom';
 
+// ----- Context Providers -----
+import { ThemeProvider } from './admin_dashboard/context/ThemeContext';
+
 // ----- Public Pages -----
 import Home from './frontend/home';
 import Vegetables from './frontend/vegetables';
@@ -146,10 +149,14 @@ const isAdminAuthenticated = () => !!localStorage.getItem('adminToken');
 const isHotelAuthenticated = () => !!localStorage.getItem('hotelToken');
 
 // -------------------------------------------------
-// 2. Protected Layouts (UPDATED: Wrap Hotel with AuthProvider)
+// 2. Protected Layouts (UPDATED: Wrap Hotel with AuthProvider & Admin with ThemeProvider)
 // -------------------------------------------------
 const AdminProtectedLayout = () => {
-  return isAdminAuthenticated() ? <Outlet /> : <Navigate to="/login" replace />;
+  return isAdminAuthenticated() ? (
+    <ThemeProvider>
+      <Outlet />
+    </ThemeProvider>
+  ) : <Navigate to="/login" replace />;
 };
 
 const HotelProtectedLayout = () => {
