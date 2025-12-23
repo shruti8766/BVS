@@ -61,7 +61,7 @@ const Settings = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('profile');  // Tabs: profile, password, website, system, notifications
+  const [activeTab, setActiveTab] = useState('profile');  // Tabs: profile, password, notifications
 
   // Modals
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -256,22 +256,26 @@ const Settings = () => {
           <p className="text-gray-600 dark:text-gray-400 text-sm">Manage your profile, website, and system configurations</p>
         </div>
 
-        {/* ---------- Tabs ---------- */}
+        {/* ---------- Tabs with Divider ---------- */}
         <Card className="mb-10">
           <div className="border-b-2 border-green-100 dark:border-green-900">
-            <nav className="flex space-x-8 p-6">
-              {['profile', 'password', 'website', 'system'].map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-all ${
-                    activeTab === tab
-                      ? 'border-green-500 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300'
-                      : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-green-200 dark:hover:border-green-800'
-                  }`}
-                >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                </button>
+            <nav className="flex items-center p-6">
+              {['profile', 'password'].map((tab, index) => (
+                <div key={tab} className="flex items-center">
+                  <button
+                    onClick={() => setActiveTab(tab)}
+                    className={`py-4 px-1 border-b-2 font-medium text-sm transition-all ${
+                      activeTab === tab
+                        ? 'border-green-500 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300'
+                        : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-green-200 dark:hover:border-green-800'
+                    }`}
+                  >
+                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  </button>
+                  {index < 1 && (
+                    <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-4" />
+                  )}
+                </div>
               ))}
             </nav>
           </div>
@@ -318,78 +322,6 @@ const Settings = () => {
               <QuickAction onClick={() => setShowPasswordModal(true)} className="!w-full !text-sm">
                 Change Password
               </QuickAction>
-            </div>
-          )}
-
-          {/* ---------- Website Tab ---------- */}
-          {activeTab === 'website' && (
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-green-800 dark:text-green-400 mb-4">Website Settings</h3>
-              <form onSubmit={e => { e.preventDefault(); updateSystemSettings(systemSettings); }} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Company Name</label>
-                  <input
-                    value={safe(systemSettings.company_name)}
-                    onChange={e => setSystemSettings({ ...systemSettings, company_name: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 dark:focus:ring-green-400/20 focus:border-green-500 dark:focus:border-green-600 transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tax Rate (%)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={safeNum(systemSettings.tax_rate)}
-                    onChange={e => setSystemSettings({ ...systemSettings, tax_rate: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 dark:focus:ring-green-400/20 focus:border-green-500 dark:focus:border-green-600 transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Currency</label>
-                  <select
-                    value={safe(systemSettings.currency)}
-                    onChange={e => setSystemSettings({ ...systemSettings, currency: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 dark:focus:ring-green-400/20 focus:border-green-500 dark:focus:border-green-600 transition-all"
-                  >
-                    <option value="INR">INR (₹)</option>
-                    <option value="USD">USD ($)</option>
-                  </select>
-                </div>
-                <QuickAction type="submit" className="!w-full !text-sm">
-                  Update Website Settings
-                </QuickAction>
-              </form>
-            </div>
-          )}
-
-          {/* ---------- System Tab ---------- */}
-          {activeTab === 'system' && (
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-green-800 dark:text-green-400 mb-4">System Settings</h3>
-              <form onSubmit={e => { e.preventDefault(); updateSystemSettings(systemSettings); }} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Session Timeout (hours)</label>
-                  <input
-                    type="number"
-                    value={safeNum(systemSettings.session_timeout / 3600)}
-                    onChange={e => setSystemSettings({ ...systemSettings, session_timeout: e.target.value * 3600 })}
-                    className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 dark:focus:ring-green-400/20 focus:border-green-500 dark:focus:border-green-600 transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Default Tax Rate (%)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={safe(systemSettings.tax_rate)}
-                    onChange={e => setSystemSettings({ ...systemSettings, tax_rate: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 dark:focus:ring-green-400/20 focus:border-green-500 dark:focus:border-green-600 transition-all"
-                  />
-                </div>
-                <QuickAction type="submit" className="!w-full !text-sm">
-                  Update System Settings
-                </QuickAction>
-              </form>
             </div>
           )}
         </Card>

@@ -18,6 +18,7 @@ import {
   ChevronRightIcon,
   ClockIcon,
   ArrowRightOnRectangleIcon,
+  BellIcon,
 } from '@heroicons/react/24/outline';
 
 const CogIcon = Cog6ToothIcon;
@@ -27,6 +28,7 @@ const navItems = [
   { href: '/hotel/orders', icon: DocumentTextIcon, label: 'Orders' },
   { href: '/hotel/history', icon: ClockIcon, label: 'History' },
   { href: '/hotel/bills', icon: ChartBarIcon, label: 'Bills' },
+  { href: '/hotel/notifications', icon: BellIcon, label: 'Notifications' },
   { href: '/hotel/products', icon: TagIcon, label: 'Products' },
   { href: '/hotel/cart', icon: ShoppingCartIcon, label: 'Cart' },
   { href: '/hotel/support', icon: LifebuoyIcon, label: 'Support' },

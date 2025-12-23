@@ -1215,6 +1215,13 @@ const Billing = () => {
                 <QuickAction type="submit" className="!w-full !text-sm !from-emerald-500 !to-teal-600 dark:!from-emerald-700 dark:!to-teal-800">
                   Update Bill
                 </QuickAction>
+                <button
+                  type="button"
+                  onClick={() => { setShowEdit(false); setEditingBill(null); }}
+                  className="w-full px-4 py-3 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 rounded-xl hover:bg-gray-400 dark:hover:bg-gray-500 font-semibold text-sm transition-colors"
+                >
+                  Cancel
+                </button>
               </form>
             </Card>
           </div>

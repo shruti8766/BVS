@@ -104,6 +104,8 @@ import {
 import { ThemeProvider } from './admin_dashboard/context/ThemeContext';
 import { HotelThemeProvider } from './hotel_dashboard/context/HotelThemeContext';
 
+// ----- Public Pagesimport { HotelThemeProvider } from './hotel_dashboard/context/HotelThemeContext';
+
 // ----- Public Pages -----
 import Home from './frontend/home';
 import Vegetables from './frontend/vegetables';
@@ -144,6 +146,7 @@ import HotelProfile from './hotel_dashboard/components/pages/profile';
 import HotelBills from './hotel_dashboard/components/pages/bills';
 import HotelOrders from './hotel_dashboard/components/pages/orders';
 import OrderHistory from './hotel_dashboard/components/pages/history';
+import HotelNotifications from './hotel_dashboard/components/pages/notifications';
 // -------------------------------------------------
 // 1. Auth Helpers – Check tokens based on role
 // -------------------------------------------------
@@ -222,6 +225,7 @@ function App() {
           <Route path="/hotel/bills" element={<HotelBills />} />
           <Route path="/hotel/orders" element={<HotelOrders />} />
           <Route path="/hotel/history" element={<OrderHistory />} />
+          <Route path="/hotel/notifications" element={<HotelNotifications />} />
           <Route path="/hotel/*" element={<Navigate to="/hotel/dashboard" replace />} />
         </Route>
 

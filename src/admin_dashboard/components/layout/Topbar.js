@@ -49,8 +49,8 @@ export default function Topbar({ onMenuClick, onCartClick }) {
   };
 
   return (
-    <header className="sticky top-0 z-30 px-2 py-2 transition-colors duration-200">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 flex items-center justify-between h-14 sm:h-16 px-3 sm:px-4">
+    <header className="sticky top-0 z-30 px-2 py-2 transition-colors duration-200 w-full">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 flex items-center justify-between h-14 sm:h-16 px-3 sm:px-4 relative">
         {/* LEFT */}
         <div className="flex items-center space-x-2 sm:space-x-4 flex-1">
           <button
@@ -78,6 +78,9 @@ export default function Topbar({ onMenuClick, onCartClick }) {
           
           {/* THEME TOGGLE */}
           <ThemeToggle />
+
+          {/* Divider */}
+          <div className="hidden sm:block h-6 w-px bg-gray-300 dark:bg-gray-600" />
           
           {/* USER DROPDOWN */}
           <div className="relative">

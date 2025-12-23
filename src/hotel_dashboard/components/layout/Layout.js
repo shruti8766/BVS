@@ -40,7 +40,12 @@ export default function Layout({ children }) {
 
         <Sidebar open={sidebarOpen} onClose={closeSidebar} collapsed={collapsed} setCollapsed={setCollapsed} />
 
-        <div className={`flex-1 flex flex-col transition-all duration-300 ${collapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
+        <div 
+          className="flex-1 flex flex-col transition-all duration-300"
+          style={{
+            marginLeft: window.innerWidth >= 1024 ? (collapsed ? 'calc(7rem)' : 'calc(16rem)') : '0',
+          }}
+        >
           <Topbar onMenuClick={toggleSidebar} onCartClick={openSlideOver} />
           <main id="main-content" className="flex-1 overflow-auto p-4 sm:p-6 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-200">
             {children}

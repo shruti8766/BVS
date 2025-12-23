@@ -32,6 +32,7 @@ export default function Topbar({ onMenuClick }) {
     dashboard: '/hotel/dashboard',
     orders: '/hotel/orders',
     bills: '/hotel/bills',
+    notifications: '/hotel/notifications',
     products: '/hotel/products',
     cart: '/hotel/cart',
     profile: '/hotel/profile',
@@ -223,6 +224,9 @@ export default function Topbar({ onMenuClick }) {
 
             {/* THEME TOGGLE */}
             <HotelThemeToggle />
+
+            {/* Divider */}
+            <div className="hidden sm:block h-6 w-px bg-gray-300 dark:bg-gray-600" />
 
             {/* Cart button */}
             <button

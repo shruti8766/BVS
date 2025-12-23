@@ -164,7 +164,7 @@ const UnpaidBills = () => {
     if (unpaid.length > 0) {
       const dates = unpaid
         .map((b) => new Date(b.bill_date))
-        .filter((d) => !isNaN(d.getTime()));
+        .filter((d) => !isNaN(d.getTime()) && d.getFullYear() !== 1970);
       if (dates.length > 0) {
         oldestDate = new Date(Math.min(...dates.map((d) => d.getTime())));
       }
@@ -186,6 +186,12 @@ const UnpaidBills = () => {
   const formatDate = (dateStr) => {
     if (!dateStr) return 'N/A';
     const date = new Date(dateStr);
+    
+    // Check if the date is valid and not the epoch/1970
+    if (isNaN(date.getTime()) || date.getFullYear() === 1970) {
+      return 'N/A';
+    }
+    
     const options = { day: '2-digit', month: 'short', year: 'numeric' };
     return date.toLocaleDateString('en-IN', options);
   };

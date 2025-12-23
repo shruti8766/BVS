@@ -64,14 +64,15 @@ export default function Sidebar({ open, onClose, onCollapsedChange }) {
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-50 transform transition-all duration-300 ease-in-out lg:translate-x-0 flex flex-col p-2 ${
+      className={`fixed inset-y-0 left-0 z-40 transform transition-all duration-300 ease-in-out lg:translate-x-0 flex flex-col p-2 ${
         open ? 'translate-x-0' : '-translate-x-full'
       } ${collapsed ? 'w-28' : 'w-64'}`}
       style={{
         boxShadow: isDarkMode 
           ? '0 20px 25px -5px rgba(0, 0, 0, 0.5)'
           : '0 4px 6px -1px rgba(255, 255, 255, 0.08)',
-        willChange: 'width, transform'
+        willChange: 'width, transform',
+        transition: 'width 300ms cubic-bezier(0.4, 0, 0.2, 1), transform 300ms cubic-bezier(0.4, 0, 0.2, 1)'
       }}
     >
       {/* Toggle Button */}

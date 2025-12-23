@@ -32,8 +32,8 @@ export default function Layout({ children }) {
       <div className="flex h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
         {/* Mobile backdrop */}
         <div
-          className={`fixed inset-0 bg-gray-900 bg-opacity-50 z-40 lg:hidden ${
-            sidebarOpen ? '' : 'hidden'
+          className={`fixed inset-0 bg-gray-900 bg-opacity-50 z-30 lg:hidden transition-opacity duration-300 ${
+            sidebarOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
           }`}
           onClick={closeSidebar}
         />
@@ -41,9 +41,9 @@ export default function Layout({ children }) {
         <Sidebar open={sidebarOpen} onClose={closeSidebar} onCollapsedChange={setSidebarCollapsed} />
 
         <div 
-          className="flex-1 flex flex-col transition-all duration-300 ease-in-out lg:ml-64"
+          className="flex-1 flex flex-col transition-all duration-300 ease-in-out"
           style={{
-            marginLeft: window.innerWidth >= 1024 ? (sidebarCollapsed ? '5rem' : '16rem') : '0',
+            marginLeft: window.innerWidth >= 1024 ? (sidebarCollapsed ? 'calc(7rem)' : 'calc(16rem)') : '0',
           }}
         >
           <Topbar onMenuClick={toggleSidebar} onCartClick={openSlideOver} />

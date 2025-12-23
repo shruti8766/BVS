@@ -2,10 +2,12 @@ import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';  
 import ChatBot from '../chatbot/ChatBot'; // Import your chatbot component
+import ForgotPassword from '../components/ForgotPassword';
 
 const Login = () => {
   const [showChatbot, setShowChatbot] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const mobileMenuBtnRef = useRef(null);
   const mobileMenuRef = useRef(null);
   const chatbotRef = useRef(null);
@@ -352,11 +354,20 @@ const Login = () => {
                 </div>
 
                 {/* Remember me */}
-                <div className="flex items-center">
-                  <input type="checkbox" id="remember" className="w-4 h-4 text-green-600 rounded" />
-                  <label htmlFor="remember" className="ml-2 text-sm text-gray-700">
-                    Remember me
-                  </label>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <input type="checkbox" id="remember" className="w-4 h-4 text-green-600 rounded" />
+                    <label htmlFor="remember" className="ml-2 text-sm text-gray-700">
+                      Remember me
+                    </label>
+                  </div>
+                  {/* <button
+                    type="button"
+                    onClick={() => setShowForgotPassword(true)}
+                    className="text-sm text-green-600 hover:text-green-700 font-medium"
+                  >
+                    Forgot Password?
+                  </button> */}
                 </div>
 
                 {/* Error message */}
@@ -446,6 +457,12 @@ const Login = () => {
               </button>
               <ChatBot />
             </div>
+      
+            {/* Forgot Password Modal */}
+            <ForgotPassword 
+              isOpen={showForgotPassword}
+              onClose={() => setShowForgotPassword(false)}
+            />
     </>
   );
 };

@@ -1085,6 +1085,214 @@ def login():
         logger.error(f"[LOGIN] Full traceback: {traceback.format_exc()}")
         return jsonify({'error': 'Login failed', 'detail': str(e)}), 500
 
+# ===================================================================
+# FORGOT PASSWORD - OTP BASED RESET
+# ===================================================================
+@app.route('/api/auth/forgot-password/request', methods=['POST'])
+def request_password_reset():
+    """Request password reset - sends OTP to phone number"""
+    try:
+        data = request.get_json()
+        phone = data.get('phone', '').strip()
+        user_type = data.get('user_type', 'hotel')  # 'hotel' or 'admin'
+        
+        if not phone:
+            return jsonify({'error': 'Phone number is required'}), 400
+        
+        firestore_db = get_firestore_client()
+        if firestore_db is None:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        # Find user by phone number
+        user_query = firestore_db.collection('users').where('phone', '==', phone).stream()
+        user_doc = None
+        user_data = None
+        
+        for doc in user_query:
+            user_doc = doc
+            user_data = doc.to_dict()
+            break
+        
+        if not user_doc:
+            # Don't reveal if user exists - security best practice
+            return jsonify({'success': True, 'message': 'If user exists, OTP sent to phone'}), 200
+        
+        # Check if user type matches
+        user_role = user_data.get('role', 'hotel')
+        if user_type == 'admin' and user_role != 'admin':
+            return jsonify({'success': True, 'message': 'If user exists, OTP sent to phone'}), 200
+        if user_type == 'hotel' and user_role == 'admin':
+            return jsonify({'success': True, 'message': 'If user exists, OTP sent to phone'}), 200
+        
+        # Generate OTP (6 digits)
+        otp = str(random.randint(100000, 999999))
+        otp_timestamp = datetime.now(timezone.utc).isoformat()
+        
+        # Store OTP in Firestore with 10 minute expiry
+        reset_token = f"{user_doc.id}_{int(datetime.now(timezone.utc).timestamp())}"
+        firestore_db.collection('password_resets').document(reset_token).set({
+            'user_id': user_doc.id,
+            'phone': phone,
+            'otp': otp,
+            'created_at': otp_timestamp,
+            'expires_at': (datetime.now(timezone.utc) + timedelta(minutes=10)).isoformat(),
+            'verified': False,
+            'attempts': 0
+        })
+        
+        # Send OTP via Twilio
+        if twilio_available:
+            try:
+                account_sid = os.getenv('TWILIO_ACCOUNT_SID')
+                auth_token = os.getenv('TWILIO_AUTH_TOKEN')
+                twilio_phone = os.getenv('TWILIO_PHONE_NUMBER')
+                
+                if account_sid and auth_token and twilio_phone:
+                    client = Client(account_sid, auth_token)
+                    message = client.messages.create(
+                        body=f"Your password reset OTP is: {otp}. Valid for 10 minutes.",
+                        from_=twilio_phone,
+                        to=phone
+                    )
+                    logger.info(f"[PASSWORD_RESET] OTP sent via SMS to {phone}")
+                else:
+                    logger.warning("[PASSWORD_RESET] Twilio credentials not configured")
+            except Exception as e:
+                logger.error(f"[PASSWORD_RESET] Failed to send SMS: {str(e)}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'OTP sent to phone number',
+            'reset_token': reset_token
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"[PASSWORD_RESET] Error requesting reset: {str(e)}")
+        return jsonify({'error': 'Failed to request password reset'}), 500
+
+@app.route('/api/auth/forgot-password/verify-otp', methods=['POST'])
+def verify_reset_otp():
+    """Verify OTP for password reset"""
+    try:
+        data = request.get_json()
+        reset_token = data.get('reset_token', '').strip()
+        otp = data.get('otp', '').strip()
+        
+        if not reset_token or not otp:
+            return jsonify({'error': 'Reset token and OTP are required'}), 400
+        
+        firestore_db = get_firestore_client()
+        if firestore_db is None:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        # Get reset record
+        reset_doc = firestore_db.collection('password_resets').document(reset_token).get()
+        
+        if not reset_doc.exists:
+            return jsonify({'error': 'Invalid or expired reset token'}), 400
+        
+        reset_data = reset_doc.to_dict()
+        
+        # Check if expired
+        expires_at = datetime.fromisoformat(reset_data.get('expires_at', ''))
+        if datetime.now(timezone.utc) > expires_at:
+            firestore_db.collection('password_resets').document(reset_token).delete()
+            return jsonify({'error': 'OTP has expired'}), 400
+        
+        # Check if already verified
+        if reset_data.get('verified'):
+            return jsonify({'error': 'Reset token already used'}), 400
+        
+        # Check OTP
+        if reset_data.get('otp') != otp:
+            # Increment attempts
+            attempts = reset_data.get('attempts', 0) + 1
+            firestore_db.collection('password_resets').document(reset_token).update({
+                'attempts': attempts
+            })
+            
+            if attempts >= 3:
+                firestore_db.collection('password_resets').document(reset_token).delete()
+                return jsonify({'error': 'Too many failed attempts. Request a new OTP.'}), 400
+            
+            return jsonify({'error': 'Invalid OTP'}), 400
+        
+        # Mark as verified
+        firestore_db.collection('password_resets').document(reset_token).update({
+            'verified': True,
+            'verified_at': datetime.now(timezone.utc).isoformat()
+        })
+        
+        return jsonify({
+            'success': True,
+            'message': 'OTP verified. You can now reset password.',
+            'verified_token': reset_token
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"[PASSWORD_RESET] Error verifying OTP: {str(e)}")
+        return jsonify({'error': 'Failed to verify OTP'}), 500
+
+@app.route('/api/auth/forgot-password/reset', methods=['POST'])
+def reset_password_with_token():
+    """Reset password using verified token"""
+    try:
+        data = request.get_json()
+        verified_token = data.get('verified_token', '').strip()
+        new_password = data.get('new_password', '').strip()
+        
+        if not verified_token or not new_password:
+            return jsonify({'error': 'Verified token and new password are required'}), 400
+        
+        if len(new_password) < 6:
+            return jsonify({'error': 'Password must be at least 6 characters'}), 400
+        
+        firestore_db = get_firestore_client()
+        if firestore_db is None:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        # Get reset record
+        reset_doc = firestore_db.collection('password_resets').document(verified_token).get()
+        
+        if not reset_doc.exists:
+            return jsonify({'error': 'Invalid or expired reset token'}), 400
+        
+        reset_data = reset_doc.to_dict()
+        
+        # Check if verified
+        if not reset_data.get('verified'):
+            return jsonify({'error': 'Reset token not verified'}), 400
+        
+        # Get user
+        user_id = reset_data.get('user_id')
+        user_doc = firestore_db.collection('users').document(user_id).get()
+        
+        if not user_doc.exists:
+            return jsonify({'error': 'User not found'}), 404
+        
+        # Hash new password
+        hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        
+        # Update user password
+        firestore_db.collection('users').document(user_id).update({
+            'password': hashed_password,
+            'password_updated_at': datetime.now(timezone.utc).isoformat()
+        })
+        
+        # Delete reset token
+        firestore_db.collection('password_resets').document(verified_token).delete()
+        
+        logger.info(f"[PASSWORD_RESET] Password reset successful for user: {user_id}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Password reset successfully. You can now login with new password.'
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"[PASSWORD_RESET] Error resetting password: {str(e)}")
+        return jsonify({'error': 'Failed to reset password'}), 500
+
 @app.route('/api/auth/logout', methods=['POST'])
 @token_required
 def logout(current_user):
@@ -1397,6 +1605,92 @@ def get_hotel_bills(current_user):
         import traceback
         logger.error(f"Traceback: {traceback.format_exc()}")
         return jsonify({'error': 'Failed to fetch bills'}), 500
+
+# ===================================================================
+# HOTEL NOTIFICATIONS ROUTES - UNPAID BILLS OLDER THAN 1 MONTH
+# ===================================================================
+@app.route('/api/hotel/notifications', methods=['GET'])
+@token_required
+def get_hotel_notifications(current_user):
+    """Get notifications for unpaid bills older than 1 month"""
+    try:
+        user_id = current_user.get('id')
+        
+        firestore_db = get_firestore_client()
+        if firestore_db is None:
+            logger.error("Firestore client not initialized")
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        # Get all orders for this user
+        orders_query = firestore_db.collection('orders').where('user_id', '==', user_id).stream()
+        order_ids = [doc.id for doc in orders_query]
+        
+        if not order_ids:
+            return jsonify({'notifications': [], 'success': True})
+        
+        # Get bills associated with these orders
+        notifications = []
+        bills_query = firestore_db.collection('bills').stream()
+        
+        # Get current date
+        now = datetime.now(timezone.utc)
+        one_month_ago = now - timedelta(days=30)
+        
+        for bill_doc in bills_query:
+            bill = bill_doc.to_dict()
+            
+            # Check if this bill belongs to one of the user's orders
+            if bill.get('order_id') not in order_ids:
+                continue
+            
+            # Check if bill is unpaid
+            if bill.get('paid', False):
+                continue
+            
+            # Check if bill is older than 1 month
+            bill_date_str = bill.get('created_at') or bill.get('bill_date') or bill.get('date')
+            if bill_date_str:
+                try:
+                    # Parse the date string
+                    if isinstance(bill_date_str, str):
+                        # Try ISO format first
+                        try:
+                            bill_date = datetime.fromisoformat(bill_date_str.replace('Z', '+00:00'))
+                        except:
+                            # Try other formats
+                            bill_date = datetime.strptime(bill_date_str, '%Y-%m-%d')
+                            bill_date = bill_date.replace(tzinfo=timezone.utc)
+                    else:
+                        bill_date = bill_date_str
+                    
+                    # Check if overdue (more than 1 month old)
+                    if bill_date < one_month_ago:
+                        notification = {
+                            'id': f'notif-{bill_doc.id}',
+                            'billId': bill_doc.id,
+                            'bill_id': bill_doc.id,
+                            'amount': float(bill.get('amount', 0)),
+                            'dueDate': bill.get('due_date') or bill.get('bill_date') or bill.get('date'),
+                            'createdDate': bill_date_str,
+                            'status': 'unpaid',
+                            'read': False,
+                            'message': f"Bill #{bill_doc.id} is overdue by more than 1 month",
+                            'order_id': bill.get('order_id'),
+                        }
+                        notifications.append(notification)
+                except Exception as e:
+                    logger.warning(f"Could not parse date for bill {bill_doc.id}: {str(e)}")
+                    continue
+        
+        # Sort by created date, most recent first
+        notifications = sorted(notifications, key=lambda x: x.get('createdDate', ''), reverse=True)
+        
+        return jsonify({'notifications': notifications, 'success': True})
+    except Exception as e:
+        logger.error(f"Get notifications error: {str(e)}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        return jsonify({'error': 'Failed to fetch notifications'}), 500
 
 # ===================================================================
 # HOTEL CART MANAGEMENT ROUTES (Part 2)
@@ -5157,6 +5451,16 @@ def get_unpaid_bills(current_user):
             
             if is_unpaid:
                 try:
+                    # Ensure bill_date is present and valid
+                    bill_date = bill_data.get('bill_date')
+                    if not bill_date:
+                        # Use created_at or current date if bill_date is missing
+                        bill_date = bill_data.get('created_at', datetime.now(timezone.utc).isoformat())
+                        if isinstance(bill_date, str):
+                            # Extract just the date part (YYYY-MM-DD)
+                            bill_date = bill_date.split('T')[0]
+                        bill_data['bill_date'] = bill_date
+                    
                     # Get order and user details
                     order_id = bill_data.get('order_id')
                     if order_id:
