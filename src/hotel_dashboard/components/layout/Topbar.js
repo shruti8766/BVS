@@ -1,160 +1,9 @@
-// // src/hotel_dashboard/components/layout/Topbar.js
-// import { useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import { useAuth } from '../hooks/useAuth';
-// import {         
-//   Bars3Icon,
-//   MagnifyingGlassIcon,
-//   ShoppingCartIcon,
-//   BellIcon,
-//   ChevronDownIcon,
-// } from '@heroicons/react/24/outline';
 
-// export default function Topbar({ onMenuClick, onCartClick }) {
-//   const [userMenuOpen, setUserMenuOpen] = useState(false);
-//   const [searchQuery, setSearchQuery] = useState('');
-//   const navigate = useNavigate();
-//   const { logout, user } = useAuth();  // Assume user object has hotel details
-
-//   // ---- SEARCH ROUTES -------------------------------------------------
-//   const searchMap = {
-//     dashboard: '/hotel/dashboard',
-//     orders: '/hotel/orders',
-//     bills: '/hotel/bills',
-//     products: '/hotel/products',
-//     cart: '/hotel/cart',
-//     profile: '/hotel/profile',
-//     settings: '/hotel/settings',
-//     support: '/hotel/support',
-//   };
-
-//   const handleSearch = (e) => {
-//     if (e.key !== 'Enter') return;
-//     const q = searchQuery.trim().toLowerCase();
-//     const route = searchMap[q];
-//     if (route) {
-//       navigate(route);
-//       setSearchQuery('');
-//     }
-//   };
-
-//   // ---- LOGOUT --------------------------------------------------------
-//   const doLogout = () => {
-//     logout();                 // clears token + state
-//     navigate('/login', { replace: true });
-//   };
-
-//   // Assume user is the logged-in hotel user
-//   const displayName = user?.hotel_name || user?.username || 'Hotel User';
-
-//   return (
-//     <header className="bg-white shadow-sm border-b border-gray-200">
-//       <div className="flex items-center justify-between h-16 px-4">
-//         {/* LEFT */}
-//         <div className="flex items-center space-x-4">
-//           <button
-//             className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
-//             onClick={onMenuClick}
-//           >
-//             <Bars3Icon className="w-5 h-5" />
-//           </button>
-
-//           <div className="relative">
-//             <input
-//               type="search"
-//               placeholder="Search… (orders, products, cart…)"
-//               value={searchQuery}
-//               onChange={(e) => setSearchQuery(e.target.value)}
-//               onKeyDown={handleSearch}
-//               className="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
-//             />
-//             <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" />
-//           </div>
-//         </div>
-
-//         {/* RIGHT */}
-//         <div className="flex items-center space-x-4">
-//           {/* Date range – you can keep it as is for order filtering */}
-//           <select className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
-//             <option>Today</option>
-//             <option>This Week</option>
-//             <option>This Month</option>
-//             <option>Custom Range</option>
-//           </select>
-
-//           {/* Cart button */}
-//           <button
-//             className="p-2 rounded-lg hover:bg-gray-100 relative"
-//             onClick={onCartClick}
-//           >
-//             <ShoppingCartIcon className="w-5 h-5" />
-//             <span className="absolute top-1 right-1 w-2 h-2 bg-primary-500 rounded-full" />
-//           </button>
-
-//           {/* Notification bell */}
-//           <button
-//             className="p-2 rounded-lg hover:bg-gray-100 relative"
-//             onClick={() => {}}  // Can integrate notifications later
-//           >
-//             <BellIcon className="w-5 h-5" />
-//             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-//           </button>
-
-//           {/* USER DROPDOWN */}
-//           <div className="relative">
-//             <button
-//               className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100"
-//               onClick={() => setUserMenuOpen((v) => !v)}
-//             >
-//               <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-//                 <span className="text-primary-700 font-medium text-sm">
-//                   {displayName.charAt(0).toUpperCase()}
-//                 </span>
-//               </div>
-//               <span className="hidden md:block text-sm font-medium truncate max-w-32">
-//                 {displayName}
-//               </span>
-//               <ChevronDownIcon className="w-4 h-4" />
-//             </button>
-
-//             {userMenuOpen && (
-//               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-//                 <button
-//                   onClick={() => {
-//                     navigate('/hotel/profile');
-//                     setUserMenuOpen(false);
-//                   }}
-//                   className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-//                 >
-//                   Profile
-//                 </button>
-//                 <button
-//                   onClick={() => {
-//                     navigate('/hotel/settings');
-//                     setUserMenuOpen(false);
-//                   }}
-//                   className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-//                 >
-//                   Settings
-//                 </button>
-//                 <button
-//                   onClick={doLogout}
-//                   className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-//                 >
-//                   Logout
-//                 </button>
-//               </div>
-//             )}
-//           </div>
-//         </div>
-//       </div>
-//     </header>
-//   );
-// }
-// src/hotel_dashboard/components/layout/Topbar.js
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useHotelTheme } from '../../context/HotelThemeContext';
+import HotelThemeToggle from '../HotelThemeToggle';
 import {         
   Bars3Icon,
   MagnifyingGlassIcon,
@@ -345,95 +194,93 @@ export default function Topbar({ onMenuClick }) {
 
   return (
     <>
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="flex items-center justify-between h-16 px-4">
+      <header className="sticky top-0 z-30 px-2 py-2 transition-colors duration-200">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 flex items-center justify-between h-14 sm:h-16 px-3 sm:px-4">
           {/* LEFT */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4 flex-1">
             <button
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
+              className="lg:hidden p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               onClick={onMenuClick}
             >
-              <Bars3Icon className="w-5 h-5" />
+              <Bars3Icon className="w-5 h-5 dark:text-gray-200" />
             </button>
 
-            <div className="relative">
+            <div className="relative hidden sm:block flex-1 max-w-xs lg:max-w-md">
               <input
                 type="search"
-                placeholder="Search… (orders, products, cart…)"
+                placeholder="Search… (orders, products…)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleSearch}
-                className="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-colors"
               />
-              <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" />
+              <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-2.5 text-gray-400 dark:text-gray-500" />
             </div>
           </div>
 
           {/* RIGHT */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
+
+            {/* THEME TOGGLE */}
+            <HotelThemeToggle />
 
             {/* Cart button */}
             <button
-              className="p-2 rounded-lg hover:bg-gray-100 relative"
+              className="p-2 rounded-lg relative transition-colors
+                        hover:bg-gray-100 dark:hover:bg-gray-800"
               onClick={() => setCartOpen(true)}
             >
-              <ShoppingCartIcon className="w-10 h-5" />
+              <ShoppingCartIcon
+                className="w-10 h-5
+                          text-gray-900 dark:text-gray-200"
+              />
+
               {cartTotal.item_count > 0 && (
-                <span className="absolute top-1 right-1 min-w-[1.2rem] h-5 flex items-center justify-center ">
+                <span
+                  className="absolute top-0 right-0 min-w-[1.2rem] h-5
+                            flex items-center justify-center
+                            text-xs font-semibold
+                            bg-red-600 text-white
+                            rounded-full"
+                >
                   {cartTotal.item_count}
                 </span>
               )}
             </button>
 
-            {/* Notification bell */}
-            {/* <button
-              className="p-2 rounded-lg hover:bg-gray-100 relative"
-              onClick={() => {}}  // Can integrate notifications later
-            >
-              <BellIcon className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-            </button> */}
 
             {/* USER DROPDOWN */}
             <div className="relative">
               <button
-                className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100"
+                className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 onClick={() => setUserMenuOpen((v) => !v)}
               >
-                <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                  <span className="text-primary-700 font-medium text-sm">
+                <div className="w-8 h-8 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
+                  <span className="text-primary-700 dark:text-primary-300 font-medium text-sm">
                     {displayName.charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <span className="hidden md:block text-sm font-medium truncate max-w-32">
+                <span className="hidden md:block text-sm font-medium text-gray-900 dark:text-gray-100">
                   {displayName}
                 </span>
-                <ChevronDownIcon className="w-4 h-4" />
+                <ChevronDownIcon className="w-4 h-4 text-gray-900 dark:text-gray-100" />
               </button>
 
               {userMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                  <button
-                    onClick={() => {
-                      navigate('/hotel/profile');
-                      setUserMenuOpen(false);
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Profile
-                  </button>
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 transition-colors">
+                  
                   <button
                     onClick={() => {
                       navigate('/hotel/settings');
                       setUserMenuOpen(false);
                     }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   >
                     Settings
                   </button>
                   <button
                     onClick={doLogout}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   >
                     Logout
                   </button>
@@ -454,16 +301,16 @@ export default function Topbar({ onMenuClick }) {
           />
           
           {/* Slideover Panel */}
-          <div className="fixed right-0 top-0 h-full w-96 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out translate-x-0">
+          <div className="fixed right-0 top-0 h-full w-96 bg-white dark:bg-gray-900 shadow-xl z-50 transform transition-transform duration-300 ease-in-out translate-x-0">
             <div className="h-full flex flex-col">
               {/* Header */}
-              <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900">Shopping Cart</h2>
+              <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between transition-colors">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Shopping Cart</h2>
                 <button
                   onClick={closeCart}
-                  className="p-2 hover:bg-gray-100 rounded-lg"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                 >
-                  <XMarkIcon className="w-5 h-5 text-gray-500" />
+                  <XMarkIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 </button>
               </div>
 
@@ -474,22 +321,22 @@ export default function Topbar({ onMenuClick }) {
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
                   </div>
                 ) : cartError ? (
-                  <div className="text-center py-8 text-red-600">
+                  <div className="text-center py-8 text-red-600 dark:text-red-400">
                     <p>{cartError}</p>
                     <button
                       onClick={() => navigate('/hotel/cart')}
-                      className="mt-2 text-green-600 underline"
+                      className="mt-2 text-green-600 dark:text-green-400 underline"
                     >
                       Go to Cart
                     </button>
                   </div>
                 ) : cartItems.length === 0 ? (
                   <div className="text-center py-8">
-                    <ShoppingCartIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">Your cart is empty</p>
+                    <ShoppingCartIcon className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+                    <p className="text-gray-500 dark:text-gray-400">Your cart is empty</p>
                     <Link
                       to="/hotel/products"
-                      className="mt-4 inline-block px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                      className="mt-4 inline-block px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                       onClick={closeCart}
                     >
                       Continue Shopping
@@ -499,14 +346,14 @@ export default function Topbar({ onMenuClick }) {
                   <>
                     <div className="space-y-4 mb-6">
                       {cartItems.map((item) => (
-                        <div key={item.product_id} className="flex items-center justify-between py-2 border-b border-gray-100">
+                        <div key={item.product_id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 transition-colors">
                           <div className="flex items-center space-x-3 flex-1">
-                            <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                              <span className="text-gray-500 text-xs">Img</span>
+                            <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center transition-colors">
+                              <span className="text-gray-500 dark:text-gray-400 text-xs">Img</span>
                             </div>
                             <div>
-                              <h4 className="font-medium text-gray-900 text-sm">{item.product.name}</h4>
-                              <p className="text-xs text-gray-500">
+                              <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">{item.product.name}</h4>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
                                 Quantity: {item.quantity} {item.product.unit_type || 'unit'}
                               </p>
                             </div>
@@ -516,9 +363,9 @@ export default function Topbar({ onMenuClick }) {
                     </div>
 
                     {/* Total */}
-                    <div className="border-t border-gray-200 pt-4">
+                    <div className="border-t border-gray-200 dark:border-gray-700 pt-4 transition-colors">
                       <div className="flex justify-between items-center mb-4">
-                        <span className="text-sm text-gray-600">{cartTotal.item_count} item(s) in cart</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{cartTotal.item_count} item(s) in cart</span>
                       </div>
                     </div>
                   </>
@@ -526,12 +373,12 @@ export default function Topbar({ onMenuClick }) {
               </div>
 
               {/* Footer Actions */}
-              <div className="border-t border-gray-200 p-4 space-y-3">
+              <div className="border-t border-gray-200 dark:border-gray-700 p-4 space-y-3 transition-colors">
                 {cartItems.length > 0 && (
                   <>
                     <Link
                       to="/hotel/cart"
-                      className="block w-full bg-green-600 text-white py-3 rounded-lg text-center font-semibold hover:bg-green-700"
+                      className="block w-full bg-green-600 text-white py-3 rounded-lg text-center font-semibold hover:bg-green-700 transition-colors"
                       onClick={closeCart}
                     >
                       View Full Cart
@@ -541,7 +388,7 @@ export default function Topbar({ onMenuClick }) {
                         navigate('/hotel/cart');
                         closeCart();
                       }}
-                      className="w-full bg-gray-200 text-gray-900 py-3 rounded-lg text-center font-semibold hover:bg-gray-300"
+                      className="w-full bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-3 rounded-lg text-center font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                     >
                       Checkout
                     </button>

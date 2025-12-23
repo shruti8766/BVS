@@ -10,7 +10,7 @@ import Layout from '../components/layout/Layout';
 // 1. Reusable UI Components (Adapted from dashboard)
 // ──────────────────────────────────────────────────────
 const Card = ({ children, className = '', hover = false }) => (
-  <div className={`bg-white rounded-2xl shadow-lg border-2 border-green-100 overflow-hidden transition-all duration-300 ${hover ? 'hover:shadow-xl hover:border-green-300 hover:-translate-y-1' : ''} ${className}`}>
+  <div className={`bg-white dark:bg-gray-900 rounded-2xl shadow-lg dark:shadow-green-900/20 border-2 border-green-100 dark:border-green-900 overflow-hidden transition-all duration-300 ${hover ? 'hover:shadow-xl dark:hover:shadow-green-800/30 hover:border-green-300 dark:hover:border-green-700 hover:-translate-y-1' : ''} ${className}`}>
     {children}
   </div>
 );
@@ -19,7 +19,7 @@ const QuickAction = ({ onClick, children, disabled = false, className = '' }) =>
   <button
     onClick={onClick}
     disabled={disabled}
-    className={`px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 ${className} ${disabled ? 'cursor-not-allowed' : 'hover:-translate-y-0.5'}`}
+    className={`px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 dark:from-green-700 dark:to-emerald-800 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 dark:hover:from-green-600 dark:hover:to-emerald-700 disabled:opacity-50 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 ${className} ${disabled ? 'cursor-not-allowed' : 'hover:-translate-y-0.5'}`}
   >
     {children}
   </button>
@@ -234,14 +234,14 @@ export default function Profile() {
   if (loading) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-6">
           <div className="text-center">
             <img
               src="/broc.jpg" // Replace with the actual path to your broccoli image (e.g., public/images/broccoli-loading.png)
               alt="Loading"
-              className="h-32 w-32 mx-auto mb-4 animate-[run_1s_ease-in-out_infinite]"
+              className="h-32 w-32 mx-auto mb-4 animate-[run_1s_ease-in-out_infinite] dark:opacity-80"
             />
-            <p className="text-gray-600 font-medium text-lg">Broccoli is crunching your profile...</p>
+            <p className="text-gray-600 dark:text-gray-300 font-medium text-lg">Broccoli is crunching your profile...</p>
           </div>
         </div>
       </Layout>
@@ -250,14 +250,14 @@ export default function Profile() {
 
   return (
     <Layout>
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-8 w-full">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-8 w-full">
       <Card className="w-full overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-5 bg-gradient-to-r from-green-50 to-emerald-50 border-b-2 border-green-100">
-          <h1 className="text-2xl font-bold text-green-800 mb-1">
+        <div className="px-6 py-5 bg-gradient-to-r from-green-50 dark:from-gray-800 to-emerald-50 dark:to-gray-900 border-b-2 border-green-100 dark:border-green-900">
+          <h1 className="text-2xl font-bold text-green-800 dark:text-green-400 mb-1">
             My Profile
           </h1>
-          <p className="text-gray-600 text-sm">Manage your account information</p>
+          <p className="text-gray-600 dark:text-gray-400 text-sm">Manage your account information</p>
         </div>
 
         <div className="p-6">
@@ -268,20 +268,20 @@ export default function Profile() {
                 <img
                   src={profile.profile_image}
                   alt="Profile"
-                  className="w-24 h-24 rounded-2xl object-cover border-2 border-green-200 shadow-lg"
+                  className="w-24 h-24 rounded-2xl object-cover border-2 border-green-200 dark:border-green-900 shadow-lg dark:shadow-green-900/30"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.parentElement.innerHTML = '<div class="w-24 h-24 bg-green-100 rounded-2xl flex items-center justify-center"><span class="text-3xl font-bold text-green-700">' + (profile.username?.[0]?.toUpperCase() || 'A') + '</span></div>';
+                    e.target.parentElement.innerHTML = '<div class="w-24 h-24 bg-green-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center"><span class="text-3xl font-bold text-green-700 dark:text-green-400">' + (profile.username?.[0]?.toUpperCase() || 'A') + '</span></div>';
                   }}
                 />
               ) : (
-                <div className="w-24 h-24 bg-green-100 rounded-2xl flex items-center justify-center shadow-lg">
-                  <span className="text-3xl font-bold text-green-700">
+                <div className="w-24 h-24 bg-green-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center shadow-lg dark:shadow-green-900/30">
+                  <span className="text-3xl font-bold text-green-700 dark:text-green-400">
                     {profile.username?.[0]?.toUpperCase() || 'A'}
                   </span>
                 </div>
               )}
-              <label className="absolute bottom-0 right-0 p-2 bg-green-600 rounded-full text-white hover:bg-green-700 cursor-pointer transition-all shadow-lg hover:shadow-xl">
+              <label className="absolute bottom-0 right-0 p-2 bg-green-600 dark:bg-green-700 rounded-full text-white hover:bg-green-700 dark:hover:bg-green-600 cursor-pointer transition-all shadow-lg hover:shadow-xl">
                 <input
                   type="file"
                   accept="image/*"
@@ -298,9 +298,9 @@ export default function Profile() {
             </div>
 
             <div>
-              <h2 className="text-xl font-semibold text-green-800">{profile.username}</h2>
-              <p className="text-gray-600">{profile.email}</p>
-              <p className="text-sm text-gray-500">{profile.hotel_name}</p>
+              <h2 className="text-xl font-semibold text-green-800 dark:text-green-400">{profile.username}</h2>
+              <p className="text-gray-600 dark:text-gray-400">{profile.email}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-500">{profile.hotel_name}</p>
             </div>
 
             <div className="ml-auto">
@@ -313,7 +313,7 @@ export default function Profile() {
                   <QuickAction onClick={handleSave} disabled={saving}>
                     {saving ? 'Saving...' : 'Save'}
                   </QuickAction>
-                  <QuickAction onClick={() => setIsEditing(false)} className="!from-gray-500 !to-gray-600 !hover:!from-gray-600 !hover:!to-gray-700">
+                  <QuickAction onClick={() => setIsEditing(false)} className="!from-gray-500 dark:!from-gray-600 !to-gray-600 dark:!to-gray-700 !hover:!from-gray-600 dark:!hover:!from-gray-500 !hover:!to-gray-700 dark:!hover:!to-gray-600">
                     Cancel
                   </QuickAction>
                 </div>
@@ -324,64 +324,64 @@ export default function Profile() {
           {/* Profile Form */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Username</label>
               <input
                 type="text"
                 value={profile.username || ''}
                 disabled={!isEditing}
                 onChange={(e) => setProfile({ ...profile, username: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-green-200 rounded-xl bg-green-50 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 dark:focus:ring-green-400/20 focus:border-green-500 dark:focus:border-green-600 transition-all disabled:bg-gray-100 dark:disabled:bg-gray-800"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
               <input
                 type="email"
                 value={profile.email || ''}
                 onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                 disabled={!isEditing}
-                className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all disabled:bg-green-50"
+                className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 dark:focus:ring-green-400/20 focus:border-green-500 dark:focus:border-green-600 transition-all disabled:bg-gray-100 dark:disabled:bg-gray-800"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
               <input
                 type="text"
                 value={profile.phone || ''}
                 onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
                 disabled={!isEditing}
-                className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all disabled:bg-green-50"
+                className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 dark:focus:ring-green-400/20 focus:border-green-500 dark:focus:border-green-600 transition-all disabled:bg-gray-100 dark:disabled:bg-gray-800"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Company Name</label>
               <input
                 type="text"
                 value={profile.hotel_name || 'BVS Admin'}
                 onChange={(e) => setProfile({ ...profile, hotel_name: e.target.value })}
                 disabled={!isEditing}
-                className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all disabled:bg-green-50"
+                className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 dark:focus:ring-green-400/20 focus:border-green-500 dark:focus:border-green-600 transition-all disabled:bg-gray-100 dark:disabled:bg-gray-800"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role</label>
               <input
                 type="text"
                 value="Administrator"
-                disabled
-                className="w-full px-4 py-3 border-2 border-green-200 rounded-xl bg-green-50 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                disabled={!isEditing}
+                className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 dark:focus:ring-green-400/20 focus:border-green-500 dark:focus:border-green-600 transition-all disabled:bg-gray-100 dark:disabled:bg-gray-800"
               />
             </div>
 
             {/* Profile Image URL Field */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Profile Image URL 
-                <span className="text-xs text-gray-500 ml-2">(Alternative to file upload - paste image URL here)</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">(Alternative to file upload - paste image URL here)</span>
               </label>
               <input
                 type="url"
@@ -389,9 +389,9 @@ export default function Profile() {
                 onChange={(e) => setProfile({ ...profile, profile_image: e.target.value })}
                 disabled={!isEditing}
                 placeholder="https://example.com/your-image.jpg"
-                className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all disabled:bg-green-50"
+                className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-green-500/20 dark:focus:ring-green-400/20 focus:border-green-500 dark:focus:border-green-600 transition-all disabled:bg-gray-100 dark:disabled:bg-gray-800"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 💡 Tip: Upload files under 2MB or paste an image URL
               </p>
             </div>
@@ -411,7 +411,7 @@ export default function Profile() {
       {showPasswordModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <Card className="max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-green-800 mb-4">Change Password</h3>
+            <h3 className="text-xl font-bold text-green-800 dark:text-green-400 mb-4">Change Password</h3>
 
             <div className="space-y-4">
               <input
@@ -419,21 +419,21 @@ export default function Profile() {
                 placeholder="Current Password"
                 value={passwordData.current}
                 onChange={(e) => setPasswordData({ ...passwordData, current: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-green-500/20 dark:focus:ring-green-400/20 focus:border-green-500 dark:focus:border-green-600 transition-all"
               />
               <input
                 type="password"
                 placeholder="New Password"
                 value={passwordData.new}
                 onChange={(e) => setPasswordData({ ...passwordData, new: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-green-500/20 dark:focus:ring-green-400/20 focus:border-green-500 dark:focus:border-green-600 transition-all"
               />
               <input
                 type="password"
                 placeholder="Confirm New Password"
                 value={passwordData.confirm}
                 onChange={(e) => setPasswordData({ ...passwordData, confirm: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-green-500/20 dark:focus:ring-green-400/20 focus:border-green-500 dark:focus:border-green-600 transition-all"
               />
             </div>
 

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/layout/Layout';
 import { ordersApi } from '../utils/api';
+import { useTheme } from '../context/ThemeContext';
 
 const PendingOrders = () => {
   const [token, setToken] = useState(localStorage.getItem('adminToken') || '');
@@ -9,6 +10,7 @@ const PendingOrders = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selected, setSelected] = useState(null);
+  const { isDarkMode } = useTheme();
   
   // NEW: State for pending pricing functionality
   const [pendingPricingOrders, setPendingPricingOrders] = useState([]);
@@ -175,14 +177,14 @@ const PendingOrders = () => {
 
   // UI Components
   const Card = ({ children, className = '' }) => (
-    <div className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}>
+    <div className={`bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 ${className}`}>
       {children}
     </div>
   );
 
   const Stat = ({ label, value, color = 'text-green-700' }) => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6">
-      <h3 className="text-sm font-medium text-gray-500 mb-1">{label}</h3>
+    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 p-4 lg:p-6">
+      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{label}</h3>
       <div className={`text-2xl font-semibold ${color}`}>{value}</div>
     </div>
   );
@@ -191,10 +193,10 @@ const PendingOrders = () => {
   if (!token) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-6 transition-colors duration-200">
           <Card className="p-8 max-w-md w-full">
-            <h2 className="text-2xl font-bold text-green-800 mb-4">Admin Access Required</h2>
-            <p className="text-gray-600">Please log in from the main dashboard.</p>
+            <h2 className="text-2xl font-bold text-green-800 dark:text-green-400 mb-4">Admin Access Required</h2>
+            <p className="text-gray-600 dark:text-gray-400">Please log in from the main dashboard.</p>
           </Card>
         </div>
       </Layout>
@@ -204,10 +206,10 @@ const PendingOrders = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-6 transition-colors duration-200">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading today's orders...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 dark:border-green-500 mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400">Loading today's orders...</p>
           </div>
         </div>
       </Layout>
@@ -216,12 +218,12 @@ const PendingOrders = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-6">
-        <div className="max-w-full">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-green-950 transition-colors duration-200">
+        <div className="p-8 w-full">
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-green-800 mb-1">Today's Orders</h1>
-            <p className="text-gray-600 text-sm">Orders placed before 12 PM for tomorrow's delivery - awaiting price finalization</p>
+            <h1 className="text-2xl font-bold text-green-800 dark:text-green-400 mb-1">Today's Orders</h1>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">Orders placed before 12 PM for tomorrow's delivery - awaiting price finalization</p>
           </div>
 
           {/* Stats Cards */}
@@ -233,27 +235,27 @@ const PendingOrders = () => {
 
           {/* ---------- Pending Pricing Section (NEW) ---------- */}
           {pendingPricingOrders.length > 0 && (
-            <Card className="mb-10 border-orange-300 bg-orange-50">
-              <div className="px-6 py-5 bg-gradient-to-r from-orange-100 to-amber-100 border-b-2 border-orange-300">
-                <h3 className="text-xl font-bold text-orange-800">⏳ Pending Price Finalization ({pendingPricingOrders.length})</h3>
-                <p className="text-sm text-orange-700 mt-1">Orders waiting for market pricing confirmation</p>
+            <Card className="mb-10 border-orange-300 dark:border-orange-700 bg-orange-50 dark:bg-orange-950">
+              <div className="px-6 py-5 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900 dark:to-amber-900 border-b-2 border-orange-300 dark:border-orange-700">
+                <h3 className="text-xl font-bold text-orange-800 dark:text-orange-300">⏳ Pending Price Finalization ({pendingPricingOrders.length})</h3>
+                <p className="text-sm text-orange-700 dark:text-orange-400 mt-1">Orders waiting for market pricing confirmation</p>
               </div>
               <div className="p-6">
                 {showPricingForm && selectedOrderForPricing ? (
                   <div className="space-y-6">
-                    <div className="bg-white p-6 rounded-xl border-2 border-green-200">
-                      <h4 className="text-lg font-bold text-green-800 mb-4">
+                    <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border-2 border-green-200 dark:border-green-800">
+                      <h4 className="text-lg font-bold text-green-800 dark:text-green-400 mb-4">
                         Order #{selectedOrderForPricing.id} - {selectedOrderForPricing.hotel_name}
                       </h4>
                       <div className="space-y-4">
                         {selectedOrderForPricing.items.map((item) => (
-                          <div key={item.product_id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                          <div key={item.product_id} className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                             <div className="flex-1">
-                              <p className="font-semibold text-green-800">{item.product_name}</p>
-                              <p className="text-sm text-gray-600">Qty: {item.quantity} {item.unit_type}</p>
+                              <p className="font-semibold text-green-800 dark:text-green-400">{item.product_name}</p>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">Qty: {item.quantity} {item.unit_type}</p>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium text-gray-600">₹</span>
+                              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">₹</span>
                               <input
                                 type="number"
                                 step="0.01"
@@ -263,9 +265,9 @@ const PendingOrders = () => {
                                   ...pricingData,
                                   [item.product_id]: e.target.value,
                                 })}
-                                className="w-24 px-3 py-2 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                className="w-24 px-3 py-2 border-2 border-green-200 dark:border-green-800 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500"
                               />
-                              <span className="text-sm text-gray-600 w-12">/unit</span>
+                              <span className="text-sm text-gray-600 dark:text-gray-400 w-12">/unit</span>
                             </div>
                           </div>
                         ))}
@@ -274,13 +276,13 @@ const PendingOrders = () => {
                         <button
                           onClick={() => finalizePrices(selectedOrderForPricing.id)}
                           disabled={finalizingPrices}
-                          className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 font-semibold transition-all"
+                          className="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 disabled:bg-gray-400 text-white rounded-lg font-semibold transition-all"
                         >
                           {finalizingPrices ? 'Finalizing...' : 'Finalize Prices'}
                         </button>
                         <button
                           onClick={() => { setShowPricingForm(false); setSelectedOrderForPricing(null); setPricingData({}); }}
-                          className="flex-1 px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-semibold transition-all"
+                          className="flex-1 px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-semibold transition-all"
                         >
                           Cancel
                         </button>
@@ -290,10 +292,10 @@ const PendingOrders = () => {
                 ) : (
                   <div className="space-y-3">
                     {pendingPricingOrders.map((order) => (
-                      <div key={order.id} className="flex items-center justify-between p-4 bg-white rounded-lg border-l-4 border-orange-500">
+                      <div key={order.id} className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg border-l-4 border-orange-500 dark:border-orange-600">
                         <div>
-                          <p className="font-semibold text-green-800">Order #{order.id}</p>
-                          <p className="text-sm text-gray-600">{order.hotel_name} • {order.items?.length || 0} items</p>
+                          <p className="font-semibold text-green-800 dark:text-green-400">Order #{order.id}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{order.hotel_name} • {order.items?.length || 0} items</p>
                         </div>
                         <button
                           onClick={() => {
@@ -306,7 +308,7 @@ const PendingOrders = () => {
                             setPricingData(initialPrices);
                             setShowPricingForm(true);
                           }}
-                          className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-semibold transition-all"
+                          className="px-4 py-2 bg-orange-600 hover:bg-orange-700 dark:bg-orange-700 dark:hover:bg-orange-600 text-white rounded-lg font-semibold transition-all"
                         >
                           Enter Prices
                         </button>
@@ -320,13 +322,13 @@ const PendingOrders = () => {
 
           {/* Error */}
           {error && (
-            <Card className="mb-6 bg-red-50 border-red-200 p-4">
+            <Card className="mb-6 bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800 p-4">
               <div className="flex items-center gap-3">
                 <span className="text-red-600 text-lg">⚠️</span>
                 <div>
-                  <p className="text-red-800 font-medium">Error loading orders</p>
-                  <p className="text-red-700 text-sm">{error}</p>
-                  <button onClick={fetchPendingOrders} className="mt-2 px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors">
+                  <p className="text-red-800 dark:text-red-300 font-medium">Error loading orders</p>
+                  <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
+                  <button onClick={fetchPendingOrders} className="mt-2 px-3 py-1 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 text-white rounded text-sm transition-colors">
                     Retry
                   </button>
                 </div>
@@ -336,32 +338,32 @@ const PendingOrders = () => {
 
           {/* Pending Orders Table */}
           <Card>
-            <div className="px-6 py-5 bg-yellow-50 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-xl font-bold text-yellow-800">New Orders from Hotels</h3>
-              <button onClick={fetchPendingOrders} className="px-4 py-2 bg-white text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-50 flex items-center text-sm font-medium transition-colors">
+            <div className="px-6 py-5 bg-yellow-50 dark:bg-yellow-950 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
+              <h3 className="text-xl font-bold text-yellow-800 dark:text-yellow-400">New Orders from Hotels</h3>
+              <button onClick={fetchPendingOrders} className="px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center text-sm font-medium transition-colors">
                 <span className="mr-2">🔄</span> Refresh
               </button>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full">
                 <thead>
-                  <tr className="bg-white">
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b">Order ID</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b">Hotel</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b">Date</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b">Items</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b">Locked Price</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b">Actions</th>
+                  <tr className="bg-white dark:bg-gray-900">
+                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-800">Order ID</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-800">Hotel</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-800">Date</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-800">Items</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-800">Locked Price</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-800">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                   {orders.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="px-4 py-12 text-center">
                         <div className="flex flex-col items-center gap-2">
                           <span className="text-4xl mb-2">📦</span>
-                          <p className="text-gray-500 font-medium">No pending orders</p>
-                          <p className="text-gray-400 text-sm">New orders from hotels will appear here</p>
+                          <p className="text-gray-500 dark:text-gray-400 font-medium">No pending orders</p>
+                          <p className="text-gray-400 dark:text-gray-500 text-sm">New orders from hotels will appear here</p>
                         </div>
                       </td>
                     </tr>
@@ -370,27 +372,27 @@ const PendingOrders = () => {
                       const itemsArray = Array.isArray(order.items) ? order.items : [];
                       const needsPricing = pendingPricingOrders.some(o => o.id === order.id);
                       return (
-                        <tr key={order.id} className={`${needsPricing ? 'bg-orange-50' : 'hover:bg-yellow-50'} transition-colors`}>
-                          <td className="px-4 py-3 text-sm font-medium text-gray-700">
+                        <tr key={order.id} className={`${needsPricing ? 'bg-orange-50 dark:bg-orange-950' : 'hover:bg-yellow-50 dark:hover:bg-gray-800'} transition-colors`}>
+                          <td className="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
                             <div className="flex items-center gap-2">
-                              {needsPricing && <span className="text-orange-600 text-lg">⏳</span>}
+                              {needsPricing && <span className="text-orange-600 dark:text-orange-400 text-lg">⏳</span>}
                               #{safe(order.id)}
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-700">
+                          <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                             {safe(order.hotel_name)}
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-700">
+                          <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                             {formatDate(order.order_date)}
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-700">
+                          <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                             {itemsArray.length} item(s)
                           </td>
                           <td className="px-4 py-3 text-sm font-bold">
                             {needsPricing ? (
-                              <span className="text-orange-600 bg-orange-100 px-2 py-1 rounded text-xs font-semibold">⚠️ Pending Pricing</span>
+                              <span className="text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900 px-2 py-1 rounded text-xs font-semibold">⚠️ Pending Pricing</span>
                             ) : (
-                              <span className="text-green-700">✓ ₹{safeNum(order.total_amount).toFixed(2)}</span>
+                              <span className="text-green-700 dark:text-green-400">✓ ₹{safeNum(order.total_amount).toFixed(2)}</span>
                             )}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
@@ -408,27 +410,27 @@ const PendingOrders = () => {
                                     setShowPricingForm(true);
                                     window.scrollTo({ top: 0, behavior: 'smooth' });
                                   }}
-                                  className="px-3 py-1 bg-orange-600 text-white rounded text-xs hover:bg-orange-700 transition-colors font-semibold"
+                                  className="px-3 py-1 bg-orange-600 hover:bg-orange-700 dark:bg-orange-700 dark:hover:bg-orange-600 text-white rounded text-xs transition-colors font-semibold"
                                 >
                                   Lock Price
                                 </button>
                               ) : (
                                 <button
                                   onClick={() => confirmOrder(order.id)}
-                                  className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
+                                  className="px-3 py-1 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white rounded text-xs transition-colors"
                                 >
                                   Confirm
                                 </button>
                               )}
                               <button
                                 onClick={() => setSelected(order)}
-                                className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors"
+                                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white rounded text-xs transition-colors"
                               >
                                 View
                               </button>
                               <button
                                 onClick={() => rejectOrder(order.id)}
-                                className="px-3 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 transition-colors"
+                                className="px-3 py-1 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 text-white rounded text-xs transition-colors"
                               >
                                 Reject
                               </button>
@@ -448,48 +450,48 @@ const PendingOrders = () => {
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
               <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-bold text-green-800">Order Details - #{selected.id}</h3>
-                  <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 text-2xl transition-colors">×</button>
+                  <h3 className="text-xl font-bold text-green-800 dark:text-green-400">Order Details - #{selected.id}</h3>
+                  <button onClick={() => setSelected(null)} className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 text-2xl transition-colors">×</button>
                 </div>
                 
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-sm text-gray-500">Hotel</p>
-                      <p className="font-medium">{safe(selected.hotel_name)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Hotel</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{safe(selected.hotel_name)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Order Date</p>
-                      <p className="font-medium">{formatDate(selected.order_date)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Order Date</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{formatDate(selected.order_date)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Status</p>
-                      <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
+                      <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-700">
                         Pending
                       </span>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Total Amount (Locked)</p>
-                      <p className="font-bold text-green-700 text-lg">₹{safeNum(selected.total_amount).toFixed(2)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Total Amount (Locked)</p>
+                      <p className="font-bold text-green-700 dark:text-green-400 text-lg">₹{safeNum(selected.total_amount).toFixed(2)}</p>
                     </div>
                   </div>
 
                   {/* Order Items */}
                   <div>
-                    <h4 className="font-semibold mb-2">Order Items:</h4>
-                    <div className="border rounded-lg overflow-hidden">
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Order Items:</h4>
+                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                       <table className="min-w-full">
-                        <thead className="bg-gray-50">
+                        <thead className="bg-gray-50 dark:bg-gray-800">
                           <tr>
-                            <th className="px-4 py-2 text-left text-xs font-bold text-gray-700">Product</th>
-                            <th className="px-4 py-2 text-left text-xs font-bold text-gray-700">Quantity</th>
-                            <th className="px-4 py-2 text-left text-xs font-bold text-gray-700">Price</th>
-                            <th className="px-4 py-2 text-left text-xs font-bold text-gray-700">Subtotal</th>
+                            <th className="px-4 py-2 text-left text-xs font-bold text-gray-700 dark:text-gray-300">Product</th>
+                            <th className="px-4 py-2 text-left text-xs font-bold text-gray-700 dark:text-gray-300">Quantity</th>
+                            <th className="px-4 py-2 text-left text-xs font-bold text-gray-700 dark:text-gray-300">Price</th>
+                            <th className="px-4 py-2 text-left text-xs font-bold text-gray-700 dark:text-gray-300">Subtotal</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y">
+                        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                           {(Array.isArray(selected.items) ? selected.items : []).map((item, idx) => (
-                            <tr key={idx}>
+                            <tr key={idx} className="text-gray-900 dark:text-gray-100">
                               <td className="px-4 py-2 text-sm">{safe(item.product_name)}</td>
                               <td className="px-4 py-2 text-sm">{safe(item.quantity)} {safe(item.unit_type)}</td>
                               <td className="px-4 py-2 text-sm">₹{safeNum(item.price_per_unit).toFixed(2)}</td>
@@ -502,13 +504,13 @@ const PendingOrders = () => {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-3 pt-4 border-t">
+                  <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                     <button
                       onClick={() => {
                         confirmOrder(selected.id);
                         setSelected(null);
                       }}
-                      className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors"
+                      className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white rounded-lg font-medium transition-colors"
                     >
                       Confirm Order
                     </button>
@@ -517,7 +519,7 @@ const PendingOrders = () => {
                         rejectOrder(selected.id);
                         setSelected(null);
                       }}
-                      className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors"
+                      className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 text-white rounded-lg font-medium transition-colors"
                     >
                       Reject Order
                     </button>

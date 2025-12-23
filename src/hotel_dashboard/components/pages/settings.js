@@ -221,14 +221,14 @@ export default function HotelSettings() {
   if (loading) {
       return (
         <Layout>
-          <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
+          <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex items-center justify-center p-6 transition-colors duration-200">
             <div className="text-center">
               <img
                 src="/broc.jpg"
                 alt="Loading"
                 className="h-32 w-32 mx-auto mb-4 animate-[run_1s_ease-in-out_infinite]"
               />
-              <p className="text-gray-600 font-medium text-lg">Broccoli is crunching your settings...</p>
+              <p className="text-gray-600 dark:text-gray-400 font-medium text-lg transition-colors duration-200">Broccoli is crunching your settings...</p>
             </div>
           </div>
         </Layout>
@@ -237,34 +237,34 @@ export default function HotelSettings() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-green-50 py-8 w-full">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 py-8 w-full transition-colors duration-200">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-green-800 mb-2 flex items-center">
+            <h1 className="text-3xl font-bold text-green-800 dark:text-green-400 mb-2 flex items-center transition-colors duration-200">
               <span className="mr-3">⚙️</span> Hotel Settings
             </h1>
-            <p className="text-green-700">
+            <p className="text-green-700 dark:text-green-300 transition-colors duration-200">
               Manage your profile and security, {user?.hotel_name || 'Hotel User'}.
             </p>
           </div>
 
           {/* Alerts */}
           {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-red-700">{error}</p>
+            <div className="mb-6 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-4 transition-colors duration-200">
+              <p className="text-red-700 dark:text-red-300 transition-colors duration-200">{error}</p>
             </div>
           )}
           {success && (
-            <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-              <p className="text-green-700">{success}</p>
+            <div className="mb-6 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-4 transition-colors duration-200">
+              <p className="text-green-700 dark:text-green-300 transition-colors duration-200">{success}</p>
             </div>
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Sidebar Navigation */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-xl shadow-md p-6 sticky top-8">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-lg dark:shadow-gray-700 p-6 sticky top-8 transition-colors duration-200">
                 <nav className="space-y-2">
                   {[
                     { id: 'profile', label: 'Profile', icon: '👤' },
@@ -275,8 +275,8 @@ export default function HotelSettings() {
                       onClick={() => setActiveSection(section.id)}
                       className={`w-full flex items-center px-3 py-2 rounded-lg transition-all duration-200 text-left text-sm ${
                         activeSection === section.id
-                          ? 'bg-green-100 text-green-700 border border-green-200 shadow-sm'
-                          : 'text-gray-600 hover:text-green-600 hover:bg-green-50'
+                          ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700 shadow-sm'
+                          : 'text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-gray-700'
                       }`}
                     >
                       <span className="mr-3 text-lg">{section.icon}</span>
@@ -291,72 +291,72 @@ export default function HotelSettings() {
             {/* Main Content */}
             <div className="lg:col-span-3 space-y-6">
               {activeSection === 'profile' && (
-                <div className="bg-white rounded-xl shadow-md p-6 animate-fade-in">
-                  <h2 className="text-xl font-semibold text-green-800 mb-4 flex items-center">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-lg dark:shadow-gray-700 p-6 animate-fade-in transition-colors duration-200">
+                  <h2 className="text-xl font-semibold text-green-800 dark:text-green-400 mb-4 flex items-center transition-colors duration-200">
                     <span className="mr-2">👤</span> Hotel Profile
                   </h2>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-green-700 mb-2">Hotel Name</label>
+                      <label className="block text-sm font-medium text-green-700 dark:text-green-400 mb-2 transition-colors duration-200">Hotel Name</label>
                       <input
                         type="text"
                         value={profile.hotel_name}
                         onChange={(e) => setProfile({ ...profile, hotel_name: e.target.value })}
                         disabled={!editing}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition-colors ${
-                          editing ? 'border-green-200' : 'border-gray-200 bg-gray-50'
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 transition-colors text-gray-900 dark:text-white ${
+                          editing ? 'border-green-200 dark:border-green-700 bg-white dark:bg-gray-700' : 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700'
                         }`}
                       />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-green-700 mb-2">Email (Optional)</label>
+                        <label className="block text-sm font-medium text-green-700 dark:text-green-400 mb-2 transition-colors duration-200">Email (Optional)</label>
                         <input
                           type="email"
                           value={profile.email}
                           onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                           disabled={!editing}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition-colors ${
-                            editing ? 'border-green-200' : 'border-gray-200 bg-gray-50'
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 transition-colors text-gray-900 dark:text-white ${
+                            editing ? 'border-green-200 dark:border-green-700 bg-white dark:bg-gray-700' : 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700'
                           }`}
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-green-700 mb-2">Phone</label>
+                        <label className="block text-sm font-medium text-green-700 dark:text-green-400 mb-2 transition-colors duration-200">Phone</label>
                         <input
                           type="tel"
                           value={profile.phone}
                           onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
                           disabled={!editing}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition-colors ${
-                            editing ? 'border-green-200' : 'border-gray-200 bg-gray-50'
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 transition-colors text-gray-900 dark:text-white ${
+                            editing ? 'border-green-200 dark:border-green-700 bg-white dark:bg-gray-700' : 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700'
                           }`}
                         />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-green-700 mb-2">Address</label>
+                      <label className="block text-sm font-medium text-green-700 dark:text-green-400 mb-2 transition-colors duration-200">Address</label>
                       <textarea
                         value={profile.address}
                         onChange={(e) => setProfile({ ...profile, address: e.target.value })}
                         disabled={!editing}
                         rows={3}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition-colors resize-none ${
-                          editing ? 'border-green-200' : 'border-gray-200 bg-gray-50'
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 transition-colors resize-none text-gray-900 dark:text-white ${
+                          editing ? 'border-green-200 dark:border-green-700 bg-white dark:bg-gray-700' : 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700'
                         }`}
                       />
                     </div>
                     <div className="flex justify-between">
                       <button
                         onClick={() => setEditing(!editing)}
-                        className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                        className="px-6 py-2 bg-green-600 dark:bg-green-700 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors"
                       >
                         {editing ? 'Cancel' : 'Edit Profile'}
                       </button>
                       {editing && (
                         <button
                           onClick={saveChanges}
-                          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                          className="px-6 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
                         >
                           Save Changes
                         </button>
@@ -367,63 +367,63 @@ export default function HotelSettings() {
               )}
 
               {activeSection === 'security' && (
-                <div className="bg-white rounded-xl shadow-md p-6 animate-fade-in">
-                  <h2 className="text-xl font-semibold text-green-800 mb-4 flex items-center">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-lg dark:shadow-gray-700 p-6 animate-fade-in transition-colors duration-200">
+                  <h2 className="text-xl font-semibold text-green-800 dark:text-green-400 mb-4 flex items-center transition-colors duration-200">
                     <span className="mr-2">🔒</span> Security & Account
                   </h2>
                   <div className="space-y-6">
                     <form onSubmit={handlePasswordChange} className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-green-700 mb-2">Current Password</label>
+                        <label className="block text-sm font-medium text-green-700 dark:text-green-400 mb-2 transition-colors duration-200">Current Password</label>
                         <input
                           type="password"
                           value={passwordChange.current_password}
                           onChange={(e) => setPasswordChange({ ...passwordChange, current_password: e.target.value })}
                           required
-                          className="w-full px-4 py-3 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500"
+                          className="w-full px-4 py-3 border border-green-200 dark:border-green-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 transition-colors duration-200"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-green-700 mb-2">New Password</label>
+                        <label className="block text-sm font-medium text-green-700 dark:text-green-400 mb-2 transition-colors duration-200">New Password</label>
                         <input
                           type="password"
                           value={passwordChange.new_password}
                           onChange={(e) => setPasswordChange({ ...passwordChange, new_password: e.target.value })}
                           required
                           minLength={6}
-                          className="w-full px-4 py-3 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500"
+                          className="w-full px-4 py-3 border border-green-200 dark:border-green-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 transition-colors duration-200"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-green-700 mb-2">Confirm New Password</label>
+                        <label className="block text-sm font-medium text-green-700 dark:text-green-400 mb-2 transition-colors duration-200">Confirm New Password</label>
                         <input
                           type="password"
                           value={passwordChange.confirm_new_password}
                           onChange={(e) => setPasswordChange({ ...passwordChange, confirm_new_password: e.target.value })}
                           required
-                          className="w-full px-4 py-3 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500"
+                          className="w-full px-4 py-3 border border-green-200 dark:border-green-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 transition-colors duration-200"
                         />
                       </div>
                       <button
                         type="submit"
-                        className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors font-semibold text-sm"
+                        className="w-full bg-green-600 dark:bg-green-700 text-white py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors font-semibold text-sm"
                       >
                         Update Password
                       </button>
                     </form>
                     <button
                       onClick={handleForgotPassword}
-                      className="w-full text-sm text-blue-600 hover:underline mt-4"
+                      className="w-full text-sm text-blue-600 dark:text-blue-400 hover:underline mt-4 transition-colors duration-200"
                     >
                       Forgot Password? Reset via Email
                     </button>
                     {/* Session Info */}
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                      <h3 className="text-sm font-semibold text-green-800 mb-2">Active Sessions</h3>
-                      <p className="text-xs text-gray-600">Current device: Secure • Expires in 8 hours</p>
+                    <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg transition-colors duration-200">
+                      <h3 className="text-sm font-semibold text-green-800 dark:text-green-400 mb-2 transition-colors duration-200">Active Sessions</h3>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 transition-colors duration-200">Current device: Secure • Expires in 8 hours</p>
                       <button
                         onClick={() => { alert('Logging out all sessions...'); logout(); }}
-                        className="mt-2 text-xs text-red-600 hover:underline"
+                        className="mt-2 text-xs text-red-600 dark:text-red-400 hover:underline transition-colors duration-200"
                       >
                         Revoke All Sessions
                       </button>
@@ -435,7 +435,7 @@ export default function HotelSettings() {
           </div>
 
           {/* Footer Tips */}
-          <div className="mt-12 text-center text-sm text-green-600">
+          <div className="mt-12 text-center text-sm text-green-600 dark:text-green-400 transition-colors duration-200">
             💡 Changes sync instantly. Contact support for help.
           </div>
         </div>

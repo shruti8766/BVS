@@ -102,6 +102,7 @@ import {
 
 // ----- Context Providers -----
 import { ThemeProvider } from './admin_dashboard/context/ThemeContext';
+import { HotelThemeProvider } from './hotel_dashboard/context/HotelThemeContext';
 
 // ----- Public Pages -----
 import Home from './frontend/home';
@@ -125,6 +126,7 @@ import Products from './admin_dashboard/pages/products';
 import Suppliers from './admin_dashboard/pages/suppliers';
 import Inventory from './admin_dashboard/pages/inventory';
 import Billing from './admin_dashboard/pages/billing';
+import UnpaidBills from './admin_dashboard/pages/unpaidBills';
 import Analytics from './admin_dashboard/pages/analytics_new';
 import Users from './admin_dashboard/pages/users';
 import Settings from './admin_dashboard/pages/settings';
@@ -161,9 +163,11 @@ const AdminProtectedLayout = () => {
 
 const HotelProtectedLayout = () => {
   return isHotelAuthenticated() ? (
-    <AuthProvider>  
-      <Outlet />
-    </AuthProvider>
+    <HotelThemeProvider>
+      <AuthProvider>  
+        <Outlet />
+      </AuthProvider>
+    </HotelThemeProvider>
   ) : <Navigate to="/login" replace />;
 };
 
@@ -197,6 +201,7 @@ function App() {
           <Route path="/admin/suppliers" element={<Suppliers />} />
           <Route path="/admin/inventory" element={<Inventory />} />
           <Route path="/admin/billing" element={<Billing />} />
+          <Route path="/admin/unpaid-bills" element={<UnpaidBills />} />
           <Route path="/admin/analytics" element={<Analytics />} />
           <Route path="/admin/users" element={<Users />} />
           <Route path="/admin/settings" element={<Settings />} />

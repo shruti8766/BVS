@@ -432,14 +432,14 @@ export default function HotelBills() {
   if (loading) {
       return (
         <Layout>
-          <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
+          <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-green-950 flex items-center justify-center p-6 transition-colors">
             <div className="text-center">
               <img
                 src="/broc.jpg"
                 alt="Loading"
                 className="h-32 w-32 mx-auto mb-4 animate-[run_1s_ease-in-out_infinite]"
               />
-              <p className="text-gray-600 font-medium text-lg">Broccoli is crunching your bills...</p>
+              <p className="text-gray-600 dark:text-gray-300 font-medium text-lg transition-colors">Broccoli is crunching your bills...</p>
             </div>
           </div>
         </Layout>
@@ -448,36 +448,36 @@ export default function HotelBills() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-green-50 py-8 w-full">
+      <div className="min-h-screen bg-green-50 dark:bg-gray-950 py-8 w-full transition-colors">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           {/* Header – UPDATED */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-green-800 mb-2 flex items-center">
+            <h1 className="text-3xl font-bold text-green-800 dark:text-green-300 mb-2 flex items-center transition-colors">
               <span className="mr-3">💰</span> My Bills
             </h1>
-            <p className="text-green-700">View your invoices and payment history, {displayName}.</p>
+            <p className="text-green-700 dark:text-green-400 transition-colors">View your invoices and payment history, {displayName}.</p>
           </div>
 
           {/* Error (unchanged) */}
           {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-red-700">{error}</p>
+            <div className="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4 transition-colors">
+              <p className="text-red-700 dark:text-red-300 transition-colors">{error}</p>
             </div>
           )}
 
           {/* Stats Cards (unchanged) */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             {[
-              { key: 'total', label: 'Total Bills', color: 'bg-green-100 text-green-800', icon: '📋' },
-              { key: 'paid', label: 'Paid', color: 'bg-green-100 text-green-800', icon: '✅' },
-              { key: 'pending', label: 'Pending', color: 'bg-yellow-100 text-yellow-800', icon: '⏳' },
+              { key: 'total', label: 'Total Bills', color: 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300', icon: '📋' },
+              { key: 'paid', label: 'Paid', color: 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300', icon: '✅' },
+              { key: 'pending', label: 'Pending', color: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300', icon: '⏳' },
             ].map(({ key, label, color, icon }) => (
-              <div key={key} className={`bg-white p-4 rounded-xl shadow-sm border ${color}`}>
+              <div key={key} className={`bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-green-200 dark:border-gray-700 ${color} transition-colors`}>
                 <div className="flex items-center">
                   <span className="text-2xl mr-2">{icon}</span>
                   <div>
-                    <p className="text-sm text-gray-600">{label}</p>
-                    <p className="text-2xl font-bold">{stats[key]}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 transition-colors">{label}</p>
+                    <p className="text-2xl font-bold text-current">{stats[key]}</p>
                   </div>
                 </div>
               </div>
@@ -485,13 +485,13 @@ export default function HotelBills() {
           </div>
 
           {/* Filters (unchanged) */}
-          <div className="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 mb-6 border border-green-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 transition-colors">
             <div className="flex items-center space-x-4">
-              <label className="text-sm font-medium text-green-700">Filter by status:</label>
+              <label className="text-sm font-medium text-green-700 dark:text-green-400 transition-colors">Filter by status:</label>
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                className="px-4 py-2 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500"
+                className="px-4 py-2 border border-green-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition-colors"
               >
                 <option value="all">All Bills</option>
                 <option value="paid">Paid</option>
@@ -500,33 +500,33 @@ export default function HotelBills() {
             </div>
             <button
               onClick={() => window.location.reload()}
-              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               🔄 Refresh
             </button>
           </div>
 
           {/* Table (unchanged) */}
-          <div className="bg-white rounded-xl shadow-md overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-green-200 dark:border-gray-700 transition-colors">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-green-200">
-                <thead className="bg-green-50">
+              <table className="min-w-full divide-y divide-green-200 dark:divide-gray-700 transition-colors">
+                <thead className="bg-green-50 dark:bg-gray-700 transition-colors">
                   <tr>
                     {['ID', 'Order ID', 'Amount', 'Date', 'Status', 'Payment Method', 'Actions'].map((h) => (
-                      <th key={h} className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                      <th key={h} className="px-6 py-3 text-left text-xs font-medium text-green-700 dark:text-green-400 uppercase tracking-wider transition-colors">
                         {h}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-green-200">
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-green-200 dark:divide-gray-700 transition-colors">
                   {filtered.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="px-6 py-12 text-center">
                         <div className="flex flex-col items-center">
                           <span className="text-4xl mb-2">💳</span>
-                          <p className="text-lg text-green-800">No bills yet</p>
-                          <p className="text-green-600">Place an order to generate invoices.</p>
+                          <p className="text-lg text-green-800 dark:text-green-400 transition-colors">No bills yet</p>
+                          <p className="text-green-600 dark:text-green-300 transition-colors">Place an order to generate invoices.</p>
                         </div>
                       </td>
                     </tr>
@@ -536,46 +536,46 @@ export default function HotelBills() {
                       const isDraft = b.bill_status === 'draft' || b.is_draft;
                       
                       return (
-                        <tr key={b.bill_id} className="hover:bg-green-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-800">
+                        <tr key={b.bill_id} className="hover:bg-green-50 dark:hover:bg-gray-700 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-800 dark:text-green-400 transition-colors">
                             #{b.bill_id}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-green-700">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-green-700 dark:text-green-400 transition-colors">
                             #{b.order_id}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-800">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-800 dark:text-green-400 transition-colors">
                             {isDraft ? (
-                              <span className="text-orange-600 italic">Calculating...</span>
+                              <span className="text-orange-600 dark:text-orange-400 italic transition-colors">Calculating...</span>
                             ) : (
                               `₹${amount.toFixed(2)}`
                             )}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 transition-colors">
                             {formatDate(b.bill_date)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                              isDraft ? 'bg-orange-100 text-orange-800' :
-                              b.bill_status === 'sent' ? 'bg-blue-100 text-blue-800' :
+                            <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium transition-colors ${
+                              isDraft ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-300' :
+                              b.bill_status === 'sent' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300' :
                               b.bill_status === 'paid' || b.paid
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-yellow-100 text-yellow-800'
+                                ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300'
+                                : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300'
                             }`}>
                               {isDraft ? '⏳ Awaiting Prices' :
                                b.bill_status === 'sent' ? '📧 Sent' :
                                b.bill_status === 'paid' || b.paid ? '✅ Paid' : '⏳ Unpaid'}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 transition-colors">
                             {isDraft ? '—' : (b.payment_method || 'N/A')}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             {isDraft ? (
-                              <span className="text-gray-400 italic">Pending</span>
+                              <span className="text-gray-400 dark:text-gray-500 italic transition-colors">Pending</span>
                             ) : (
                               <button
                                 onClick={() => viewBill(b)}
-                                className="text-green-600 hover:text-green-800 underline text-sm"
+                                className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 underline text-sm transition-colors"
                               >
                                 View & Print
                               </button>
@@ -590,8 +590,8 @@ export default function HotelBills() {
             </div>
           </div>
 
-          {/* Footer (unchanged) */}
-          <div className="mt-8 text-center text-sm text-green-600">
+          {/* Footer (updated) */}
+          <div className="mt-8 text-center text-sm text-green-600 dark:text-green-400 transition-colors">
             💡 Questions about a bill? Contact support.
           </div>
         </div>

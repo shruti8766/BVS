@@ -425,14 +425,14 @@ export default function HotelOrders() {
   if (loading) {
       return (
         <Layout>
-          <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
+          <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-green-950 flex items-center justify-center p-6 transition-colors">
             <div className="text-center">
               <img
                 src="/broc.jpg"
                 alt="Loading"
                 className="h-32 w-32 mx-auto mb-4 animate-[run_1s_ease-in-out_infinite]"
               />
-              <p className="text-gray-600 font-medium text-lg">Broccoli is crunching your orders...</p>
+              <p className="text-gray-600 dark:text-gray-300 font-medium text-lg transition-colors">Broccoli is crunching your orders...</p>
             </div>
           </div>
         </Layout>
@@ -444,37 +444,37 @@ export default function HotelOrders() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-green-50 py-8 w-full">
+      <div className="min-h-screen bg-green-50 dark:bg-gray-950 py-8 w-full transition-colors">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           {/* Header – UPDATED */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-green-800 mb-2 flex items-center">
+            <h1 className="text-3xl font-bold text-green-800 dark:text-green-300 mb-2 flex items-center transition-colors">
               <span className="mr-3">📦</span> My Orders
             </h1>
-            <p className="text-green-700">Track your vegetable orders and delivery history, {displayName}.</p>
+            <p className="text-green-700 dark:text-green-400 transition-colors">Track your vegetable orders and delivery history, {displayName}.</p>
           </div>
 
           {/* Error */}
           {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-red-700">{error}</p>
+            <div className="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4 transition-colors">
+              <p className="text-red-700 dark:text-red-300">{error}</p>
             </div>
           )}
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             {[
-              { key: 'total', label: 'Total Orders', color: 'bg-green-100 text-green-800', icon: '📋' },
-              { key: 'pending', label: 'Pending', color: 'bg-yellow-100 text-yellow-800', icon: '⏳' },
-              { key: 'confirmed', label: 'Confirmed', color: 'bg-blue-100 text-blue-800', icon: '✅' },
-              { key: 'delivered', label: 'Delivered', color: 'bg-green-100 text-green-800', icon: '🚚' },
+              { key: 'total', label: 'Total Orders', color: 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300', icon: '📋' },
+              { key: 'pending', label: 'Pending', color: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300', icon: '⏳' },
+              { key: 'confirmed', label: 'Confirmed', color: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300', icon: '✅' },
+              { key: 'delivered', label: 'Delivered', color: 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300', icon: '🚚' },
             ].map(({ key, label, color, icon }) => (
-              <div key={key} className={`bg-white p-4 rounded-xl shadow-sm border ${color}`}>
+              <div key={key} className={`bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-green-200 dark:border-gray-700 ${color} transition-colors`}>
                 <div className="flex items-center">
                   <span className="text-2xl mr-2">{icon}</span>
                   <div>
-                    <p className="text-sm text-gray-600">{label}</p>
-                    <p className="text-2xl font-bold">{stats[key]}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 transition-colors">{label}</p>
+                    <p className="text-2xl font-bold text-current">{stats[key]}</p>
                   </div>
                 </div>
               </div>
@@ -482,13 +482,13 @@ export default function HotelOrders() {
           </div>
 
           {/* Filters & Actions */}
-          <div className="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border border-green-200 dark:border-gray-700 transition-colors">
             <div className="flex items-center space-x-4">
-              <label className="text-sm font-medium text-green-700">Filter by status:</label>
+              <label className="text-sm font-medium text-green-700 dark:text-green-400 transition-colors">Filter by status:</label>
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                className="px-4 py-2 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500"
+                className="px-4 py-2 border border-green-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition-colors"
               >
                 <option value="all">All Orders</option>
                 <option value="pending">Pending Approval</option>
@@ -499,13 +499,13 @@ export default function HotelOrders() {
             <div className="flex gap-2">
               <button
                 onClick={() => window.location.reload()}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
               >
                 🔄 Refresh
               </button>
               <button
                 onClick={() => navigate('/hotel/products')} // Assuming a route for new order
-                className="px-6 py-2 bg-green-800 text-white rounded-lg hover:bg-green-900"
+                className="px-6 py-2 bg-green-800 text-white rounded-lg hover:bg-green-900 transition-colors"
               >
                 ➕ New Order
               </button>
@@ -513,29 +513,29 @@ export default function HotelOrders() {
           </div>
 
           {/* Table */}
-          <div className="bg-white rounded-xl shadow-md overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-green-200 dark:border-gray-700 transition-colors">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-green-200">
-                <thead className="bg-green-50">
+              <table className="min-w-full divide-y divide-green-200 dark:divide-gray-700 transition-colors">
+                <thead className="bg-green-50 dark:bg-gray-700 transition-colors">
                   <tr>
                     {['ID', 'Date', 'Total', 'Status', 'Delivery Date', 'Bill', 'Actions'].map((h) => (
-                      <th key={h} className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                      <th key={h} className="px-6 py-3 text-left text-xs font-medium text-green-700 dark:text-green-400 uppercase tracking-wider transition-colors">
                         {h}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-green-200">
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-green-200 dark:divide-gray-700 transition-colors">
                   {filtered.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="px-6 py-12 text-center">
                         <div className="flex flex-col items-center">
                           <span className="text-4xl mb-2">📦</span>
-                          <p className="text-lg text-green-800">No orders yet</p>
-                          <p className="text-green-600">Place your first order to get fresh vegetables delivered.</p>
+                          <p className="text-lg text-green-800 dark:text-green-400 transition-colors">No orders yet</p>
+                          <p className="text-green-600 dark:text-green-300 transition-colors">Place your first order to get fresh vegetables delivered.</p>
                           <button
                             onClick={() => navigate('/hotel/products')}
-                            className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                            className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                           >
                             Start Ordering
                           </button>
@@ -546,54 +546,54 @@ export default function HotelOrders() {
                     filtered.map((o) => {
                       const total = parseFloat(o.total_amount || 0);
                       const bill = getBillForOrder(o.id);
-                      const statusColor = o.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                          (o.status === 'delivered' || o.status === 'dispatched') ? 'bg-green-100 text-green-800' :
-                                          'bg-blue-100 text-blue-800';
+                      const statusColor = o.status === 'pending' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300' :
+                                          (o.status === 'delivered' || o.status === 'dispatched') ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300' :
+                                          'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300';
                       
                       // NEW: Pricing status badge
                       const pricingStatusColor = o.pricing_status === 'pending_pricing' 
-                        ? 'bg-orange-100 text-orange-800' 
-                        : 'bg-green-100 text-green-800';
+                        ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-300' 
+                        : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300';
                       
                       return (
-                        <tr key={o.id} className="hover:bg-green-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-800">
+                        <tr key={o.id} className="hover:bg-green-50 dark:hover:bg-gray-700 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-800 dark:text-green-400 transition-colors">
                             #{o.id}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 transition-colors">
                             {formatDate(o.order_date)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             {o.pricing_status === 'pending_pricing' ? (
-                              <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                              <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-300 transition-colors">
                                 ⏳ Pending
                               </span>
                             ) : (
-                              <span className="text-sm font-semibold text-green-800">₹{total.toFixed(2)}</span>
+                              <span className="text-sm font-semibold text-green-800 dark:text-green-400 transition-colors">₹{total.toFixed(2)}</span>
                             )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${statusColor}`}>
+                            <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${statusColor} transition-colors`}>
                               {o.status.charAt(0).toUpperCase() + o.status.slice(1)}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 transition-colors">
                             {formatDate(o.delivery_date)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm">
                             {bill ? (
-                              <span className={o.pricing_status === 'pending_pricing' ? 'text-orange-500' : 'text-green-600'}>
+                              <span className={o.pricing_status === 'pending_pricing' ? 'text-orange-500 dark:text-orange-400' : 'text-green-600 dark:text-green-400 transition-colors'}>
                                 {o.pricing_status === 'pending_pricing' ? 'Pending' : 'Generated'}
                               </span>
                             ) : (
-                              <span className="text-gray-400">Pending</span>
+                              <span className="text-gray-400 dark:text-gray-600 transition-colors">Pending</span>
                             )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div className="flex space-x-2">
                               <button
                                 onClick={() => openOrderDetails(o)}
-                                className="text-green-600 hover:text-green-800 underline text-sm"
+                                className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 underline text-sm transition-colors"
                               >
                                 Details
                               </button>

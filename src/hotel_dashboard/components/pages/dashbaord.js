@@ -219,26 +219,26 @@ export default function HotelDashboard() {
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200';
       case 'confirmed':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200';
       case 'preparing':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200';
       case 'dispatched':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200';
       case 'delivered':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200';
       case 'cancelled':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200';
     }
   };
 
   if (loading) {
       return (
         <Layout>
-          <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
+          <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-green-950 flex items-center justify-center p-6 transition-colors duration-200">
             <div className="text-center">
               <img
                 src="/broc.jpg"
@@ -254,29 +254,33 @@ export default function HotelDashboard() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 py-8 w-full">
+      <div className="min-h-screen
+        bg-gradient-to-br
+        from-green-50 via-white to-emerald-50
+        dark:from-gray-900 dark:via-gray-950 dark:to-green-950
+        py-8 w-full">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           {/* Header with Date & Greeting */}
           <div className="mb-8 text-center lg:text-left">
-            <h1 className="text-4xl font-bold text-green-800 mb-2 flex items-center justify-center lg:justify-start">
+            <h1 className="text-4xl font-bold text-green-800 dark:text-green-300 mb-2 flex items-center justify-center lg:justify-start transition-colors">
               <span className="mr-3">🌿</span> 
               Welcome Back, {user?.hotel_name || user?.username || 'Hotel User'}!
             </h1>
-            <p className="text-lg text-green-600 flex items-center justify-center lg:justify-start">
+            <p className="text-lg text-green-600 dark:text-green-400 flex items-center justify-center lg:justify-start transition-colors">
               <span className="mr-2">📅</span> Today is {today}
             </p>
           </div>
 
           {/* Error */}
           {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
-              <p className="text-red-700 flex items-center">
+            <div className="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl p-4 transition-colors">
+              <p className="text-red-700 dark:text-red-300 flex items-center">
                 <span className="mr-2">⚠️</span>
                 {error}
               </p>
               <button 
                 onClick={() => window.location.reload()}
-                className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
+                className="mt-2 text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 underline transition-colors"
               >
                 Try Again
               </button>
@@ -322,12 +326,12 @@ export default function HotelDashboard() {
               <Link
                 key={key}
                 to={link}
-                className={`p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-300 ${color} hover:bg-green-50`}
+                className={`p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-300 ${color} dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 hover:bg-green-50 dark:hover:bg-gray-700`}
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium opacity-70 mb-1">{label}</p>
-                    <p className="text-3xl font-bold">{value}</p>
+                    <p className="text-sm font-medium opacity-70 dark:opacity-60 mb-1">{label}</p>
+                    <p className="text-3xl font-bold text-current dark:text-current">{value}</p>
                   </div>
                   <span className="text-4xl">{icon}</span>
                 </div>
@@ -336,64 +340,64 @@ export default function HotelDashboard() {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white rounded-2xl shadow-sm p-6 mb-8 border border-green-100">
-            <h2 className="text-xl font-semibold text-green-800 mb-4 flex items-center">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 mb-8 border border-green-100 dark:border-gray-700 transition-colors">
+            <h2 className="text-xl font-semibold text-green-800 dark:text-green-400 mb-4 flex items-center transition-colors">
               <span className="mr-2">⚡</span> Quick Actions
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <Link
                 to="/hotel/products"
-                className="flex items-center p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors"
+                className="flex items-center p-4 bg-green-50 dark:bg-gray-700 rounded-xl hover:bg-green-100 dark:hover:bg-gray-600 transition-colors"
               >
                 <span className="text-2xl mr-3">🥕</span>
                 <div>
-                  <p className="font-medium text-green-800">Browse Products</p>
-                  <p className="text-sm text-green-600">Add fresh items to cart</p>
+                  <p className="font-medium text-green-800 dark:text-green-400">Browse Products</p>
+                  <p className="text-sm text-green-600 dark:text-green-300">Add fresh items to cart</p>
                 </div>
               </Link>
               <Link
                 to="/hotel/cart"
-                className="flex items-center p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors"
+                className="flex items-center p-4 bg-green-50 dark:bg-gray-700 rounded-xl hover:bg-green-100 dark:hover:bg-gray-600 transition-colors"
               >
                 <span className="text-2xl mr-3">🛒</span>
                 <div>
-                  <p className="font-medium text-green-800">View Cart</p>
-                  <p className="text-sm text-green-600">Review & place order</p>
+                  <p className="font-medium text-green-800 dark:text-green-400">View Cart</p>
+                  <p className="text-sm text-green-600 dark:text-green-300">Review & place order</p>
                 </div>
               </Link>
               <Link
                 to="/hotel/orders"
-                className="flex items-center p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors"
+                className="flex items-center p-4 bg-green-50 dark:bg-gray-700 rounded-xl hover:bg-green-100 dark:hover:bg-gray-600 transition-colors"
               >
                 <span className="text-2xl mr-3">📋</span>
                 <div>
-                  <p className="font-medium text-green-800">Track Orders</p>
-                  <p className="text-sm text-green-600">See status updates</p>
+                  <p className="font-medium text-green-800 dark:text-green-400">Track Orders</p>
+                  <p className="text-sm text-green-600 dark:text-green-300">See status updates</p>
                 </div>
               </Link>
               <Link
                 to="/hotel/bills"
-                className="flex items-center p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors"
+                className="flex items-center p-4 bg-green-50 dark:bg-gray-700 rounded-xl hover:bg-green-100 dark:hover:bg-gray-600 transition-colors"
               >
                 <span className="text-2xl mr-3">💳</span>
                 <div>
-                  <p className="font-medium text-green-800">Manage Bills</p>
-                  <p className="text-sm text-green-600">View & pay invoices</p>
+                  <p className="font-medium text-green-800 dark:text-green-400">Manage Bills</p>
+                  <p className="text-sm text-green-600 dark:text-green-300">View & pay invoices</p>
                 </div>
               </Link>
             </div>
           </div>
 
           {/* Recent Orders */}
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-8 border border-green-100">
-            <div className="p-6 border-b border-green-100">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden mb-8 border border-green-100 dark:border-gray-700 transition-colors">
+            <div className="p-6 border-b border-green-100 dark:border-gray-700 transition-colors">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-green-800 flex items-center">
+                <h2 className="text-xl font-semibold text-green-800 dark:text-green-400 flex items-center transition-colors">
                   <span className="mr-2">📦</span> Recent Orders
                 </h2>
                 <Link
                   to="/hotel/orders"
-                  className="text-green-600 hover:text-green-700 text-sm font-medium flex items-center"
+                  className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 text-sm font-medium flex items-center transition-colors"
                 >
                   View All → 
                 </Link>
@@ -401,11 +405,11 @@ export default function HotelDashboard() {
             </div>
             {recentOrders.length === 0 ? (
               <div className="p-12 text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
                   <span className="text-2xl">📦</span>
                 </div>
-                <h3 className="text-lg font-medium text-green-800 mb-2">No recent orders yet</h3>
-                <p className="text-green-600 mb-4">Get started by browsing our fresh products!</p>
+                <h3 className="text-lg font-medium text-green-800 dark:text-green-400 mb-2 transition-colors">No recent orders yet</h3>
+                <p className="text-green-600 dark:text-green-300 mb-4 transition-colors">Get started by browsing our fresh products!</p>
                 <Link
                   to="/hotel/products"
                   className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
@@ -415,25 +419,25 @@ export default function HotelDashboard() {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-green-200">
-                  <thead className="bg-green-50">
+                <table className="min-w-full divide-y divide-green-200 dark:divide-gray-700 transition-colors">
+                  <thead className="bg-green-50 dark:bg-gray-700 transition-colors">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Order ID</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Total</th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-green-700 uppercase tracking-wider">Actions</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-green-700 dark:text-green-400 uppercase tracking-wider transition-colors">Order ID</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-green-700 dark:text-green-400 uppercase tracking-wider transition-colors">Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-green-700 dark:text-green-400 uppercase tracking-wider transition-colors">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-green-700 dark:text-green-400 uppercase tracking-wider transition-colors">Total</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-green-700 dark:text-green-400 uppercase tracking-wider transition-colors">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-green-200">
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-green-200 dark:divide-gray-700 transition-colors">
                     {recentOrders.map((order) => {
                       const total = parseFloat(order.total_amount || order.amount || 0);
                       return (
-                        <tr key={order.order_id} className="hover:bg-green-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-800">
+                        <tr key={order.order_id} className="hover:bg-green-50 dark:hover:bg-gray-700 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-800 dark:text-green-400 transition-colors">
                             #{order.order_id}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 transition-colors">
                             {formatDate(order.order_date || order.created_at)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -441,13 +445,13 @@ export default function HotelDashboard() {
                               {order.status || 'N/A'}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-800">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-800 dark:text-green-400 transition-colors">
                             {formatCurrency(total)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <Link 
                               to={`/hotel/orders/${order.id || order.order_id}`} 
-                              className="text-green-600 hover:text-green-700"
+                              className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 transition-colors"
                             >
                               View Details
                             </Link>
@@ -462,8 +466,8 @@ export default function HotelDashboard() {
           </div>
 
           {/* Upcoming Deliveries */}
-          <div className="bg-white rounded-2xl shadow-sm p-6 border border-green-100">
-            <h2 className="text-xl font-semibold text-green-800 mb-4 flex items-center">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 border border-green-100 dark:border-gray-700 transition-colors">
+            <h2 className="text-xl font-semibold text-green-800 dark:text-green-400 mb-4 flex items-center transition-colors">
               <span className="mr-2">🚚</span> Upcoming Deliveries
             </h2>
             {recentOrders.filter(o => ['confirmed', 'preparing', 'dispatched'].includes(o.status)).length > 0 ? (
@@ -472,11 +476,11 @@ export default function HotelDashboard() {
                   .filter(o => ['confirmed', 'preparing', 'dispatched'].includes(o.status))
                   .slice(0, 2)
                   .map(order => (
-                    <li key={order.order_id} className="flex items-center p-3 bg-green-50 rounded-lg">
+                    <li key={order.order_id} className="flex items-center p-3 bg-green-50 dark:bg-gray-700 rounded-lg transition-colors">
                       <span className="text-2xl mr-3">📦</span>
                       <div className="flex-1">
-                        <p className="font-medium text-green-800">Order #{order.order_id}</p>
-                        <p className="text-sm text-green-600">
+                        <p className="font-medium text-green-800 dark:text-green-400 transition-colors">Order #{order.order_id}</p>
+                        <p className="text-sm text-green-600 dark:text-green-300 transition-colors">
                           {formatDate(order.delivery_date || order.order_date)}
                         </p>
                       </div>
@@ -489,22 +493,18 @@ export default function HotelDashboard() {
             ) : (
               <div className="text-center py-8">
                 <span className="text-4xl mb-4 block">🚚</span>
-                <p className="text-green-600 mb-2">No upcoming deliveries</p>
-                <p className="text-sm text-green-500">Place an order to schedule your next fresh supply!</p>
+                <p className="text-green-600 dark:text-green-400 mb-2 transition-colors">No upcoming deliveries</p>
+                <p className="text-sm text-green-500 dark:text-green-300 transition-colors">Place an order to schedule your next fresh supply!</p>
               </div>
             )}
             <div className="mt-4 text-center">
-              <Link to="/hotel/orders" className="text-green-600 hover:text-green-700 font-semibold">
+              <Link to="/hotel/orders" className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-semibold transition-colors">
                 Manage Deliveries → 
               </Link>
             </div>
           </div>
-
-          {/* Footer Note */}
-          <div className="mt-12 text-center text-sm text-green-600 py-6 border-t border-green-200">
-            💚 Powered by Bhairavnath Vegetables Supplier | Freshness Guaranteed
-          </div>
         </div>
+
       </div>
     </Layout>
   );

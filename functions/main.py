@@ -1213,7 +1213,7 @@ def hotel_dashboard(current_user):
 @app.route('/api/hotel/orders', methods=['GET'])
 @token_required
 def get_hotel_orders(current_user):
-    """Get hotel orders from Firestore"""
+    """Get hotel orders from Firestore with items"""
     try:
         user_id = current_user.get('id')
         
@@ -1229,6 +1229,35 @@ def get_hotel_orders(current_user):
             order = doc.to_dict()
             order['id'] = doc.id
             order['order_id'] = doc.id
+            
+            # Fetch order items from subcollection
+            items = []
+            try:
+                items_query = firestore_db.collection('orders').document(doc.id).collection('order_items').stream()
+                for item_doc in items_query:
+                    item = item_doc.to_dict()
+                    item['item_id'] = item_doc.id
+                    
+                    # Get product details if not already in item
+                    if 'product_id' in item and not item.get('product_name'):
+                        try:
+                            product_id_str = str(item['product_id'])
+                            product_doc = firestore_db.collection('products').document(product_id_str).get()
+                            if product_doc.exists:
+                                product = product_doc.to_dict()
+                                item['product_name'] = product.get('name', 'Unknown')
+                                item['unit_type'] = item.get('unit_type') or product.get('unit_type', 'kg')
+                        except Exception as prod_err:
+                            logger.warning(f"Could not fetch product details for {item.get('product_id')}: {str(prod_err)}")
+                            item['product_name'] = item.get('product_name', 'Unknown')
+                            item['unit_type'] = item.get('unit_type', 'kg')
+                    
+                    items.append(item)
+            except Exception as items_err:
+                logger.warning(f"Could not fetch items for order {doc.id}: {str(items_err)}")
+            
+            order['items'] = items
+            logger.info(f"Order {doc.id} has {len(items)} items")
             orders.append(order)
         
         # Sort by order_date descending
@@ -1237,6 +1266,8 @@ def get_hotel_orders(current_user):
         return jsonify({'orders': orders, 'success': True})
     except Exception as e:
         logger.error(f"Get orders error: {str(e)}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
         return jsonify({'error': 'Failed to fetch orders'}), 500
 
 @app.route('/api/hotel/orders/<order_id>', methods=['GET'])
@@ -5093,6 +5124,103 @@ def get_all_bills(current_user):
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/admin/unpaid-bills', methods=['GET'])
+@token_required
+@admin_required
+def get_unpaid_bills(current_user):
+    """Get all unpaid bills with hotel-wise breakdown"""
+    try:
+        logger.info("[UNPAID_BILLS] Fetching all unpaid bills")
+        
+        firestore_db = get_firestore_client()
+        if not firestore_db:
+            return jsonify({'error': 'Database connection failed'}), 500
+        
+        # Fetch all bills
+        bills_query = firestore_db.collection('bills').stream()
+        unpaid_bills = []
+        hotel_breakdown = {}
+        total_unpaid = 0
+        
+        for doc in bills_query:
+            bill_data = doc.to_dict()
+            bill_data['_id'] = doc.id
+            
+            # Check if bill is unpaid
+            bill_status = bill_data.get('status', '').lower()
+            bill_paid = bill_data.get('paid', False)
+            
+            # Bill is unpaid if:
+            # 1. paid field is False
+            # 2. status field is not 'paid' or 'cancelled'
+            is_unpaid = (bill_paid is False) or (bill_status and bill_status not in ['paid', 'cancelled'])
+            
+            if is_unpaid:
+                try:
+                    # Get order and user details
+                    order_id = bill_data.get('order_id')
+                    if order_id:
+                        order_doc = firestore_db.collection('orders').document(str(order_id)).get()
+                        if order_doc.exists:
+                            order_data = order_doc.to_dict()
+                            
+                            # Get user/hotel details
+                            user_id = order_data.get('user_id')
+                            if user_id:
+                                user_doc = firestore_db.collection('users').document(str(user_id)).get()
+                                if user_doc.exists:
+                                    user_data = user_doc.to_dict()
+                                    hotel_name = user_data.get('hotel_name', 'Unknown')
+                                    bill_data['hotelName'] = hotel_name
+                                    bill_data['hotelId'] = str(user_id)
+                                    
+                                    # Track hotel breakdown
+                                    if hotel_name not in hotel_breakdown:
+                                        hotel_breakdown[hotel_name] = {
+                                            'hotelName': hotel_name,
+                                            'totalAmount': 0,
+                                            'billCount': 0
+                                        }
+                                    
+                                    total_amount = float(bill_data.get('total_amount', 0))
+                                    hotel_breakdown[hotel_name]['totalAmount'] += total_amount
+                                    hotel_breakdown[hotel_name]['billCount'] += 1
+                                    total_unpaid += total_amount
+                    
+                    unpaid_bills.append(bill_data)
+                    logger.info(f"[UNPAID_BILLS] Bill {doc.id} is unpaid: {bill_data.get('hotelName', 'Unknown')}")
+                    
+                except Exception as e:
+                    logger.warning(f"[UNPAID_BILLS] Error processing bill {doc.id}: {str(e)}")
+                    # Still add the bill even if enrichment fails
+                    unpaid_bills.append(bill_data)
+        
+        # Sort bills by date (newest first)
+        unpaid_bills = sorted(unpaid_bills, key=lambda x: x.get('bill_date') or '', reverse=True)
+        
+        # Sort hotel breakdown by amount (highest first)
+        hotel_breakdown_sorted = sorted(
+            hotel_breakdown.values(),
+            key=lambda x: x['totalAmount'],
+            reverse=True
+        )
+        
+        response = {
+            'unpaidBills': unpaid_bills,
+            'hotelBreakdown': hotel_breakdown_sorted,
+            'totalUnpaidAmount': total_unpaid,
+            'totalUnpaidCount': len(unpaid_bills),
+            'totalHotels': len(hotel_breakdown)
+        }
+        
+        logger.info(f"[UNPAID_BILLS] Returning {len(unpaid_bills)} unpaid bills from {len(hotel_breakdown)} hotels")
+        return jsonify(response)
+        
+    except Exception as e:
+        logger.error(f"[UNPAID_BILLS] Error fetching unpaid bills: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/admin/bills', methods=['POST'])
 @token_required
 @admin_required
@@ -5205,6 +5333,47 @@ def create_bill(current_user):
         return jsonify({'message': 'Bill created', 'bill_id': bill_id}), 201
     except Exception as e:
         logger.error(f"[CREATE_BILL] Error creating bill: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/admin/bills/<bill_id>', methods=['PUT'])
+@token_required
+@admin_required
+def update_bill(current_user, bill_id):
+    """Update bill payment status, method, and comments"""
+    try:
+        data = request.get_json()
+        logger.info(f"[UPDATE_BILL] Updating bill {bill_id} with data: {data}")
+        
+        db = get_firestore_client()
+        bill_ref = db.collection('bills').document(str(bill_id))
+        
+        # Check if bill exists
+        bill_doc = bill_ref.get()
+        if not bill_doc.exists:
+            return jsonify({'error': 'Bill not found'}), 404
+        
+        # Prepare update data with only allowed fields
+        update_data = {
+            'updated_at': datetime.now(timezone.utc).isoformat()
+        }
+        
+        allowed_fields = ['paid', 'payment_method', 'comments']
+        for field in allowed_fields:
+            if field in data:
+                update_data[field] = data[field]
+        
+        # If no valid fields provided
+        if len(update_data) == 1:  # Only has updated_at
+            return jsonify({'error': 'No valid fields to update'}), 400
+        
+        # Update bill
+        bill_ref.set(update_data, merge=True)
+        logger.info(f"[UPDATE_BILL] Bill {bill_id} updated successfully")
+        
+        return jsonify({'message': 'Bill updated successfully'}), 200
+    except Exception as e:
+        logger.error(f"[UPDATE_BILL] Error updating bill {bill_id}: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 

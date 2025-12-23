@@ -462,20 +462,20 @@ const formatDate = (dateStr) => {
 // 2. Reusable UI Components (Adapted from dashboard)
 // ──────────────────────────────────────────────────────
 const Card = ({ children, className = '', hover = false }) => (
-  <div className={`bg-white rounded-2xl shadow-lg border-2 border-green-100 overflow-hidden transition-all duration-300 ${hover ? 'hover:shadow-xl hover:border-green-300 hover:-translate-y-1' : ''} ${className}`}>
+  <div className={`bg-white dark:bg-gray-900 rounded-2xl shadow-lg border-2 border-green-100 dark:border-green-900 overflow-hidden transition-all duration-300 ${hover ? 'hover:shadow-xl hover:border-green-300 dark:hover:border-green-700 hover:-translate-y-1' : ''} ${className}`}>
     {children}
   </div>
 );
 
 const GlassCard = ({ children, className = '' }) => (
-  <div className={`bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border-2 border-green-100 overflow-hidden ${className}`}>
+  <div className={`bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl shadow-lg border-2 border-green-100 dark:border-green-900 overflow-hidden ${className}`}>
     {children}
   </div>
 );
 
-const Stat = ({ label, value, color = 'text-green-700' }) => (
-  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6">
-    <h3 className="text-sm font-medium text-gray-500 mb-1">{label}</h3>
+const Stat = ({ label, value, color = 'text-green-700 dark:text-green-300' }) => (
+  <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 p-4 lg:p-6 transition-colors duration-200">
+    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{label}</h3>
     <div className={`text-2xl font-semibold ${color}`}>{value}</div>
   </div>
 );
@@ -485,21 +485,21 @@ const MiniTable = ({ headers, rows, emptyMsg = 'No data', onEdit, onDelete, onVi
     <div className="overflow-x-auto">
       <table className="min-w-full">
         <thead>
-          <tr className="bg-green-50/50">
+          <tr className="bg-green-50/50 dark:bg-gray-800">
             {headers.map((h, i) => (
-              <th key={i} className="px-6 py-4 text-left text-xs font-bold text-green-700 uppercase tracking-wider">
+              <th key={i} className="px-6 py-4 text-left text-xs font-bold text-green-700 dark:text-green-300 uppercase tracking-wider">
                 {h}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-green-50">
+        <tbody className="divide-y divide-green-50 dark:divide-gray-800">
           {rows.length === 0 ? (
             <tr>
               <td colSpan={headers.length} className="px-6 py-12 text-center">
                 <div className="flex flex-col items-center gap-2">
                   <span className="text-4xl mb-2">🏪</span>
-                  <p className="text-gray-500 font-medium">{emptyMsg}</p>
+                  <p className="text-gray-500 dark:text-gray-400 font-medium">{emptyMsg}</p>
                 </div>
               </td>
             </tr>
@@ -507,9 +507,9 @@ const MiniTable = ({ headers, rows, emptyMsg = 'No data', onEdit, onDelete, onVi
             rows.map((r, i) => {
               const supplier = r.slice(-1)[0];  // Last element is the supplier object
               return (
-                <tr key={i} className="hover:bg-green-50/30 transition-colors">
+                <tr key={i} className="hover:bg-green-50/30 dark:hover:bg-gray-800 transition-colors">
                   {r.slice(0, -1).map((cell, j) => (  // All but actions/supplier
-                    <td key={j} className="px-6 py-4 text-sm font-medium text-gray-700">
+                    <td key={j} className="px-6 py-4 text-sm font-medium text-gray-700 dark:text-gray-300">
                       {cell}
                     </td>
                   ))}
@@ -517,19 +517,19 @@ const MiniTable = ({ headers, rows, emptyMsg = 'No data', onEdit, onDelete, onVi
                     <div className="flex space-x-2">
                       <button
                         onClick={() => onEdit(supplier)}
-                        className="text-green-600 hover:text-green-900 text-xs font-medium transition-colors"
+                        className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 text-xs font-medium transition-colors"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => onDelete(supplier.id)}
-                        className="text-red-600 hover:text-red-900 text-xs font-medium transition-colors"
+                        className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-xs font-medium transition-colors"
                       >
                         Delete
                       </button>
                       <button
                         onClick={() => onView(supplier)}
-                        className="text-green-600 hover:text-green-900 text-xs font-medium underline transition-colors"
+                        className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 text-xs font-medium underline transition-colors"
                       >
                         View
                       </button>
@@ -713,17 +713,17 @@ const Suppliers = () => {
   if (!token) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-6 transition-colors duration-200">
           <Card className="p-8 max-w-md w-full">
-            <h2 className="text-2xl font-bold text-green-800 mb-6">Admin Login</h2>
-            {loginError && <p className="text-red-600 text-sm mb-4">{loginError}</p>}
+            <h2 className="text-2xl font-bold text-green-800 dark:text-green-400 mb-6">Admin Login</h2>
+            {loginError && <p className="text-red-600 dark:text-red-400 text-sm mb-4">{loginError}</p>}
             <form onSubmit={handleLogin} className="space-y-4">
               <input
                 type="text"
                 placeholder="Username"
                 value={loginForm.username}
                 onChange={e => setLoginForm({ ...loginForm, username: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
                 required
               />
               <input
@@ -731,13 +731,13 @@ const Suppliers = () => {
                 placeholder="Password"
                 value={loginForm.password}
                 onChange={e => setLoginForm({ ...loginForm, password: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
                 required
               />
               <button
                 type="submit"
                 disabled={loggingIn}
-                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-xl hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 font-semibold shadow-lg hover:shadow-xl transition-all"
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 dark:from-green-600 dark:to-emerald-700 text-white py-3 rounded-xl hover:from-green-600 hover:to-emerald-700 dark:hover:from-green-500 dark:hover:to-emerald-600 disabled:opacity-50 font-semibold shadow-lg hover:shadow-xl transition-all"
               >
                 {loggingIn ? 'Logging in...' : 'Login'}
               </button>
@@ -751,14 +751,14 @@ const Suppliers = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-6 transition-colors duration-200">
           <div className="text-center">
             <img
-              src="/broc.jpg" // Replace with the actual path to your broccoli image (e.g., public/images/broccoli-loading.png)
+              src="/broc.jpg"
               alt="Loading"
               className="h-32 w-32 mx-auto mb-4 animate-[run_1s_ease-in-out_infinite]"
             />
-            <p className="text-gray-600 font-medium text-lg">Broccoli is crunching your suppliers...</p>
+            <p className="text-gray-600 dark:text-gray-400 font-medium text-lg">Broccoli is crunching your suppliers...</p>
           </div>
         </div>
       </Layout>
@@ -767,14 +767,14 @@ const Suppliers = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-8 w-full">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-8 w-full transition-colors duration-200">
         {/* ---------- Header + Add Button ---------- */}
         <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-green-800 mb-1">
+            <h1 className="text-2xl font-bold text-green-800 dark:text-green-400 mb-1">
               Suppliers Management
             </h1>
-            <p className="text-gray-600 text-sm">Manage vegetable suppliers and contacts</p>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">Manage vegetable suppliers and contacts</p>
           </div>
           <QuickAction onClick={() => setShowCreate(true)}>
             + Add Supplier
@@ -783,18 +783,18 @@ const Suppliers = () => {
 
         {/* ---------- Stats Cards ---------- */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-          <Stat label="Total Suppliers" value={safe(stats.total, 0).toLocaleString() || 0} color="text-green-700" />
+          <Stat label="Total Suppliers" value={safe(stats.total, 0).toLocaleString() || 0} color="text-green-700 dark:text-green-300" />
         </div>
 
         {/* ---------- Error ---------- */}
         {error && (
-          <Card className="mb-6 bg-red-50 border-red-200 p-4">
+          <Card className="mb-6 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 p-4 transition-colors duration-200">
             <div className="flex items-center gap-3">
               <span className="text-red-600 text-lg">⚠️</span>
               <div>
-                <p className="text-red-800 font-medium">Error</p>
-                <p className="text-red-700 text-sm">{error}</p>
-                <button onClick={fetchSuppliers} className="mt-2 px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors">
+                <p className="text-red-800 dark:text-red-300 font-medium">Error</p>
+                <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
+                <button onClick={fetchSuppliers} className="mt-2 px-3 py-1 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 text-white rounded text-sm transition-colors">
                   Retry
                 </button>
               </div>
@@ -815,10 +815,10 @@ const Suppliers = () => {
         {/* ---------- Create Modal ---------- */}
         {showCreate && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <Card className="p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <Card className="p-6 max-w-md w-full max-h-[90vh] overflow-y-auto dark:bg-gray-900 dark:border-green-900 transition-colors duration-200">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-green-800">Add New Supplier</h3>
-                <button onClick={() => setShowCreate(false)} className="text-gray-400 hover:text-gray-600 text-2xl transition-colors">×</button>
+                <h3 className="text-xl font-bold text-green-800 dark:text-green-400">Add New Supplier</h3>
+                <button onClick={() => setShowCreate(false)} className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 text-2xl transition-colors">×</button>
               </div>
               <form
                 onSubmit={e => {
@@ -828,11 +828,11 @@ const Suppliers = () => {
                 }}
                 className="space-y-4"
               >
-                <input name="name" placeholder="Supplier Name" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
-                <input name="email" type="email" placeholder="Email" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
-                <input name="phone" placeholder="Phone" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
-                <input name="address" placeholder="Address" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
-                <select name="status" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all bg-white" defaultValue="active">
+                <input name="name" placeholder="Supplier Name" className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
+                <input name="email" type="email" placeholder="Email" className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
+                <input name="phone" placeholder="Phone" className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
+                <input name="address" placeholder="Address" className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
+                <select name="status" className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" defaultValue="active">
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
                 </select>
@@ -847,10 +847,10 @@ const Suppliers = () => {
         {/* ---------- Edit Modal ---------- */}
         {showEdit && editingSupplier && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <Card className="p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <Card className="p-6 max-w-md w-full max-h-[90vh] overflow-y-auto dark:bg-gray-900 dark:border-green-900 transition-colors duration-200">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-green-800">Edit Supplier</h3>
-                <button onClick={() => { setShowEdit(false); setEditingSupplier(null); }} className="text-gray-400 hover:text-gray-600 text-2xl transition-colors">×</button>
+                <h3 className="text-xl font-bold text-green-800 dark:text-green-400">Edit Supplier</h3>
+                <button onClick={() => { setShowEdit(false); setEditingSupplier(null); }} className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 text-2xl transition-colors">×</button>
               </div>
               <form
                 onSubmit={e => {
@@ -860,11 +860,11 @@ const Suppliers = () => {
                 }}
                 className="space-y-4"
               >
-                <input name="name" defaultValue={editingSupplier.name} className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
-                <input name="email" type="email" defaultValue={editingSupplier.email} className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
-                <input name="phone" defaultValue={editingSupplier.phone} className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
-                <input name="address" defaultValue={editingSupplier.address} className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
-                <select name="status" defaultValue={editingSupplier.status} className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all bg-white">
+                <input name="name" defaultValue={editingSupplier.name} className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
+                <input name="email" type="email" defaultValue={editingSupplier.email} className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
+                <input name="phone" defaultValue={editingSupplier.phone} className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
+                <input name="address" defaultValue={editingSupplier.address} className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
+                <select name="status" defaultValue={editingSupplier.status} className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all">
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
                 </select>
@@ -879,28 +879,28 @@ const Suppliers = () => {
         {/* ---------- Details Modal ---------- */}
         {selected && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto dark:bg-gray-900 dark:border-green-900 transition-colors duration-200">
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-bold text-green-800">
+                  <h3 className="text-xl font-bold text-green-800 dark:text-green-400">
                     {safe(selected.name)} Details
                   </h3>
-                  <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 text-2xl transition-colors">×</button>
+                  <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 text-2xl transition-colors">×</button>
                 </div>
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><p className="text-sm text-gray-600">Supplier Name</p><p className="font-semibold text-green-800">{safe(selected.name)}</p></div>
-                    <div><p className="text-sm text-gray-600">Email</p><p className="font-semibold">{safe(selected.email)}</p></div>
-                    <div><p className="text-sm text-gray-600">Phone</p><p className="font-semibold">{safe(selected.phone)}</p></div>
-                    <div><p className="text-sm text-gray-600">Address</p><p className="font-semibold">{safe(selected.address)}</p></div>
-                    <div><p className="text-sm text-gray-600">Status</p>
+                    <div><p className="text-sm text-gray-600 dark:text-gray-400">Supplier Name</p><p className="font-semibold text-green-800 dark:text-green-400">{safe(selected.name)}</p></div>
+                    <div><p className="text-sm text-gray-600 dark:text-gray-400">Email</p><p className="font-semibold dark:text-gray-300">{safe(selected.email)}</p></div>
+                    <div><p className="text-sm text-gray-600 dark:text-gray-400">Phone</p><p className="font-semibold dark:text-gray-300">{safe(selected.phone)}</p></div>
+                    <div><p className="text-sm text-gray-600 dark:text-gray-400">Address</p><p className="font-semibold dark:text-gray-300">{safe(selected.address)}</p></div>
+                    <div><p className="text-sm text-gray-600 dark:text-gray-400">Status</p>
                       <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                        selected.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-800 border-gray-200'
+                        selected.status === 'active' ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900 dark:text-green-300 dark:border-green-700' : 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700'
                       }`}>
                         {safe(selected.status)}
                       </span>
                     </div>
-                    <div><p className="text-sm text-gray-600">Created At</p><p className="font-semibold">{formatDate(selected.created_at)}</p></div>
+                    <div><p className="text-sm text-gray-600 dark:text-gray-400">Created At</p><p className="font-semibold dark:text-gray-300">{formatDate(selected.created_at)}</p></div>
                   </div>
                 </div>
               </div>

@@ -105,14 +105,14 @@ export default function Products() {
   if (loading) {
       return (
         <Layout>
-          <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
+          <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 flex items-center justify-center p-6 transition-colors">
             <div className="text-center">
               <img
                 src="/broc.jpg"
                 alt="Loading"
                 className="h-32 w-32 mx-auto mb-4 animate-[run_1s_ease-in-out_infinite]"
               />
-              <p className="text-gray-600 font-medium text-lg">Broccoli is crunching your products...</p>
+              <p className="text-gray-600 dark:text-gray-400 font-medium text-lg transition-colors">Broccoli is crunching your products...</p>
             </div>
           </div>
         </Layout>
@@ -121,22 +121,22 @@ export default function Products() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-green-50 py-8 w-full">
+      <div className="min-h-screen bg-green-50 dark:bg-gray-950 py-8 w-full transition-colors">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           {/* Header with Search & Filter */}
           <div className="mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div className="flex-1">
-              <h1 className="text-3xl font-bold text-green-800 mb-2">
+              <h1 className="text-3xl font-bold text-green-800 dark:text-green-300 mb-2 transition-colors">
                 Products Catalog
               </h1>
-              <p className="text-green-700">
+              <p className="text-green-700 dark:text-green-400 transition-colors">
                 Welcome back, {user?.hotel_name || 'Hotel User'}! Fresh picks just for you.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
               <Link
                 to="/hotel/cart"
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-semibold flex items-center text-sm"
+                className="bg-green-600 dark:bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-800 transition-colors font-semibold flex items-center text-sm"
               >
                 View Cart ({cartCount})
               </Link>
@@ -146,12 +146,12 @@ export default function Products() {
                   placeholder="Search products..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="px-3 py-2 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 flex-1 text-sm"
+                  className="px-3 py-2 border border-green-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-green-500 flex-1 text-sm transition-colors"
                 />
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-3 py-2 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+                  className="px-3 py-2 border border-green-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-green-500 text-sm transition-colors"
                 >
                   {categories.map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
@@ -163,15 +163,15 @@ export default function Products() {
 
           {/* Toast Notification */}
           {showToast && (
-            <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 animate-fade-in">
+            <div className="fixed top-4 right-4 bg-green-500 dark:bg-green-700 text-white px-6 py-4 rounded-lg shadow-lg z-50 animate-fade-in transition-colors">
               {showToast}
             </div>
           )}
 
           {/* Error Alert */}
           {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-red-700">{error}</p>
+            <div className="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4 transition-colors">
+              <p className="text-red-700 dark:text-red-300 transition-colors">{error}</p>
             </div>
           )}
 
@@ -179,7 +179,7 @@ export default function Products() {
           {vegetableProducts.length > 0 && (
             <>
               <div className="mb-12">
-                <h2 className="text-2xl font-bold text-green-800 mb-4 flex items-center">
+                <h2 className="text-2xl font-bold text-green-800 dark:text-green-300 mb-4 flex items-center transition-colors">
                   <span className="mr-2">🥬</span> Fresh Vegetables
                 </h2>
                 <div className="grid grid-cols-6 gap-6 mb-12">
@@ -188,7 +188,7 @@ export default function Products() {
                   ))}
                 </div>
               </div>
-              <hr className="border-green-200 my-8" />
+              <hr className="border-green-200 dark:border-gray-700 my-8 transition-colors" />
             </>
           )}
 
@@ -196,7 +196,7 @@ export default function Products() {
           {otherProducts.length > 0 && (
             <>
               <div className="mb-12">
-                <h2 className="text-2xl font-bold text-green-800 mb-4 flex items-center">
+                <h2 className="text-2xl font-bold text-green-800 dark:text-green-300 mb-4 flex items-center transition-colors">
                   <span className="mr-2">🌱</span> More Essentials
                 </h2>
                 <div className="grid grid-cols-6 gap-6 mb-12">
@@ -211,16 +211,16 @@ export default function Products() {
           {/* Empty Products Message */}
           {filteredProducts.length === 0 && !loading && (
             <div className="text-center py-12">
-              <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-24 h-24 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
+                <svg className="w-12 h-12 text-green-500 dark:text-green-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-green-800 mb-2">No products found</h3>
-              <p className="text-green-600 mb-4">Try adjusting your search or category.</p>
+              <h3 className="text-lg font-medium text-green-800 dark:text-green-300 mb-2 transition-colors">No products found</h3>
+              <p className="text-green-600 dark:text-green-400 mb-4 transition-colors">Try adjusting your search or category.</p>
               <button
                 onClick={() => { setSearchTerm(''); setSelectedCategory('All'); }}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm"
+                className="bg-green-600 dark:bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-800 transition-colors text-sm"
               >
                 Clear Filters
               </button>
@@ -280,7 +280,7 @@ function ProductCard({ product, addToCart }) {
   };
 
   return (
-    <div className="bg-white rounded-md shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 group flex flex-col">
+    <div className="bg-white dark:bg-gray-800 rounded-md shadow-sm overflow-hidden hover:shadow-md dark:hover:shadow-lg transition-all duration-300 group flex flex-col border border-green-200 dark:border-gray-700">
       <div className="relative flex-shrink-0">
         {product.image_url ? (
           <img
@@ -289,23 +289,23 @@ function ProductCard({ product, addToCart }) {
             className="w-full h-32 object-cover"
           />
         ) : (
-          <div className="bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center h-32">
-            <span className="text-green-600 font-semibold text-xs text-center px-1">{product.name}</span>
+          <div className="bg-gradient-to-br from-green-100 dark:from-green-900 to-green-200 dark:to-green-800 flex items-center justify-center h-32 transition-colors">
+            <span className="text-green-600 dark:text-green-300 font-semibold text-xs text-center px-1 transition-colors">{product.name}</span>
           </div>
         )}
       </div>
       <div className="px-2 py-2 flex-1 flex flex-col justify-between">
         {/* Product Name */}
-        <h3 className="text-sm font-semibold text-gray-800 text-center mb-2 line-clamp-2 min-h-[2.5rem]">
+        <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 text-center mb-2 line-clamp-2 min-h-[2.5rem] transition-colors">
           {product.name}
         </h3>
         
         {/* Quantity Selector with Decimal Support */}
         <div className="flex items-center justify-center gap-1 mb-2">
-          <div className="flex items-center border border-green-200 rounded px-1 py-0.5">
+          <div className="flex items-center border border-green-200 dark:border-gray-600 bg-white dark:bg-gray-700 rounded px-1 py-0.5 transition-colors">
             <button
               onClick={decrementQuantity}
-              className="w-6 h-6 text-green-600 hover:text-green-800 font-bold text-sm flex items-center justify-center"
+              className="w-6 h-6 text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 font-bold text-sm flex items-center justify-center transition-colors"
             >
               -
             </button>
@@ -314,12 +314,12 @@ function ProductCard({ product, addToCart }) {
               value={quantity}
               onChange={handleQuantityChange}
               min="1"
-              className="w-12 text-center text-sm font-medium mx-1 border-0 focus:outline-none focus:ring-0"
+              className="w-12 text-center text-sm font-medium mx-1 border-0 focus:outline-none focus:ring-0 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition-colors"
               style={{ MozAppearance: 'textfield' }}
             />
             <button
               onClick={incrementQuantity}
-              className="w-6 h-6 text-green-600 hover:text-green-800 font-bold text-sm flex items-center justify-center"
+              className="w-6 h-6 text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 font-bold text-sm flex items-center justify-center transition-colors"
             >
               +
             </button>
@@ -327,7 +327,7 @@ function ProductCard({ product, addToCart }) {
         </div>
         <button
           onClick={handleAddToCart}
-          className="w-20 bg-green-600 text-white px-2 py-1.5 rounded text-sm hover:bg-green-700 transition-all duration-300 font-semibold mx-auto"
+          className="w-20 bg-green-600 dark:bg-green-700 text-white px-2 py-1.5 rounded text-sm hover:bg-green-700 dark:hover:bg-green-800 transition-all duration-300 font-semibold mx-auto"
         >
           Add
         </button>

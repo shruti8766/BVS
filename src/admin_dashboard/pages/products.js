@@ -128,12 +128,15 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
   const [selected, setSelected] = useState(null);
 
   // CRUD modals
   const [showCreate, setShowCreate] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
 
   console.log('productsApi:', productsApi);
 
@@ -267,12 +270,21 @@ const Products = () => {
   };
 
   const deleteProduct = async (id) => {
-    if (!window.confirm('Delete this product?')) return;
+    setProductToDelete(id);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!productToDelete) return;
     try {
-      await productsApi.delete(id);
+      await productsApi.delete(productToDelete);
       await fetchProducts();
+      setShowDeleteConfirm(false);
+      setProductToDelete(null);
     } catch (e) {
       setError(e.message);
+      setShowDeleteConfirm(false);
+      setProductToDelete(null);
     }
   };
 
@@ -297,11 +309,15 @@ const Products = () => {
     { total: 0, available: 0 }
   );
 
-  const filtered = filter === 'all' 
+  const filtered = (filter === 'all' 
     ? safeProductsArray 
     : filter === 'available' 
       ? safeProductsArray.filter(p => p.is_available) 
-      : safeProductsArray.filter(p => p.category === filter);
+      : safeProductsArray.filter(p => p.category === filter)
+  ).filter(p => 
+    p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.category?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const tableRows = filtered.map(p => [
     <img key="img" src={getImageUrl(p.image_url)} alt={p.name} className="w-12 h-12 object-cover rounded" />,
@@ -398,6 +414,17 @@ const Products = () => {
           <Stat label="Categories" value={safe([...new Set(safeProductsArray.map(p => p.category))].length, 0)} color="text-blue-600" />
         </div>
 
+        {/* ---------- Search Bar ---------- */}
+        <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          <input
+            type="text"
+            placeholder="Search by product name or category..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 flex-1"
+          />
+        </div>
+
         {/* ---------- Error ---------- */}
         {error && (
           <Card className="mb-6 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 p-4 transition-colors duration-200">
@@ -440,13 +467,13 @@ const Products = () => {
                 }}
                 className="space-y-4"
               >
-                <input name="product_name" placeholder="Product Name" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
-                <input name="description" placeholder="Description" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" />
-                <input name="current_price" type="number" step="0.01" placeholder="Price per Unit" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
-                <input name="stock_quantity" type="number" placeholder="Stock Quantity" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
-                <input name="image_url" placeholder="Image URL (optional)" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" />
-                <input name="category" placeholder="Category" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
-                <input name="unit" placeholder="Unit Type (e.g., kg)" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
+                <input name="product_name" placeholder="Product Name" className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
+                <input name="description" placeholder="Description" className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" />
+                <input name="current_price" type="number" step="0.01" placeholder="Price per Unit" className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
+                <input name="stock_quantity" type="number" placeholder="Stock Quantity" className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
+                <input name="image_url" placeholder="Image URL (optional)" className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" />
+                <input name="category" placeholder="Category" className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
+                <input name="unit" placeholder="Unit Type (e.g., kg)" className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
                 <select name="is_available" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all bg-white" defaultValue="true">
                   <option value="true">Available</option>
                   <option value="false">Unavailable</option>
@@ -462,10 +489,10 @@ const Products = () => {
         {/* ---------- Edit Modal ---------- */}
         {showEdit && editingProduct && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <Card className="p-6 max-w-md w-full max-h-[90vh] overflow-y-auto dark:bg-gray-800 dark:border-green-900 transition-colors duration-200">
+            <Card className="p-6 max-w-md w-full max-h-[90vh] overflow-y-auto dark:bg-gray-900 dark:border-green-900 transition-colors duration-200">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-green-800 dark:text-green-300">Edit Product</h3>
-                <button onClick={() => { setShowEdit(false); setEditingProduct(null); }} className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 text-2xl transition-colors">×</button>
+                <h3 className="text-xl font-bold text-green-800 dark:text-green-400">Edit Product</h3>
+                <button onClick={() => { setShowEdit(false); setEditingProduct(null); }} className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 text-2xl transition-colors">×</button>
               </div>
               <form
                 onSubmit={e => {
@@ -477,14 +504,14 @@ const Products = () => {
                 }}
                 className="space-y-4"
               >
-                <input name="product_name" defaultValue={safe(editingProduct.name, '')} className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
-                <input name="description" defaultValue={safe(editingProduct.description, '')} className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" />
-                <input name="current_price" type="number" step="0.01" defaultValue={safeNum(editingProduct.price_per_unit, 0)} placeholder="Price per Unit" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
-                <input name="stock_quantity" type="number" defaultValue={safeNum(editingProduct.stock_quantity, 0)} placeholder="Stock Quantity" className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
-                <input name="image_url" defaultValue={safe(editingProduct.image_url, '')} className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" />
-                <input name="category" defaultValue={safe(editingProduct.category, '')} className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
-                <input name="unit" defaultValue={safe(editingProduct.unit_type, 'kg')} className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" />
-                <select name="is_available" defaultValue={editingProduct.is_available ? "true" : "false"} className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all bg-white" required>
+                <input name="product_name" defaultValue={safe(editingProduct.name, '')} className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
+                <input name="description" defaultValue={safe(editingProduct.description, '')} className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" />
+                <input name="current_price" type="number" step="0.01" defaultValue={safeNum(editingProduct.price_per_unit, 0)} placeholder="Price per Unit" className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
+                <input name="stock_quantity" type="number" defaultValue={safeNum(editingProduct.stock_quantity, 0)} placeholder="Stock Quantity" className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
+                <input name="image_url" defaultValue={safe(editingProduct.image_url, '')} className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" />
+                <input name="category" defaultValue={safe(editingProduct.category, '')} className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required />
+                <input name="unit" defaultValue={safe(editingProduct.unit_type, 'kg')} className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" />
+                <select name="is_available" defaultValue={editingProduct.is_available ? "true" : "false"} className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" required>
                   <option value="true">Available</option>
                   <option value="false">Unavailable</option>
                 </select>
@@ -520,13 +547,43 @@ const Products = () => {
                     <div><p className="text-sm text-gray-600 dark:text-gray-400">Unit Type</p><p className="font-semibold dark:text-gray-300">{safe(selected.unit_type)}</p></div>
                     <div><p className="text-sm text-gray-600 dark:text-gray-400">Available</p>
                       <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                        selected.is_available ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'
+                        selected.is_available ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900 dark:text-green-300 dark:border-green-700' : 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900 dark:text-red-300 dark:border-red-700'
                       }`}>
                         {selected.is_available ? 'Yes' : 'No'}
                       </span>
                     </div>
-                    <div><p className="text-sm text-gray-600">Created At</p><p className="font-semibold">{formatDate(selected.created_at)}</p></div>
+                    <div><p className="text-sm text-gray-600 dark:text-gray-400">Created At</p><p className="font-semibold dark:text-gray-300">{formatDate(selected.created_at)}</p></div>
                   </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* ---------- Delete Confirmation Modal ---------- */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <Card className="p-6 max-w-sm w-full dark:bg-gray-900 dark:border-red-900 transition-colors duration-200">
+              <div className="text-center">
+                <div className="text-4xl mb-4">⚠️</div>
+                <h3 className="text-xl font-bold text-red-800 dark:text-red-400 mb-2">Delete Product?</h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">Are you sure you want to delete this product? This action cannot be undone.</p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setShowDeleteConfirm(false);
+                      setProductToDelete(null);
+                    }}
+                    className="flex-1 px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 font-semibold transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={confirmDelete}
+                    className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 text-white rounded-xl font-semibold transition-colors"
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
             </Card>

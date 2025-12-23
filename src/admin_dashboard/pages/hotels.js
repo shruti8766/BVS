@@ -1,299 +1,4 @@
-// import React, { useState, useEffect } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import Layout from '../components/layout/Layout';
-// import { usersApi } from '../utils/api';
 
-// const Hotels = () => {
-//   // ──────────────────────────────────────────────────────
-//   // 1. Auth state (shared with orders)
-//   // ──────────────────────────────────────────────────────
-//   const [token, setToken] = useState(localStorage.getItem('adminToken') || '');
-//   const [loginForm, setLoginForm] = useState({ username: 'admin', password: 'admin123' });
-//   const [loggingIn, setLoggingIn] = useState(false);
-//   const [loginError, setLoginError] = useState('');
-//   // ──────────────────────────────────────────────────────
-//   // 2. Hotels state
-//   // ──────────────────────────────────────────────────────
-//   const [hotels, setHotels] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
-//   const [filter, setFilter] = useState('all');
-//   const navigate = useNavigate();
-//   console.log('usersApi:', usersApi);
-//   // ──────────────────────────────────────────────────────
-//   // 3. Helper utilities
-//   // ──────────────────────────────────────────────────────
-//   const safe = (v, fb) => (v !== undefined && v !== null ? v : fb);
-//   const safeNum = (v, fb = 0) => (isNaN(parseFloat(v)) ? fb : parseFloat(v));
-//   const formatDate = d =>
-//     d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
-//   // ──────────────────────────────────────────────────────
-//   // 4. Login handler (same as orders)
-//   // ──────────────────────────────────────────────────────
-//   const handleLogin = async e => {
-//     e.preventDefault();
-//     setLoggingIn(true);
-//     setLoginError('');
-//     try {
-//       const res = await fetch('https://api-aso3bjldka-uc.a.run.app/api/auth/login', { // Use 127.0.0.1
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify(loginForm),
-//       });
-//       const data = await res.json();
-//       if (!res.ok) throw new Error(data.message || 'Login failed');
-//       localStorage.setItem('adminToken', data.token);
-//       setToken(data.token);
-//     } catch (err) {
-//       setLoginError(err.message);
-//     } finally {
-//       setLoggingIn(false);
-//     }
-//   };
-//   // ──────────────────────────────────────────────────────
-//   // 5. Data fetching
-//   // ──────────────────────────────────────────────────────
-//   const fetchHotels = async () => {
-//     try {
-//       setLoading(true);
-//       setError(null);
-//       const data = await usersApi.getAll(); // /api/admin/users
-//       setHotels(Array.isArray(data) ? data : []);
-//     } catch (e) {
-//       setError(e.message);
-//       setHotels([]);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-//   // Load hotels only when we have a token
-//   useEffect(() => {
-//     if (token) fetchHotels();
-//   }, [token]);
-//   // ──────────────────────────────────────────────────────
-//   // 6. Stats & filtering
-//   // ──────────────────────────────────────────────────────
-//   const stats = hotels.reduce(
-//     (acc, h) => {
-//       acc.total++;
-//       // Add more stats if needed (e.g., active based on last_login)
-//       return acc;
-//     },
-//     { total: 0 }
-//   );
-//   const filtered = filter === 'all' ? hotels : hotels.filter(h => h.status === filter); // Filter by status if added later
-//   // ──────────────────────────────────────────────────────
-//   // 7. Render – login screen first
-//   // ──────────────────────────────────────────────────────
-//   if (!token) {
-//     return (
-//       <Layout>
-//         <div className="p-6 max-w-md mx-auto">
-//           <div className="bg-white rounded-xl shadow-sm border p-6">
-//             <h2 className="text-xl font-bold mb-4">Admin Login</h2>
-//             {loginError && (
-//               <p className="text-red-600 text-sm mb-3">{loginError}</p>
-//             )}
-//             <form onSubmit={handleLogin} className="space-y-4">
-//               <input
-//                 type="text"
-//                 placeholder="Username"
-//                 value={loginForm.username}
-//                 onChange={e => setLoginForm({ ...loginForm, username: e.target.value })}
-//                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-//                 required
-//               />
-//               <input
-//                 type="password"
-//                 placeholder="Password"
-//                 value={loginForm.password}
-//                 onChange={e => setLoginForm({ ...loginForm, password: e.target.value })}
-//                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-//                 required
-//               />
-//               <button
-//                 type="submit"
-//                 disabled={loggingIn}
-//                 className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-//               >
-//                 {loggingIn ? 'Logging in…' : 'Login'}
-//               </button>
-//             </form>
-//           </div>
-//         </div>
-//       </Layout>
-//     );
-//   }
-//   // ──────────────────────────────────────────────────────
-//   // 8. Main UI (same theme as orders)
-//   // ──────────────────────────────────────────────────────
-//   if (loading) {
-//     return (
-//       <Layout>
-//         <div className="p-6 flex justify-center items-center h-64">
-//           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mr-3" />
-//           <span className="text-gray-600">Loading hotels…</span>
-//         </div>
-//       </Layout>
-//     );
-//   }
-//   return (
-//     <Layout>
-//       <div className="p-6">
-//         {/* ---------- Header ---------- */}
-//         <div className="mb-8">
-//           <h1 className="text-3xl font-bold text-gray-900">Hotels Management</h1>
-//           <p className="text-gray-600 mt-2">View and manage all registered hotels</p>
-//         </div>
-//         {/* ---------- Stats Cards (simple for now) ---------- */}
-//         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 mb-8">
-//           {['total'].map(k => {
-//             const label = 'Total Hotels';
-//             const color = 'text-gray-900';
-//             return (
-//               <div key={k} className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-//                 <p className="text-sm text-gray-600">{label}</p>
-//                 <p className={`text-2xl font-bold ${color}`}>{safe(stats[k], 0)}</p>
-//               </div>
-//             );
-//           })}
-//           {/* Add more: Active Hotels, Inactive, etc. when you have status field */}
-//         </div>
-//         {/* ---------- Error ---------- */}
-//         {error && (
-//           <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 flex items-center">
-//             <span className="text-red-600 text-lg mr-3">⚠️</span>
-//             <div>
-//               <p className="text-red-800 font-medium">Error loading data</p>
-//               <p className="text-red-700 text-sm">{error}</p>
-//               <button onClick={fetchHotels} className="mt-2 px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700">
-//                 Retry
-//               </button>
-//             </div>
-//           </div>
-//         )}
-//         {/* ---------- Filters & Refresh ---------- */}
-//         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-//           <div className="flex items-center space-x-4">
-//             <label className="text-sm font-medium text-gray-700">Filter by status:</label>
-//             <select
-//               value={filter}
-//               onChange={e => setFilter(e.target.value)}
-//               className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-//             >
-//               <option value="all">All Hotels</option>
-//               {/* Add options like <option value="active">Active</option> when status field exists */}
-//             </select>
-//           </div>
-//           <button
-//             onClick={fetchHotels}
-//             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center text-sm font-medium"
-//           >
-//             <span className="mr-2">🔄</span>
-//             Refresh
-//           </button>
-//         </div>
-//         {/* ---------- Table ---------- */}
-//         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-//           <div className="overflow-x-auto">
-//             <table className="min-w-full divide-y divide-gray-200">
-//               <thead className="bg-gray-50">
-//                 <tr>
-//                   {['ID', 'Hotel Name', 'Image', 'Username', 'Email', 'Phone', 'Address', 'Created At', 'Last Login', 'Actions'].map(h => (
-//                     <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-//                       {h}
-//                     </th>
-//                   ))}
-//                 </tr>
-//               </thead>
-//               <tbody className="bg-white divide-y divide-gray-200">
-//                 {filtered.length === 0 ? (
-//                   <tr>
-//                     <td colSpan={10} className="px-6 py-8 text-center text-gray-500">
-//                       <div className="flex flex-col items-center">
-//                         <span className="text-4xl mb-2">🏨</span>
-//                         <p className="text-lg">No hotels found</p>
-//                       </div>
-//                     </td>
-//                   </tr>
-//                 ) : (
-//                   filtered.map(h => (
-//                     <tr key={h.id} className="hover:bg-gray-50">
-//                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-//                         #{safe(h.id)}
-//                       </td>
-//                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-//                         {safe(h.hotel_name)}
-//                       </td>
-//                       <td className="px-6 py-4 whitespace-nowrap">
-//                         {safe(h.hotel_image) ? (
-//                           <img
-//                             src={h.hotel_image}
-//                             alt={safe(h.hotel_name)}
-//                             className="w-10 h-10 rounded-lg object-cover border"
-//                             onError={(e) => {
-//                               e.target.style.display = 'none';
-//                               e.target.nextSibling.style.display = 'block';
-//                             }}
-//                           />
-//                         ) : (
-//                           <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 text-xs">
-//                             🏨
-//                           </div>
-//                         )}
-//                       </td>
-//                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-//                         {safe(h.username)}
-//                       </td>
-//                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-//                         {safe(h.email)}
-//                       </td>
-//                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-//                         {safe(h.phone)}
-//                       </td>
-//                       <td className="px-6 py-4 text-sm text-gray-900">
-//                         {safe(h.address)}
-//                       </td>
-//                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-//                         {formatDate(h.created_at)}
-//                       </td>
-//                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-//                         {formatDate(h.last_login)}
-//                       </td>
-//                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-//                         <div className="flex space-x-2">
-//                           <button
-//                             onClick={() => navigate(`/admin/hotels/${h.id}`)}
-//                             className="text-blue-600 hover:text-blue-900 text-xs underline"
-//                           >
-//                             View
-//                           </button>
-//                           {/* Add Edit/Delete buttons later */}
-//                         </div>
-//                       </td>
-//                     </tr>
-//                   ))
-//                 )}
-//               </tbody>
-//             </table>
-//           </div>
-//         </div>
-//         {/* ---------- Footer API note ---------- */}
-//         <div className="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start">
-//           <span className="text-blue-600 text-lg mr-3">API</span>
-//           <div>
-//             <p className="text-blue-800 font-medium">Connected to live backend</p>
-//             <p className="text-blue-700 text-sm">Hotels loaded: {hotels.length} | https://api-aso3bjldka-uc.a.run.app</p>
-//           </div>
-//         </div>
-//       </div>
-//     </Layout>
-//   );
-// };
-
-// export default Hotels;
-
-// src/admin_dashboard/pages/hotels.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -424,6 +129,7 @@ const Hotels = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
   console.log('usersApi:', usersApi);
   // ──────────────────────────────────────────────────────
@@ -487,7 +193,11 @@ const Hotels = () => {
     },
     { total: 0 }
   );
-  const filtered = filter === 'all' ? hotels : hotels.filter(h => h.status === filter); // Filter by status if added later
+  const filtered = (filter === 'all' ? hotels : hotels.filter(h => h.status === filter)).filter(h =>
+    h.hotel_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    h.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    h.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   // ──────────────────────────────────────────────────────
   // 7. Render – login screen first
   // ──────────────────────────────────────────────────────
@@ -589,7 +299,16 @@ const Hotels = () => {
             <Stat label="Total Hotels" value={stats.total?.toLocaleString() || 0} Icon={Icons.Building} color="text-teal-700" trend={5} />
           </div>
 
-          
+          {/* ---------- Search Bar ---------- */}
+          <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <input
+              type="text"
+              placeholder="Search by hotel name, username, or email..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 flex-1"
+            />
+          </div>
 
           {/* ---------- Table ---------- */}
           <MiniTable

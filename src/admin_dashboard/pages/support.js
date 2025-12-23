@@ -428,7 +428,7 @@ const formatDate = (dateStr) => {
 // 2. Reusable UI Components (Adapted from dashboard)
 // ──────────────────────────────────────────────────────
 const Card = ({ children, className = '', hover = false }) => (
-  <div className={`bg-white rounded-2xl shadow-lg border-2 border-green-100 overflow-hidden transition-all duration-300 ${hover ? 'hover:shadow-xl hover:border-green-300 hover:-translate-y-1' : ''} ${className}`}>
+  <div className={`bg-white dark:bg-gray-900 rounded-2xl shadow-lg dark:shadow-green-900/20 border-2 border-green-100 dark:border-green-900 overflow-hidden transition-all duration-300 ${hover ? 'hover:shadow-xl dark:hover:shadow-green-800/30 hover:border-green-300 dark:hover:border-green-700 hover:-translate-y-1' : ''} ${className}`}>
     {children}
   </div>
 );
@@ -440,9 +440,9 @@ const GlassCard = ({ children, className = '' }) => (
 );
 
 const Stat = ({ label, value, color = 'text-green-700' }) => (
-  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6">
-    <h3 className="text-sm font-medium text-gray-500 mb-1">{label}</h3>
-    <div className={`text-2xl font-semibold ${color}`}>{value}</div>
+  <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm dark:shadow-green-900/20 border border-gray-200 dark:border-green-900 p-4 lg:p-6">
+    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{label}</h3>
+    <div className={`text-2xl font-semibold ${color} ${color === 'text-green-700' ? 'dark:text-green-400' : color === 'text-emerald-700' ? 'dark:text-emerald-400' : 'dark:text-orange-400'}`}>{value}</div>
   </div>
 );
 
@@ -466,20 +466,20 @@ const MiniTable = ({ headers, rows, emptyMsg = 'No data', onView, onClose }) => 
     <div className="overflow-x-auto">
       <table className="min-w-full">
         <thead>
-          <tr className="bg-green-50/50">
+          <tr className="bg-green-50/50 dark:bg-gray-800/50 border-b-2 border-green-200 dark:border-green-900">
             {headers.map((h, i) => (
-              <th key={i} className="px-6 py-4 text-left text-xs font-bold text-green-700 uppercase tracking-wider">
+              <th key={i} className="px-6 py-4 text-left text-xs font-bold text-green-800 dark:text-green-400 uppercase tracking-wider">
                 {h}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-green-50">
+        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
           {rows.length === 0 ? (
             <tr>
               <td colSpan={headers.length} className="px-6 py-12 text-center">
                 <div className="flex flex-col items-center gap-2">
-                  <p className="text-lg">No tickets found</p>
+                  <p className="text-lg text-gray-500 dark:text-gray-400">No tickets found</p>
                 </div>
               </td>
             </tr>
@@ -487,9 +487,9 @@ const MiniTable = ({ headers, rows, emptyMsg = 'No data', onView, onClose }) => 
             rows.map((r, i) => {
               const ticket = r.slice(-1)[0];  // Last element is the ticket object
               return (
-                <tr key={i} className="hover:bg-green-50/30 transition-colors">
+                <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
                   {r.slice(0, -1).map((cell, j) => (  // All but actions/ticket
-                    <td key={j} className="px-6 py-4 text-sm font-medium text-gray-700">
+                    <td key={j} className="px-6 py-4 text-sm font-medium text-gray-700 dark:text-gray-300">
                       {cell}
                     </td>
                   ))}
@@ -497,12 +497,12 @@ const MiniTable = ({ headers, rows, emptyMsg = 'No data', onView, onClose }) => 
                     <div className="flex space-x-2">
                       <button
                         onClick={() => onView(ticket)}
-                        className="text-green-600 hover:text-green-900 text-xs font-medium transition-colors"
+                        className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 text-xs font-medium transition-colors"
                       >
                         View
                       </button>
                       {ticket.status === 'open' && (
-                        <button onClick={() => onClose(ticket.id)} className="text-red-600 hover:text-red-900 text-xs font-medium transition-colors">
+                        <button onClick={() => onClose(ticket.id)} className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-xs font-medium transition-colors">
                           Close
                         </button>
                       )}
@@ -715,14 +715,14 @@ const Support = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-6">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-6">
           <div className="text-center">
             <img
               src="/broc.jpg" // Replace with the actual path to your broccoli image (e.g., public/images/broccoli-loading.png)
               alt="Loading"
-              className="h-32 w-32 mx-auto mb-4 animate-[run_1s_ease-in-out_infinite]"
+              className="h-32 w-32 mx-auto mb-4 animate-[run_1s_ease-in-out_infinite] dark:opacity-80"
             />
-            <p className="text-gray-600 font-medium text-lg">Broccoli is crunching your supports...</p>
+            <p className="text-gray-600 dark:text-gray-300 font-medium text-lg">Broccoli is crunching your supports...</p>
           </div>
         </div>
       </Layout>
@@ -731,14 +731,14 @@ const Support = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-8 w-full">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-8 w-full">
         {/* ---------- Header ---------- */}
         <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-green-800 mb-1">
+            <h1 className="text-2xl font-bold text-green-800 dark:text-green-400 mb-1">
               Support Center
             </h1>
-            <p className="text-gray-600 text-sm">Manage tickets, chat with customers, view FAQs</p>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">Manage tickets, chat with customers, view FAQs</p>
           </div>
           <QuickAction onClick={() => setShowCreate(true)}>
             + New Ticket
@@ -755,13 +755,13 @@ const Support = () => {
 
         {/* ---------- Error ---------- */}
         {error && (
-          <Card className="mb-6 bg-red-50 border-red-200 p-4">
+          <Card className="mb-6 bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-900 p-4">
             <div className="flex items-center gap-3">
-              <span className="text-red-600 text-lg">Warning</span>
+              <span className="text-red-600 dark:text-red-400 text-lg">Warning</span>
               <div>
-                <p className="text-red-800 font-medium">Error</p>
-                <p className="text-red-700 text-sm">{error}</p>
-                <button onClick={fetchTickets} className="mt-2 px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors">
+                <p className="text-red-800 dark:text-red-300 font-medium">Error</p>
+                <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
+                <button onClick={fetchTickets} className="mt-2 px-3 py-1 bg-red-600 dark:bg-red-700 text-white rounded text-sm hover:bg-red-700 dark:hover:bg-red-600 transition-colors">
                   Retry
                 </button>
               </div>
@@ -771,19 +771,19 @@ const Support = () => {
 
         {/* ---------- Tickets Table with Toolbar ---------- */}
         <Card>
-          <div className="px-6 py-5 bg-green-50 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="px-6 py-5 bg-green-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
               <input
                 type="text"
                 placeholder="Search tickets…"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
               />
               <select
                 value={filterStatus}
                 onChange={e => setFilterStatus(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                className="border-2 border-green-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
               >
                 <option value="all">All</option>
                 <option value="open">Open</option>
@@ -791,10 +791,10 @@ const Support = () => {
               </select>
             </div>
             <div className="flex space-x-2">
-              <button onClick={fetchTickets} className="px-4 py-2 bg-white text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-50 text-sm font-medium transition-colors">
+              <button onClick={fetchTickets} className="px-4 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 text-sm font-medium transition-colors">
                 Refresh
               </button>
-              <button onClick={exportCSV} className="px-4 py-2 bg-white text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-50 text-sm font-medium transition-colors">
+              <button onClick={exportCSV} className="px-4 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 text-sm font-medium transition-colors">
                 Export CSV
               </button>
             </div>
@@ -815,12 +815,12 @@ const Support = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <Card className="max-w-lg w-full max-h-[90vh] overflow-y-auto p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold text-green-800">New Support Ticket</h3>
-                <button onClick={() => setShowCreate(false)} className="text-gray-400 hover:text-gray-600 text-2xl transition-colors">×</button>
+                <h3 className="text-xl font-bold text-green-800 dark:text-green-400">New Support Ticket</h3>
+                <button onClick={() => setShowCreate(false)} className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 text-2xl transition-colors">×</button>
               </div>
               <form onSubmit={createTicket} className="space-y-4">
-                <input name="subject" placeholder="Subject" required className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" />
-                <textarea name="message" rows={4} placeholder="Describe the issue…" required className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all" />
+                <input name="subject" placeholder="Subject" required className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-green-500/20 dark:focus:ring-green-400/20 focus:border-green-500 dark:focus:border-green-600 transition-all" />
+                <textarea name="message" rows={4} placeholder="Describe the issue…" required className="w-full px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-green-500/20 dark:focus:ring-green-400/20 focus:border-green-500 dark:focus:border-green-600 transition-all" />
                 <QuickAction type="submit" className="!w-full !text-sm">
                   Submit Ticket
                 </QuickAction>
@@ -834,13 +834,13 @@ const Support = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold text-green-800">Ticket #{showDetail.id}</h3>
-                <button onClick={() => setShowDetail(null)} className="text-gray-400 hover:text-gray-600 text-2xl transition-colors">×</button>
+                <h3 className="text-xl font-bold text-green-800 dark:text-green-400">Ticket #{showDetail.id}</h3>
+                <button onClick={() => setShowDetail(null)} className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 text-2xl transition-colors">×</button>
               </div>
 
               <div className="mb-4">
-                <p className="font-medium text-gray-700">{showDetail.subject}</p>
-                <p className="text-sm text-gray-600">Created: {formatDate(showDetail.created_at)}</p>
+                <p className="font-medium text-gray-700 dark:text-gray-300">{showDetail.subject}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Created: {formatDate(showDetail.created_at)}</p>
                 <span className={`inline-flex mt-2 px-2.5 py-0.5 rounded-full text-xs font-medium border ${STATUS_COLOR[showDetail.status]}`}>
                   {showDetail.status}
                 </span>
@@ -848,10 +848,10 @@ const Support = () => {
 
               <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
                 {showDetail.replies?.map((r, i) => (
-                  <div key={i} className={`p-3 rounded-xl ${r.is_admin ? 'bg-emerald-50 border border-emerald-200' : 'bg-green-50 border border-green-200'}`}>
-                    <p className="text-sm font-medium text-gray-700">{r.is_admin ? 'Admin' : 'Customer'}</p>
-                    <p className="text-sm text-gray-700">{r.message}</p>
-                    <p className="text-xs text-gray-500 mt-1">{formatDate(r.created_at)}</p>
+                  <div key={i} className={`p-3 rounded-xl ${ r.is_admin ? 'bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-900' : 'bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-900'}`}>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{r.is_admin ? 'Admin' : 'Customer'}</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{r.message}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{formatDate(r.created_at)}</p>
                   </div>
                 ))}
               </div>
@@ -864,7 +864,7 @@ const Support = () => {
                     value={replyText}
                     onChange={e => setReplyText(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && sendReply()}
-                    className="flex-1 px-4 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                    className="flex-1 px-4 py-3 border-2 border-green-200 dark:border-green-800 rounded-xl dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-green-500/20 dark:focus:ring-green-400/20 focus:border-green-500 dark:focus:border-green-600 transition-all"
                   />
                   <QuickAction onClick={sendReply} className="!px-4 !py-3 !text-sm">
                     Send
