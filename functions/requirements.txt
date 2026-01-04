@@ -1,8 +1,9 @@
-# Firebase Cloud Functions
-firebase-functions
-firebase-admin
+# Firebase Cloud Functions (Gen 2)
+firebase-functions>=0.5.0
+firebase-admin>=6.0.0
+functions-framework>=3.3.0
 
-# Flask and web framework
+# Flask and web framework (deprecated for Gen 2, but kept for internal routing logic)
 flask==3.0.0
 flask-cors
 
@@ -20,3 +21,4 @@ langdetect>=1.0.9
 
 # Utilities
 python-dotenv
+werkzeug>=3.0.0

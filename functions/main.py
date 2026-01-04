@@ -5500,7 +5500,21 @@ def get_unpaid_bills(current_user):
                     unpaid_bills.append(bill_data)
         
         # Sort bills by date (newest first)
-        unpaid_bills = sorted(unpaid_bills, key=lambda x: x.get('bill_date') or '', reverse=True)
+        # Convert bill_date to ISO string for proper sorting
+        def get_sort_date(bill):
+            bill_date = bill.get('bill_date')
+            if bill_date is None:
+                return ''
+            # If it's a Firestore Timestamp object, convert to ISO string
+            if hasattr(bill_date, 'isoformat'):
+                return bill_date.isoformat()
+            # If it's already a string, return as-is
+            if isinstance(bill_date, str):
+                return bill_date
+            # For any other type, convert to string
+            return str(bill_date)
+        
+        unpaid_bills = sorted(unpaid_bills, key=get_sort_date, reverse=True)
         
         # Sort hotel breakdown by amount (highest first)
         hotel_breakdown_sorted = sorted(
@@ -5518,7 +5532,7 @@ def get_unpaid_bills(current_user):
         }
         
         logger.info(f"[UNPAID_BILLS] Returning {len(unpaid_bills)} unpaid bills from {len(hotel_breakdown)} hotels")
-        return jsonify(response)
+        return jsonify(make_json_safe(response))
         
     except Exception as e:
         logger.error(f"[UNPAID_BILLS] Error fetching unpaid bills: {str(e)}")
@@ -5946,49 +5960,48 @@ def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
 
 # ===================================================================
-# FIREBASE CLOUD FUNCTION ENTRY POINT
+# FIREBASE CLOUD FUNCTION ENTRY POINT - GEN 2
 # ===================================================================
-# For Cloud Functions Gen 2 with Python, we use the on_request decorator
-# with the Flask app directly
+# Single umbrella function for all API endpoints
+# Uses the Flask app internally for routing and business logic
+# CORS is handled by Flask CORS middleware
 @https_fn.on_request()
 def api(req: https_fn.Request) -> https_fn.Response:
-    """Firebase Cloud Function entry point - wraps Flask app"""
-    # Use Flask's test request context to handle the request
-    with app.test_request_context(
-        path=req.path,
-        method=req.method,
-        data=req.get_data() if req.method != 'GET' else None,
-        headers=dict(req.headers),
-        query_string=req.query_string.decode('utf-8') if req.query_string else '',
-        environ_base={
-            'REMOTE_ADDR': req.remote_addr or '0.0.0.0',
-            'REQUEST_METHOD': req.method,
-            'SCRIPT_NAME': '',
-            'PATH_INFO': req.path,
-            'QUERY_STRING': req.query_string.decode('utf-8') if req.query_string else '',
-            'SERVER_NAME': req.host.split(':')[0] if req.host else 'localhost',
-            'SERVER_PORT': req.host.split(':')[1] if ':' in (req.host or '') else '443',
-            'SERVER_PROTOCOL': 'HTTP/1.1',
-            'wsgi.url_scheme': 'https',
-            'wsgi.input': None,
-            'wsgi.errors': None,
-            'wsgi.multithread': True,
-            'wsgi.multiprocess': False,
-            'wsgi.run_once': False,
-        }
-    ):
-        try:
-            # Dispatch the request through Flask
+    """
+    Gen 2 Firebase Cloud Function - Umbrella function for all BVS APIs
+    This single function routes all requests through the Flask app
+    """
+    try:
+        # Create Flask test request context for the incoming request
+        with app.test_request_context(
+            path=req.path,
+            method=req.method,
+            data=req.get_data() if req.method != 'GET' else None,
+            headers=dict(req.headers),
+            query_string=req.query_string.decode('utf-8') if req.query_string else '',
+            environ_base={
+                'REMOTE_ADDR': req.remote_addr or '0.0.0.0',
+                'REQUEST_METHOD': req.method,
+                'SCRIPT_NAME': '',
+                'PATH_INFO': req.path,
+                'QUERY_STRING': req.query_string.decode('utf-8') if req.query_string else '',
+                'SERVER_NAME': req.host.split(':')[0] if req.host else 'localhost',
+                'SERVER_PORT': req.host.split(':')[1] if ':' in (req.host or '') else '443',
+                'SERVER_PROTOCOL': 'HTTP/1.1',
+                'wsgi.url_scheme': 'https',
+                'wsgi.input': None,
+                'wsgi.errors': None,
+                'wsgi.multithread': True,
+                'wsgi.multiprocess': False,
+                'wsgi.run_once': False,
+            }
+        ):
+            # Dispatch request through Flask app (handles all routes internally)
             response = app.full_dispatch_request()
             
             # Convert Flask response to Firebase Response
-            # The response from Flask can be:
-            # 1. A Response object (from jsonify)
-            # 2. A tuple (data, status_code)
-            # 3. A tuple (data, status_code, headers)
-            
             if isinstance(response, tuple):
-                # Handle tuple responses
+                # Handle tuple responses (data, status) or (data, status, headers)
                 if len(response) == 2:
                     data, status = response
                     headers = {}
@@ -5999,7 +6012,7 @@ def api(req: https_fn.Request) -> https_fn.Response:
                     status = 200
                     headers = {}
                 
-                # Convert data to string if needed
+                # Ensure data is a string
                 if isinstance(data, dict):
                     data = json.dumps(data)
                 elif not isinstance(data, str):
@@ -6007,25 +6020,30 @@ def api(req: https_fn.Request) -> https_fn.Response:
                 
                 return https_fn.Response(data, status=status, headers=headers, mimetype='application/json')
             else:
-                # It's a Response object from Flask
-                # Extract data from the response
+                # Handle Flask Response object
                 try:
                     data = response.get_data(as_text=True)
                     status = response.status_code
                     headers = dict(response.headers)
                     return https_fn.Response(data, status=status, headers=headers, mimetype='application/json')
-                except:
-                    # Fallback for any unexpected response type
+                except Exception as resp_err:
+                    logger.warning(f"Response conversion error: {str(resp_err)}")
                     return https_fn.Response(str(response), status=200, mimetype='application/json')
                     
-        except Exception as e:
-            logger.error(f"Unhandled error in API: {str(e)}")
-            import traceback
-            logger.error(f"Traceback: {traceback.format_exc()}")
-            return https_fn.Response(
-                json.dumps({"error": "Internal server error", "detail": str(e)}), 
-                status=500,
-                mimetype='application/json'
-            )
+    except Exception as e:
+        logger.error(f"Unhandled error in umbrella function: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        return https_fn.Response(
+            json.dumps({"error": "Internal server error", "detail": str(e)}), 
+            status=500,
+            mimetype='application/json'
+        )
 
 
+# ===================================================================
+# LOCAL DEVELOPMENT ENTRY POINT
+# ===================================================================
+if __name__ == '__main__':
+    # This only runs locally, NOT on Cloud Functions
+    port = int(os.getenv('PORT', 8081))
+    app.run(host='127.0.0.1', port=port, debug=False)
